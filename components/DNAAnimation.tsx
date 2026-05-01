@@ -138,7 +138,7 @@ export default function DNAAnimation() {
           <svg
             width={SVG_WIDTH}
             height={SEGMENT_H * 2}
-            style={{ animation: `scrollDNA ${RUNG_COUNT * 0.703}s linear infinite` }}
+            style={{ animation: `scrollDNA ${RUNG_COUNT * 0.844}s linear infinite` }}
           >
             <defs>
               <filter id="glow">
