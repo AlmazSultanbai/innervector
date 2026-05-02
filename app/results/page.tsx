@@ -27,7 +27,6 @@ function ResultsContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [personName, setPersonName] = useState('');
   const strengthsRef = useRef<string[]>([]);
   const nameRef = useRef('');
   const initializedRef = useRef(false);
@@ -64,7 +63,6 @@ function ResultsContent() {
     setStrengths(list);
     const fullName = searchParams.get('name') ?? '';
     nameRef.current = fullName;
-    setPersonName(fullName);
     const activeLang = urlLang === 'ru' ? 'ru' : 'en';
     setLang(activeLang);
     analyze(list, activeLang, fullName);

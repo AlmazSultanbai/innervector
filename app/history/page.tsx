@@ -167,7 +167,8 @@ async function downloadPDF(analysis: Analysis) {
   }
 
   // Footer
-  const totalPages = (doc as jsPDF & { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const totalPages = (doc as any).internal.getNumberOfPages() as number;
   for (let p = 1; p <= totalPages; p++) {
     doc.setPage(p);
     doc.setFont('helvetica', 'normal');
