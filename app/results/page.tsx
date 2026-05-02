@@ -1,0 +1,296 @@
+'use client';
+
+import { useEffect, useState, useCallback, useRef, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { AnalysisResult, Domain } from '@/lib/types';
+import { getDomainForStrength, DOMAIN_BADGE_COLORS } from '@/lib/strengths';
+import { useLang } from '@/lib/LanguageContext';
+import { Lang } from '@/lib/i18n';
+import StrengthCard from '@/components/StrengthCard';
+import FamousPersonCard from '@/components/FamousPersonCard';
+import CareerCard from '@/components/CareerCard';
+import LangToggle from '@/components/LangToggle';
+
+const DOMAIN_ICONS: Record<Domain, string> = {
+  Executing: '⚡',
+  Influencing: '🔥',
+  'Relationship Building': '🌿',
+  'Strategic Thinking': '💡',
+};
+
+function ResultsContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { lang, setLang, t } = useLang();
+  const [strengths, setStrengths] = useState<string[]>([]);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const strengthsRef = useRef<string[]>([]);
+  const initializedRef = useRef(false);
+
+  const analyze = useCallback(async (strengthList: string[], language: Lang) => {
+    setLoading(true);
+    setError(null);
+    setResult(null);
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ strengths: strengthList, lang: language }),
+      });
+      if (!res.ok) throw new Error('Analysis failed');
+      const data: AnalysisResult = await res.json();
+      setResult(data);
+    } catch (e) {
+      setError(t.errorMessage);
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }, [t.errorMessage]);
+
+  // Initial load — read strengths + lang from URL
+  useEffect(() => {
+    const s = searchParams.get('s');
+    const urlLang = searchParams.get('lang') as Lang | null;
+    if (!s) { router.replace('/'); return; }
+    const list = s.split(',').map((x) => x.trim()).filter(Boolean);
+    if (list.length < 5 || list.length > 10) { router.replace('/'); return; }
+    strengthsRef.current = list;
+    setStrengths(list);
+    const activeLang = urlLang === 'ru' ? 'ru' : 'en';
+    setLang(activeLang);
+    analyze(list, activeLang);
+    initializedRef.current = true;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Re-analyze whenever language is toggled after initial load
+  useEffect(() => {
+    if (!initializedRef.current) return;
+    if (!strengthsRef.current.length) return;
+    analyze(strengthsRef.current, lang);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang]);
+
+  const handleShare = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  const domainBadge = result ? DOMAIN_BADGE_COLORS[result.dominantDomain] : null;
+
+  return (
+    <div className="min-h-screen bg-radial">
+      {/* Header nav */}
+      <header className="sticky top-0 z-10 border-b border-white/5 bg-navy-900/80 backdrop-blur-xl">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+          <button
+            onClick={() => router.push('/')}
+            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            {t.newAnalysis}
+          </button>
+          <div className="flex items-center gap-3">
+            <LangToggle />
+            <div className="text-gold text-xs font-medium tracking-widest uppercase hidden sm:block">
+              {t.badge}
+            </div>
+          </div>
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/8 transition-all text-sm"
+          >
+            {copied ? (
+              <>
+                <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-emerald-400">{t.copied}</span>
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+                {t.share}
+              </>
+            )}
+          </button>
+        </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto px-4 py-10 pb-20">
+        {/* Loading */}
+        {loading && (
+          <div className="flex flex-col items-center justify-center py-32 gap-6 animate-fade-in">
+            <div className="spinner" />
+            <div className="text-center">
+              <p className="text-white font-serif text-2xl mb-2">{t.analyzingTitle}</p>
+              <p className="text-slate-500 text-sm">{t.analyzingSubtitle}</p>
+            </div>
+            <div className="flex gap-2 mt-2 flex-wrap justify-center">
+              {strengths.map((s, i) => (
+                <span key={s} className={`text-xs px-2.5 py-1 rounded-full bg-white/5 text-slate-400 animate-slide-in delay-${i * 100}`}>{s}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Error */}
+        {error && !loading && (
+          <div className="flex flex-col items-center justify-center py-32 gap-4 animate-fade-in">
+            <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-2xl">!</div>
+            <p className="text-white font-serif text-xl text-center px-4">{error}</p>
+            <button
+              onClick={() => analyze(strengths, lang)}
+              className="px-6 py-2.5 rounded-xl bg-gold text-navy-900 font-semibold hover:bg-gold-light transition-colors text-sm"
+            >
+              {t.tryAgain}
+            </button>
+          </div>
+        )}
+
+        {/* Results */}
+        {result && !loading && (
+          <div className="space-y-12 animate-fade-in">
+
+            {/* Hero */}
+            <div className="text-center py-4">
+              {domainBadge && (
+                <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase mb-6 ${domainBadge}`}>
+                  <span>{DOMAIN_ICONS[result.dominantDomain]}</span>
+                  {result.dominantDomain} {t.dominantSuffix}
+                </div>
+              )}
+              <blockquote className="font-serif text-2xl md:text-3xl text-white leading-relaxed max-w-3xl mx-auto mb-4">
+                &ldquo;{result.talentDNA}&rdquo;
+              </blockquote>
+              <p className="text-slate-400 text-sm max-w-xl mx-auto">{result.domainReason}</p>
+            </div>
+
+            {/* Top strengths */}
+            <section>
+              <h2 className="font-serif text-xl text-white mb-4 flex items-center gap-3">
+                <span className="w-6 h-px bg-gold/40" />
+                {t.top5Title}
+                <span className="text-slate-600 text-sm font-sans font-normal">({strengths.length})</span>
+                <span className="flex-1 h-px bg-white/5" />
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {strengths.map((s, i) => {
+                  const domain = getDomainForStrength(s);
+                  if (!domain) return null;
+                  return <StrengthCard key={s} name={s} domain={domain} rank={i + 1} animDelay={Math.min(i * 80, 600)} />;
+                })}
+              </div>
+            </section>
+
+            {/* Superpower + Interaction */}
+            <section className="grid md:grid-cols-2 gap-5">
+              <div className="card p-6 glow-gold animate-slide-in delay-0 border border-gold/20 bg-gold/5">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-6 h-6 rounded-full bg-gold/20 border border-gold/30 flex items-center justify-center text-gold text-xs">✦</div>
+                  <span className="text-gold text-xs font-semibold tracking-widest uppercase">{t.superpowerLabel}</span>
+                </div>
+                <p className="font-serif text-lg text-white leading-relaxed">{result.superpower}</p>
+              </div>
+              <div className="card p-6 animate-slide-in delay-100">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 text-xs">◎</div>
+                  <span className="text-slate-400 text-xs font-semibold tracking-widest uppercase">{t.interactionLabel}</span>
+                </div>
+                <p className="text-slate-300 text-sm leading-relaxed">{result.strengthsInteraction}</p>
+              </div>
+            </section>
+
+            {/* Blind Spots */}
+            <section className="animate-slide-in delay-200">
+              <h2 className="font-serif text-xl text-white mb-4 flex items-center gap-3">
+                <span className="w-6 h-px bg-gold/40" />
+                {t.blindSpotsTitle}
+                <span className="flex-1 h-px bg-white/5" />
+              </h2>
+              <div className="grid sm:grid-cols-3 gap-3">
+                {result.blindSpots.map((spot, i) => (
+                  <div key={i} className={`card p-4 animate-slide-in delay-${i * 100}`}>
+                    <div className="flex items-start gap-3">
+                      <div className="w-5 h-5 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xs flex-shrink-0 mt-0.5">{i + 1}</div>
+                      <p className="text-slate-300 text-sm leading-relaxed">{spot}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Famous People */}
+            <section>
+              <h2 className="font-serif text-xl text-white mb-4 flex items-center gap-3">
+                <span className="w-6 h-px bg-gold/40" />
+                {t.famousTitle}
+                <span className="flex-1 h-px bg-white/5" />
+              </h2>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {result.famousPeople.map((person, i) => (
+                  <FamousPersonCard key={person.name} person={person} animDelay={i * 100} />
+                ))}
+              </div>
+            </section>
+
+            {/* Careers */}
+            <section>
+              <h2 className="font-serif text-xl text-white mb-4 flex items-center gap-3">
+                <span className="w-6 h-px bg-gold/40" />
+                {t.careersTitle}
+                <span className="flex-1 h-px bg-white/5" />
+              </h2>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {result.careers.map((career, i) => (
+                  <CareerCard key={career.title} career={career} rank={i + 1} animDelay={i * 100} />
+                ))}
+              </div>
+            </section>
+
+            {/* Bottom CTA */}
+            <div className="text-center pt-4">
+              <button
+                onClick={() => router.push('/')}
+                className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/8 transition-all text-sm font-medium"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {t.analyzeAnother}
+              </button>
+            </div>
+
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
+
+export default function ResultsPage() {
+  const { t } = useLang();
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-radial flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="spinner" />
+          <p className="text-slate-400 text-sm">{t.loading}</p>
+        </div>
+      </div>
+    }>
+      <ResultsContent />
+    </Suspense>
+  );
+}

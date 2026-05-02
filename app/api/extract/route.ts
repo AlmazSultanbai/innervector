@@ -1,0 +1,108 @@
+import Anthropic from '@anthropic-ai/sdk';
+import { NextRequest, NextResponse } from 'next/server';
+import { STRENGTH_NAMES } from '@/lib/strengths';
+
+const client = new Anthropic();
+
+export const maxDuration = 30;
+
+export async function POST(req: NextRequest) {
+  try {
+    const formData = await req.formData();
+    const file = formData.get('file') as File | null;
+
+    if (!file) {
+      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    }
+
+    const allowedTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      return NextResponse.json(
+        { error: 'Unsupported file type. Please upload a PDF or image (PNG, JPG, WebP).' },
+        { status: 400 }
+      );
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File too large. Maximum size is 10 MB.' }, { status: 400 });
+    }
+
+    const bytes = await file.arrayBuffer();
+    const base64 = Buffer.from(bytes).toString('base64');
+
+    const validStrengths = STRENGTH_NAMES.join(', ');
+
+    const extractPrompt = `This is a Gallup CliftonStrengths (StrengthsFinder) assessment report.
+
+TASK: Extract the TOP 10 CliftonStrengths themes from this document, strictly in rank order from #1 (strongest) to #10.
+
+The 34 valid CliftonStrengths theme names are:
+${validStrengths}
+
+Rules:
+- Return EXACTLY the first 10 in ranked order (#1 through #10)
+- If the report shows fewer than 10 (e.g. only top 5), return however many are visible, preserving their rank order
+- Use EXACT spelling from the list above (e.g. "Self-Assurance" not "Self Assurance")
+- Do NOT invent, guess, or add any themes not clearly visible in the document
+- The order matters — rank #1 must be first in the array
+
+Respond ONLY with a valid JSON object, no markdown fences:
+{
+  "strengths": ["Rank1Strength", "Rank2Strength", ..., "Rank10Strength"],
+  "count": <number of strengths found>
+}`;
+
+    let messageContent: Anthropic.MessageParam['content'];
+
+    if (file.type === 'application/pdf') {
+      messageContent = [
+        {
+          type: 'document',
+          source: { type: 'base64', media_type: 'application/pdf', data: base64 },
+        } as Anthropic.DocumentBlockParam,
+        { type: 'text', text: extractPrompt },
+      ];
+    } else {
+      const imageMediaType = file.type as 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+      messageContent = [
+        {
+          type: 'image',
+          source: { type: 'base64', media_type: imageMediaType, data: base64 },
+        } as Anthropic.ImageBlockParam,
+        { type: 'text', text: extractPrompt },
+      ];
+    }
+
+    const message = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 256,
+      system: 'You are a precise document parser. Extract CliftonStrengths theme names from Gallup reports in strict rank order. Respond with valid JSON only — no markdown, no explanation.',
+      messages: [{ role: 'user', content: messageContent }],
+    });
+
+    const content = message.content[0];
+    if (content.type !== 'text') {
+      return NextResponse.json({ error: 'Unexpected response from AI' }, { status: 500 });
+    }
+
+    const cleaned = content.text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
+    const parsed = JSON.parse(cleaned);
+    const extracted: string[] = parsed.strengths ?? [];
+
+    // Validate — keep only recognised names, preserve order
+    const valid = extracted.filter((s) => STRENGTH_NAMES.includes(s));
+
+    if (valid.length < 5) {
+      return NextResponse.json(
+        { error: `Only found ${valid.length} recognisable strength(s). Please upload a clearer Gallup report image or PDF.` },
+        { status: 422 }
+      );
+    }
+
+    // Always return up to 10, in the ranked order extracted
+    return NextResponse.json({ strengths: valid.slice(0, 10) });
+  } catch (err) {
+    console.error('Extract error:', err);
+    return NextResponse.json({ error: 'Failed to read the file. Please try again.' }, { status: 500 });
+  }
+}

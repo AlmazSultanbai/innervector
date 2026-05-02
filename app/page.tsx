@@ -1,100 +1,367 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { STRENGTHS, DOMAIN_COLORS, getDomainForStrength } from '@/lib/strengths';
+import { Domain } from '@/lib/types';
+import { useLang } from '@/lib/LanguageContext';
+import LangToggle from '@/components/LangToggle';
+import UploadZone from '@/components/UploadZone';
+import DNAAnimation from '@/components/DNAAnimation';
+import LoginModal, { useAuth } from '@/components/LoginModal';
+
+const MAX = 10;
+
+const DOMAIN_ORDER: Domain[] = ['Executing', 'Influencing', 'Relationship Building', 'Strategic Thinking'];
+
+const DOMAIN_LABELS_EN: Record<Domain, string> = {
+  Executing: 'Executing',
+  Influencing: 'Influencing',
+  'Relationship Building': 'Relationship Building',
+  'Strategic Thinking': 'Strategic Thinking',
+};
+
+const DOMAIN_LABELS_RU: Record<Domain, string> = {
+  Executing: 'Исполнение',
+  Influencing: 'Влияние',
+  'Relationship Building': 'Выстраивание отношений',
+  'Strategic Thinking': 'Стратегическое мышление',
+};
+
+type InputMode = 'upload' | 'manual';
+
+export default function HomePage() {
+  const router = useRouter();
+  const { lang, t } = useLang();
+  const { authed, login } = useAuth();
+  const [showLogin, setShowLogin] = useState(false);
+  const [mode, setMode] = useState<InputMode>('upload');
+  const [selected, setSelected] = useState<string[]>([]);
+  const [search, setSearch] = useState('');
+  // Index of currently glowing chip (-1 = none)
+  const [glowIndex, setGlowIndex] = useState(-1);
+  const glowIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const domainLabels = lang === 'ru' ? DOMAIN_LABELS_RU : DOMAIN_LABELS_EN;
+
+  const toggle = useCallback((name: string) => {
+    setSelected((prev) => {
+      if (prev.includes(name)) return prev.filter((s) => s !== name);
+      if (prev.length >= MAX) return prev;
+      return [...prev, name];
+    });
+  }, []);
+
+  const handleExtracted = useCallback((strengths: string[]) => {
+    setSelected(strengths.slice(0, MAX));
+    setMode('manual');
+  }, []);
+
+  const goToResults = () => {
+    const params = new URLSearchParams({ s: selected.join(','), lang });
+    router.push(`/results?${params.toString()}`);
+  };
+
+  const handleAnalyze = () => {
+    stopGlow();
+    if (selected.length < 5) return;
+    if (authed) {
+      goToResults();
+    } else {
+      setShowLogin(true);
+    }
+  };
+
+  // Sequential glow animation when hovering the CTA button
+  const startGlow = useCallback(() => {
+    if (selected.length < 5) return;
+    let idx = 0;
+    setGlowIndex(0);
+    glowIntervalRef.current = setInterval(() => {
+      idx = (idx + 1) % selected.length;
+      setGlowIndex(idx);
+    }, 180);
+  }, [selected]);
+
+  const stopGlow = useCallback(() => {
+    if (glowIntervalRef.current) {
+      clearInterval(glowIntervalRef.current);
+      glowIntervalRef.current = null;
+    }
+    setGlowIndex(-1);
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => () => stopGlow(), [stopGlow]);
+
+  const filtered = STRENGTHS.filter((s) =>
+    s.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const groupedByDomain = DOMAIN_ORDER.reduce<Record<Domain, typeof STRENGTHS>>((acc, domain) => {
+    acc[domain] = filtered.filter((s) => s.domain === domain);
+    return acc;
+  }, {} as Record<Domain, typeof STRENGTHS>);
+
+  const getDomainPillClass = (name: string) => {
+    const domain = getDomainForStrength(name);
+    if (!domain || !selected.includes(name)) return '';
+    const map: Record<Domain, string> = {
+      Executing: 'selected-executing',
+      Influencing: 'selected-influencing',
+      'Relationship Building': 'selected-relationship',
+      'Strategic Thinking': 'selected-strategic',
+    };
+    return map[domain];
+  };
+
+  const ready = selected.length >= 5;
+
+  // Wait for sessionStorage to be read before rendering (prevents SSR flash)
+  if (authed === null) return (
+    <div className="min-h-screen bg-radial" />
+  );
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
+    <div className="min-h-screen bg-radial flex flex-col">
+      {showLogin && (
+        <LoginModal
+          onSuccess={() => { login(); setShowLogin(false); goToResults(); }}
+          onClose={() => setShowLogin(false)}
         />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+      )}
+      {/* Top bar */}
+      <div className="flex justify-end px-6 pt-5">
+        <LangToggle />
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      {/* Hero: DNA left + text right */}
+      <header className="pt-8 pb-8 px-4">
+        <div className="max-w-4xl mx-auto flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+
+          {/* DNA Animation */}
+          <div className="flex-shrink-0 animate-fade-in">
+            <DNAAnimation />
+          </div>
+
+          {/* Text */}
+          <div className="flex-1 text-center lg:text-left animate-slide-in delay-100">
+            <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-xs font-medium tracking-widest uppercase">
+              <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse-gold" />
+              {t.badge}
+            </div>
+            <h1 className="font-serif text-5xl md:text-6xl font-bold text-white mb-4 leading-tight">
+              {t.heroTitle1}<br />
+              <span className="text-gold-light italic">{t.heroTitle2}</span>
+            </h1>
+            <p className="text-slate-400 text-lg max-w-lg lg:max-w-none leading-relaxed mb-6">
+              {t.heroSubtitle}
+            </p>
+            {/* Gallup quote */}
+            <p className="text-slate-600 text-sm italic border-l-2 border-gold/30 pl-3 max-w-md">
+              &ldquo;You cannot be anything you want to be — but you can be a lot more of who you already are.&rdquo;
+              <span className="block mt-1 not-italic text-gold/50 text-xs">— Tom Rath, StrengthsFinder 2.0</span>
+            </p>
+          </div>
+
+        </div>
+      </header>
+
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 pb-20">
+
+        {/* Mode tabs */}
+        <div className="flex gap-2 mb-6 p-1 rounded-xl bg-white/4 border border-white/8 w-fit mx-auto">
+          <button
+            onClick={() => setMode('upload')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+              mode === 'upload'
+                ? 'bg-gold/15 text-gold border border-gold/25 shadow-sm'
+                : 'text-slate-500 hover:text-slate-300'
+            }`}
           >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+            </svg>
+            {t.uploadTitle}
+          </button>
+          <button
+            onClick={() => setMode('manual')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+              mode === 'manual'
+                ? 'bg-white/8 text-white border border-white/15'
+                : 'text-slate-500 hover:text-slate-300'
+            }`}
           >
-            Read our docs
-          </a>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+            </svg>
+            {t.uploadManualTitle}
+          </button>
+        </div>
+
+        {/* Upload mode */}
+        {mode === 'upload' && (
+          <div className="space-y-4 animate-fade-in">
+            <p className="text-center text-slate-500 text-sm mb-4">{t.uploadSubtitle}</p>
+            <UploadZone onExtracted={handleExtracted} />
+          </div>
+        )}
+
+        {/* Manual mode */}
+        {mode === 'manual' && (
+          <div className="animate-fade-in">
+
+            {/* Counter + progress bar */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-slate-400 text-sm">{t.selectCount(selected.length)}</span>
+                {selected.length > 0 && (
+                  <button onClick={() => setSelected([])} className="text-slate-500 hover:text-slate-300 text-xs transition-colors">
+                    {t.clearAll}
+                  </button>
+                )}
+              </div>
+              {/* Rank dots */}
+              <div className="flex gap-1.5">
+                {Array.from({ length: MAX }).map((_, i) => {
+                  const s = selected[i];
+                  const domain = s ? getDomainForStrength(s) : null;
+                  const colors = domain ? DOMAIN_COLORS[domain] : null;
+                  const isGlowing = glowIndex === i;
+                  return (
+                    <div
+                      key={i}
+                      title={s ?? ''}
+                      className={`flex-1 h-2 rounded-full transition-all duration-150 ${
+                        s
+                          ? `${colors?.bg} border ${colors?.border} ${isGlowing ? `${colors?.glow} shadow-lg scale-y-150` : ''}`
+                          : 'bg-white/5 border border-white/8'
+                      }`}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Selected chips */}
+            {selected.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-6 p-4 rounded-xl bg-white/3 border border-white/8">
+                {selected.map((s, i) => {
+                  const domain = getDomainForStrength(s)!;
+                  const colors = DOMAIN_COLORS[domain];
+                  const isGlowing = glowIndex === i;
+                  return (
+                    <button
+                      key={s}
+                      onClick={() => toggle(s)}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ${colors.bg} ${colors.text} ${colors.border} hover:opacity-80 ${
+                        isGlowing ? `${colors.glow} shadow-lg scale-105` : ''
+                      }`}
+                    >
+                      <span className={`text-xs font-bold ${isGlowing ? 'opacity-100' : 'opacity-50'}`}>{i + 1}</span>
+                      {s}
+                      <span className="opacity-40 text-base leading-none">×</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Search */}
+            <div className="relative mb-6">
+              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                placeholder={t.searchPlaceholder}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-gold/40 transition-all text-sm"
+              />
+            </div>
+
+            {/* Strengths grid */}
+            <div className="space-y-6">
+              {DOMAIN_ORDER.map((domain) => {
+                const items = groupedByDomain[domain];
+                if (!items.length) return null;
+                const colors = DOMAIN_COLORS[domain];
+                return (
+                  <div key={domain}>
+                    <div className={`inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold tracking-wide ${colors.bg} ${colors.text} border ${colors.border}`}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                      {domainLabels[domain]}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {items.map((s) => {
+                        const rank = selected.indexOf(s.name);
+                        const isSelected = rank !== -1;
+                        const isGlowing = glowIndex === rank && isSelected;
+                        return (
+                          <button
+                            key={s.name}
+                            onClick={() => toggle(s.name)}
+                            disabled={!isSelected && selected.length >= MAX}
+                            className={`strength-pill ${getDomainPillClass(s.name)} ${
+                              !isSelected && selected.length >= MAX ? 'opacity-30 cursor-not-allowed' : ''
+                            } ${isGlowing ? 'scale-105' : ''} transition-transform duration-150`}
+                          >
+                            {isSelected && (
+                              <span className={`inline-flex items-center justify-center w-4 h-4 rounded-full text-xs font-bold transition-all ${
+                                isGlowing ? 'bg-current opacity-40' : 'bg-current opacity-20'
+                              }`}>
+                                {rank + 1}
+                              </span>
+                            )}
+                            {s.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* CTA */}
+        <div className="mt-10 text-center">
+          <button
+            onClick={handleAnalyze}
+            onMouseEnter={startGlow}
+            onMouseLeave={stopGlow}
+            disabled={!ready}
+            className={`relative inline-flex items-center gap-3 px-10 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 ${
+              ready
+                ? 'bg-gold text-navy-900 hover:bg-gold-light shadow-lg glow-gold cursor-pointer'
+                : 'bg-white/5 text-slate-600 cursor-not-allowed border border-white/10'
+            }`}
+          >
+            <span>
+              {ready
+                ? t.revealBtn
+                : mode === 'upload' && selected.length === 0
+                  ? t.uploadDrop
+                  : t.selectMore(5 - selected.length)}
+            </span>
+            {ready && (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            )}
+          </button>
+          {ready && (
+            <p className="mt-3 text-slate-500 text-sm">{t.poweredBy}</p>
+          )}
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      <footer className="text-center py-6 text-slate-600 text-xs border-t border-white/5">
+        {t.footer}
       </footer>
     </div>
   );
