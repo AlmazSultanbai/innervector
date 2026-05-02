@@ -54,8 +54,13 @@ export default function HomePage() {
     });
   }, []);
 
-  const handleExtracted = useCallback((strengths: string[]) => {
+  const handleExtracted = useCallback((strengths: string[], fullName?: string) => {
     setSelected(strengths.slice(0, MAX));
+    if (fullName?.trim()) {
+      const parts = fullName.trim().split(/\s+/);
+      setFirstName(parts[0] ?? '');
+      setLastName(parts.slice(1).join(' ') ?? '');
+    }
     setMode('manual');
   }, []);
 

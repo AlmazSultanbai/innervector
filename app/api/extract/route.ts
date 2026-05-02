@@ -34,7 +34,9 @@ export async function POST(req: NextRequest) {
 
     const extractPrompt = `This is a Gallup CliftonStrengths (StrengthsFinder) assessment report.
 
-TASK: Extract the TOP 10 CliftonStrengths themes from this document, strictly in rank order from #1 (strongest) to #10.
+TASK: Extract the following from this document:
+1. The full name of the person this report belongs to (usually shown at the top of the report)
+2. The TOP 10 CliftonStrengths themes, strictly in rank order from #1 (strongest) to #10
 
 The 34 valid CliftonStrengths theme names are:
 ${validStrengths}
@@ -45,9 +47,11 @@ Rules:
 - Use EXACT spelling from the list above (e.g. "Self-Assurance" not "Self Assurance")
 - Do NOT invent, guess, or add any themes not clearly visible in the document
 - The order matters — rank #1 must be first in the array
+- For "full_name": extract the person's name exactly as written. If no name is visible, return ""
 
 Respond ONLY with a valid JSON object, no markdown fences:
 {
+  "full_name": "First Last",
   "strengths": ["Rank1Strength", "Rank2Strength", ..., "Rank10Strength"],
   "count": <number of strengths found>
 }`;
@@ -88,6 +92,7 @@ Respond ONLY with a valid JSON object, no markdown fences:
     const cleaned = content.text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
     const parsed = JSON.parse(cleaned);
     const extracted: string[] = parsed.strengths ?? [];
+    const fullName: string = parsed.full_name ?? '';
 
     // Validate — keep only recognised names, preserve order
     const valid = extracted.filter((s) => STRENGTH_NAMES.includes(s));
@@ -100,7 +105,7 @@ Respond ONLY with a valid JSON object, no markdown fences:
     }
 
     // Always return up to 10, in the ranked order extracted
-    return NextResponse.json({ strengths: valid.slice(0, 10) });
+    return NextResponse.json({ strengths: valid.slice(0, 10), full_name: fullName });
   } catch (err) {
     console.error('Extract error:', err);
     return NextResponse.json({ error: 'Failed to read the file. Please try again.' }, { status: 500 });
