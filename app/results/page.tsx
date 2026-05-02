@@ -27,6 +27,7 @@ function ResultsContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
   const strengthsRef = useRef<string[]>([]);
   const nameRef = useRef('');
   const initializedRef = useRef(false);
@@ -78,6 +79,150 @@ function ResultsContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang]);
 
+  const handleDownloadPDF = async () => {
+    if (!result) return;
+    setPdfLoading(true);
+    try {
+      const { default: jsPDF } = await import('jspdf');
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageW = 210;
+      const margin = 18;
+      const contentW = pageW - margin * 2;
+      let y = 20;
+
+      // Header
+      doc.setFillColor(13, 17, 30);
+      doc.rect(0, 0, pageW, 42, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.setTextColor(212, 168, 67);
+      doc.text('CliftonStrengths', margin, 17);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(148, 163, 184);
+      doc.text('Gallup CliftonStrengths® Analysis Report', margin, 25);
+      const displayName = nameRef.current?.trim() || 'Anonymous';
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.setTextColor(255, 255, 255);
+      doc.text(displayName, margin, 36);
+      const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text(dateStr, pageW - margin, 36, { align: 'right' });
+      y = 54;
+
+      // Dominant domain
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(212, 168, 67);
+      doc.text(`DOMINANT DOMAIN: ${result.dominantDomain.toUpperCase()}`, margin, y);
+      y += 10;
+
+      // Talent DNA
+      const addSection = (label: string, text: string) => {
+        if (y > 265) { doc.addPage(); y = 20; }
+        doc.setFillColor(245, 247, 250);
+        doc.roundedRect(margin, y - 4, contentW, 6, 1, 1, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(100, 116, 139);
+        doc.text(label, margin + 3, y);
+        y += 5;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(30, 41, 59);
+        const lines = doc.splitTextToSize(text, contentW - 2);
+        if (y + lines.length * 5 > 272) { doc.addPage(); y = 20; }
+        doc.text(lines, margin + 2, y);
+        y += lines.length * 5 + 8;
+      };
+
+      addSection('TALENT DNA', result.talentDNA);
+      addSection('SUPERPOWER', result.superpower);
+      addSection('HOW STRENGTHS INTERACT', result.strengthsInteraction);
+      addSection('DOMAIN REASON', result.domainReason);
+
+      // Strengths
+      if (y > 240) { doc.addPage(); y = 20; }
+      doc.setFillColor(245, 247, 250);
+      doc.roundedRect(margin, y - 4, contentW, 6, 1, 1, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text('TOP STRENGTHS', margin + 3, y);
+      y += 6;
+      const cols = 2;
+      const colW = contentW / cols;
+      strengths.forEach((s, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const x = margin + col * colW;
+        const rowY = y + row * 8;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(100, 116, 139);
+        doc.text(`${i + 1}.`, x + 2, rowY);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(30, 41, 59);
+        doc.text(s, x + 8, rowY);
+      });
+      y += Math.ceil(strengths.length / cols) * 8 + 10;
+
+      // Blind spots
+      if (result.blindSpots?.length) {
+        if (y > 250) { doc.addPage(); y = 20; }
+        doc.setFillColor(245, 247, 250);
+        doc.roundedRect(margin, y - 4, contentW, 6, 1, 1, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(100, 116, 139);
+        doc.text('BLIND SPOTS', margin + 3, y);
+        y += 5;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(30, 41, 59);
+        for (const bs of result.blindSpots) {
+          const lines = doc.splitTextToSize(`• ${bs}`, contentW - 4);
+          if (y + lines.length * 5 > 272) { doc.addPage(); y = 20; }
+          doc.text(lines, margin + 2, y);
+          y += lines.length * 5 + 2;
+        }
+        y += 6;
+      }
+
+      // Famous people
+      if (result.famousPeople?.length) {
+        const names = result.famousPeople.map(p => `${p.name} (${p.field})`).join(', ');
+        addSection('SIMILAR PROFILES', names);
+      }
+
+      // Careers
+      if (result.careers?.length) {
+        const careers = result.careers.map(c => c.title).join(', ');
+        addSection('BEST CAREER PATHS', careers);
+      }
+
+      // Footer
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const totalPages = (doc as any).internal.getNumberOfPages() as number;
+      for (let p = 1; p <= totalPages; p++) {
+        doc.setPage(p);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
+        doc.setTextColor(148, 163, 184);
+        doc.text('Generated by MindVector · Gallup CliftonStrengths®', margin, 292);
+        doc.text(`${p} / ${totalPages}`, pageW - margin, 292, { align: 'right' });
+      }
+
+      const safeName = displayName.replace(/\s+/g, '_');
+      doc.save(`CliftonStrengths_${safeName}.pdf`);
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
   const handleShare = () => {
     const url = window.location.href;
     navigator.clipboard.writeText(url).then(() => {
@@ -108,6 +253,22 @@ function ResultsContent() {
               {t.badge}
             </div>
           </div>
+          {result && (
+            <button
+              onClick={handleDownloadPDF}
+              disabled={pdfLoading}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gold/10 border border-gold/20 text-gold hover:bg-gold/20 transition-all text-sm disabled:opacity-50"
+            >
+              {pdfLoading ? (
+                <span className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+              ) : (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              )}
+              PDF
+            </button>
+          )}
           <button
             onClick={handleShare}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/8 transition-all text-sm"
