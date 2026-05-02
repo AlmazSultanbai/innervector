@@ -177,7 +177,7 @@ export default function DNAAnimation() {
                     ? { left: 2, textAlign: 'left' }
                     : { right: 2, textAlign: 'right' }),
                   letterSpacing: '0.08em',
-                  opacity: 0.28,
+                  opacity: 0.48,
                   whiteSpace: 'nowrap',
                   animation: `floatName ${RUNG_COUNT * NAMES_SPEED}s ${delay}s linear infinite`,
                 }}
