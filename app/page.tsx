@@ -38,6 +38,8 @@ export default function HomePage() {
   const [mode, setMode] = useState<InputMode>('upload');
   const [selected, setSelected] = useState<string[]>([]);
   const [search, setSearch] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   // Index of currently glowing chip (-1 = none)
   const [glowIndex, setGlowIndex] = useState(-1);
   const glowIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -58,7 +60,8 @@ export default function HomePage() {
   }, []);
 
   const goToResults = () => {
-    const params = new URLSearchParams({ s: selected.join(','), lang });
+    const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+    const params = new URLSearchParams({ s: selected.join(','), lang, name: fullName });
     router.push(`/results?${params.toString()}`);
   };
 
@@ -131,7 +134,18 @@ export default function HomePage() {
         />
       )}
       {/* Top bar */}
-      <div className="flex justify-end px-6 pt-5">
+      <div className="flex items-center justify-between px-6 pt-5">
+        {authed ? (
+          <button
+            onClick={() => router.push('/history')}
+            className="flex items-center gap-2 text-slate-500 hover:text-gold text-xs font-medium tracking-wide transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            {lang === 'ru' ? 'История' : 'History'}
+          </button>
+        ) : <div />}
         <LangToggle />
       </div>
 
@@ -328,8 +342,36 @@ export default function HomePage() {
           </div>
         )}
 
+        {/* Name fields */}
+        <div className="mt-8 flex gap-3">
+          <div className="flex-1">
+            <label className="block text-slate-500 text-xs font-medium mb-1.5 tracking-wide uppercase">
+              {lang === 'ru' ? 'Имя' : 'First Name'}
+            </label>
+            <input
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder={lang === 'ru' ? 'Введите имя' : 'Enter first name'}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-gold/40 transition-all text-sm"
+            />
+          </div>
+          <div className="flex-1">
+            <label className="block text-slate-500 text-xs font-medium mb-1.5 tracking-wide uppercase">
+              {lang === 'ru' ? 'Фамилия' : 'Last Name'}
+            </label>
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder={lang === 'ru' ? 'Введите фамилию' : 'Enter last name'}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-gold/40 transition-all text-sm"
+            />
+          </div>
+        </div>
+
         {/* CTA */}
-        <div className="mt-10 text-center">
+        <div className="mt-6 text-center">
           <button
             onClick={handleAnalyze}
             onMouseEnter={startGlow}

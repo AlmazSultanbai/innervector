@@ -8,6 +8,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export interface Analysis {
   id?: string;
   username: string;
+  full_name: string;
   strengths: string[];
   lang: string;
   analysis: string;
@@ -17,4 +18,16 @@ export interface Analysis {
 export async function saveAnalysis(data: Analysis) {
   const { error } = await supabase.from('analyses').insert(data);
   if (error) console.error('Supabase save error:', error.message);
+}
+
+export async function getAnalyses(): Promise<Analysis[]> {
+  const { data, error } = await supabase
+    .from('analyses')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) {
+    console.error('Supabase fetch error:', error.message);
+    return [];
+  }
+  return data ?? [];
 }

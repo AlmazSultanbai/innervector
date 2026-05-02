@@ -27,10 +27,12 @@ function ResultsContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [personName, setPersonName] = useState('');
   const strengthsRef = useRef<string[]>([]);
+  const nameRef = useRef('');
   const initializedRef = useRef(false);
 
-  const analyze = useCallback(async (strengthList: string[], language: Lang) => {
+  const analyze = useCallback(async (strengthList: string[], language: Lang, fullName?: string) => {
     setLoading(true);
     setError(null);
     setResult(null);
@@ -38,7 +40,7 @@ function ResultsContent() {
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ strengths: strengthList, lang: language }),
+        body: JSON.stringify({ strengths: strengthList, lang: language, full_name: fullName ?? nameRef.current }),
       });
       if (!res.ok) throw new Error('Analysis failed');
       const data: AnalysisResult = await res.json();
@@ -60,9 +62,12 @@ function ResultsContent() {
     if (list.length < 5 || list.length > 10) { router.replace('/'); return; }
     strengthsRef.current = list;
     setStrengths(list);
+    const fullName = searchParams.get('name') ?? '';
+    nameRef.current = fullName;
+    setPersonName(fullName);
     const activeLang = urlLang === 'ru' ? 'ru' : 'en';
     setLang(activeLang);
-    analyze(list, activeLang);
+    analyze(list, activeLang, fullName);
     initializedRef.current = true;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

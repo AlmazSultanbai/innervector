@@ -7,7 +7,7 @@ const client = new Anthropic();
 
 export async function POST(req: NextRequest) {
   try {
-    const { strengths, lang = 'en' } = await req.json();
+    const { strengths, lang = 'en', full_name = '' } = await req.json();
 
     if (!strengths || !Array.isArray(strengths) || strengths.length < 5 || strengths.length > 10) {
       return NextResponse.json({ error: '5 to 10 strengths required' }, { status: 400 });
@@ -84,6 +84,7 @@ Rules:
     // Save to Supabase (fire-and-forget, don't block the response)
     saveAnalysis({
       username: 'mindvector',
+      full_name,
       strengths,
       lang,
       analysis: cleaned,
