@@ -18,7 +18,12 @@ export function useAuth() {
     setAuthed(true);
   };
 
-  return { authed, login };
+  const logout = () => {
+    sessionStorage.removeItem(STORAGE_KEY);
+    setAuthed(false);
+  };
+
+  return { authed, login, logout };
 }
 
 export default function LoginModal({ onSuccess, onClose }: { onSuccess: () => void; onClose?: () => void }) {

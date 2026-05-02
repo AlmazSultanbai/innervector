@@ -33,7 +33,7 @@ type InputMode = 'upload' | 'manual';
 export default function HomePage() {
   const router = useRouter();
   const { lang, t } = useLang();
-  const { authed, login } = useAuth();
+  const { authed, login, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [mode, setMode] = useState<InputMode>('upload');
   const [selected, setSelected] = useState<string[]>([]);
@@ -129,12 +129,18 @@ export default function HomePage() {
     <div className="min-h-screen bg-radial flex flex-col">
       {showLogin && (
         <LoginModal
-          onSuccess={() => { login(); setShowLogin(false); goToResults(); }}
+          onSuccess={() => {
+            login();
+            setShowLogin(false);
+            // Go to results only if triggered by Reveal button (has selections)
+            if (selected.length >= 5) goToResults();
+          }}
           onClose={() => setShowLogin(false)}
         />
       )}
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 pt-5">
+        {/* Left: History link (when authed) */}
         {authed ? (
           <button
             onClick={() => router.push('/history')}
@@ -146,7 +152,42 @@ export default function HomePage() {
             {lang === 'ru' ? 'История' : 'History'}
           </button>
         ) : <div />}
-        <LangToggle />
+
+        {/* Right: lang toggle + auth button */}
+        <div className="flex items-center gap-3">
+          <LangToggle />
+          {authed ? (
+            <div className="flex items-center gap-2 pl-3 border-l border-white/10">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
+                <div className="w-5 h-5 rounded-full bg-gold/20 border border-gold/30 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-gold" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                  </svg>
+                </div>
+                <span className="text-slate-300 text-xs font-medium">mindvector</span>
+              </div>
+              <button
+                onClick={logout}
+                className="text-slate-600 hover:text-red-400 transition-colors"
+                title={lang === 'ru' ? 'Выйти' : 'Sign out'}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                </svg>
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowLogin(true)}
+              className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-xs font-medium hover:bg-gold/20 transition-all duration-200"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 15l3-3m0 0l-3-3m3 3H2.25" />
+              </svg>
+              {lang === 'ru' ? 'Войти' : 'Sign In'}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Hero: DNA left + text right */}
