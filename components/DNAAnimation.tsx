@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import Image from 'next/image';
 
 const PERIOD = 9;          // rungs per full rotation
 const RUNG_COUNT = 32;     // rungs per segment (doubled for seamless loop)
@@ -114,11 +115,9 @@ export default function DNAAnimation() {
 
   return (
     <div className="relative flex flex-col items-center select-none">
-      {/* Gallup label */}
-      <div className="mb-3 flex items-center gap-2">
-        <span className="w-6 h-px bg-gold/30" />
-        <span className="text-gold/70 text-xs font-medium tracking-[0.2em] uppercase">Gallup CliftonStrengths®</span>
-        <span className="w-6 h-px bg-gold/30" />
+      {/* Logo */}
+      <div className="mb-4 flex items-center justify-center">
+        <Image src="/logo.png" alt="Inner Vector" width={90} height={90} className="rounded-2xl opacity-90" />
       </div>
 
       {/* Outer wrapper — wide enough for names + helix */}
