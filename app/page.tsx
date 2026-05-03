@@ -149,7 +149,6 @@ export default function HomePage() {
 
         {/* Left: Logo + LangToggle + History */}
         <div className="flex items-center gap-3">
-          <Image src="/logo.png" alt="Inner Vector" width={36} height={36} className="rounded-lg opacity-90" />
           <LangToggle />
           {authed && (
             <button

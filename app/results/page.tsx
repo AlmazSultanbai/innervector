@@ -250,7 +250,6 @@ function ResultsContent() {
             {t.newAnalysis}
           </button>
           <div className="flex items-center gap-3">
-            <Image src="/logo.png" alt="Inner Vector" width={32} height={32} className="rounded-lg opacity-85" />
             <LangToggle />
             <div className="text-gold text-xs font-medium tracking-widest uppercase hidden sm:block">
               {t.badge}
