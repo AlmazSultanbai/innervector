@@ -107,7 +107,7 @@ export default function LoginModal({ onSuccess, onClose }: { onSuccess: () => vo
               </svg>
             </div>
             <h2 className="font-serif text-2xl text-white font-semibold mb-1">Welcome back</h2>
-            <p className="text-slate-500 text-sm">Sign in to CliftonStrengths Intelligence</p>
+            <p className="text-slate-500 text-sm">Sign in to Inner Vector</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

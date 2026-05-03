@@ -3,10 +3,10 @@ export type Lang = 'en' | 'ru';
 export const translations = {
   en: {
     // Header
-    badge: 'CliftonStrengths Intelligence',
+    badge: 'Strengths Intelligence',
     heroTitle1: 'Discover Your',
     heroTitle2: 'Talent DNA',
-    heroSubtitle: 'Select your top 5 CliftonStrengths and receive a deep AI analysis of your unique talent combination.',
+    heroSubtitle: 'Select your top 5 strengths and receive a deep AI analysis of your unique talent combination.',
 
     // Input page
     selected: 'selected',
@@ -16,15 +16,15 @@ export const translations = {
     selectMore: (n: number) => `Select ${n} more strength${n !== 1 ? 's' : ''}`,
     selectCount: (n: number) => `${n} of 10 selected`,
     poweredBy: 'Powered by Claude AI · Analysis takes ~10 seconds',
-    footer: 'CliftonStrengths® is a trademark of Gallup, Inc. This tool is not affiliated with Gallup.',
+    footer: 'Inner Vector · Talent assessment tool. Strength theme names are property of their respective owners.',
 
     // Upload
-    uploadTitle: 'Upload Your Gallup Report',
+    uploadTitle: 'Upload Your Strengths Report',
     uploadSubtitle: 'Drop your PDF or screenshot and Claude will extract your strengths automatically',
     uploadOr: 'or',
     uploadManualTitle: 'Select Manually',
     uploadManualSubtitle: 'Pick your top 5 strengths by hand',
-    uploadDrop: 'Drop your Gallup report here',
+    uploadDrop: 'Drop your strengths report here',
     uploadBrowse: 'or click to browse',
     uploadFormats: 'PDF · PNG · JPG · WebP — max 10 MB',
     uploadReading: 'Reading your report...',
@@ -60,10 +60,10 @@ export const translations = {
   },
   ru: {
     // Header
-    badge: 'Анализ CliftonStrengths',
+    badge: 'Анализ профиля талантов',
     heroTitle1: 'Откройте свою',
     heroTitle2: 'ДНК талантов',
-    heroSubtitle: 'Выберите 5 главных сильных сторон CliftonStrengths и получите глубокий AI-анализ вашей уникальной комбинации талантов.',
+    heroSubtitle: 'Выберите 5 главных сильных сторон и получите глубокий AI-анализ вашей уникальной комбинации талантов.',
 
     // Input page
     selected: 'выбрано',
@@ -73,15 +73,15 @@ export const translations = {
     selectMore: (n: number) => `Выберите ещё ${n} ${n === 1 ? 'сильную сторону' : n < 5 ? 'сильные стороны' : 'сильных сторон'}`,
     selectCount: (n: number) => `${n} из 10 выбрано`,
     poweredBy: 'Работает на Claude AI · Анализ занимает ~10 секунд',
-    footer: 'CliftonStrengths® — торговая марка Gallup, Inc. Этот инструмент не связан с Gallup.',
+    footer: 'Inner Vector · Инструмент оценки талантов. Названия тем являются собственностью их правообладателей.',
 
     // Upload
-    uploadTitle: 'Загрузите ваш отчёт Gallup',
+    uploadTitle: 'Загрузите ваш отчёт',
     uploadSubtitle: 'Прикрепите PDF или скриншот — Claude автоматически извлечёт ваши сильные стороны',
     uploadOr: 'или',
     uploadManualTitle: 'Выбрать вручную',
     uploadManualSubtitle: 'Самостоятельно выберите 5 сильных сторон',
-    uploadDrop: 'Перетащите отчёт Gallup сюда',
+    uploadDrop: 'Перетащите отчёт сюда',
     uploadBrowse: 'или нажмите для выбора файла',
     uploadFormats: 'PDF · PNG · JPG · WebP — макс. 10 МБ',
     uploadReading: 'Читаем ваш отчёт...',
