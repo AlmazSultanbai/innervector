@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { supabase, Analysis } from '@/lib/supabase';
 import { getDomainForStrength, DOMAIN_COLORS } from '@/lib/strengths';
 import { Domain } from '@/lib/types';

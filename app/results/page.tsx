@@ -6,7 +6,6 @@ import { AnalysisResult, Domain } from '@/lib/types';
 import { getDomainForStrength, DOMAIN_BADGE_COLORS } from '@/lib/strengths';
 import { useLang } from '@/lib/LanguageContext';
 import { Lang } from '@/lib/i18n';
-import Image from 'next/image';
 import StrengthCard from '@/components/StrengthCard';
 import FamousPersonCard from '@/components/FamousPersonCard';
 import CareerCard from '@/components/CareerCard';

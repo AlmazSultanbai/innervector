@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { STRENGTHS, DOMAIN_COLORS, getDomainForStrength } from '@/lib/strengths';
 import { Domain } from '@/lib/types';
 import { useLang } from '@/lib/LanguageContext';
@@ -147,13 +146,12 @@ export default function HomePage() {
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 pt-5">
 
-        {/* Left: Logo + LangToggle + History */}
+        {/* Left: History (when authed) */}
         <div className="flex items-center gap-3">
-          <LangToggle />
           {authed && (
             <button
               onClick={() => router.push('/history')}
-              className="flex items-center gap-2 text-slate-500 hover:text-gold text-xs font-medium tracking-wide transition-colors pl-3 border-l border-white/10"
+              className="flex items-center gap-2 text-slate-500 hover:text-gold text-xs font-medium tracking-wide transition-colors"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -163,9 +161,10 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Right: auth button */}
+        {/* Right: LangToggle + auth button */}
         {authed ? (
           <div className="flex items-center gap-2">
+            <LangToggle small />
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
               <div className="w-5 h-5 rounded-full bg-gold/20 border border-gold/30 flex items-center justify-center">
                 <svg className="w-3 h-3 text-gold" fill="currentColor" viewBox="0 0 24 24">
@@ -185,7 +184,9 @@ export default function HomePage() {
             </button>
           </div>
         ) : (
-          <button
+          <div className="flex items-center gap-2">
+            <LangToggle small />
+            <button
             onClick={() => setShowLogin(true)}
             className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-xs font-medium hover:bg-gold/20 transition-all duration-200"
           >
@@ -194,6 +195,7 @@ export default function HomePage() {
             </svg>
             {lang === 'ru' ? 'Войти' : 'Sign In'}
           </button>
+          </div>
         )}
       </div>
 
