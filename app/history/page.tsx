@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { supabase, Analysis } from '@/lib/supabase';
 import { getDomainForStrength, DOMAIN_COLORS } from '@/lib/strengths';
 import { Domain } from '@/lib/types';
@@ -231,6 +232,7 @@ export default function HistoryPage() {
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-white/5">
         <div className="flex items-center gap-3">
+          <Image src="/logo.png" alt="Inner Vector" width={34} height={34} className="rounded-lg opacity-90" />
           <button
             onClick={() => router.push('/')}
             className="flex items-center gap-2 text-slate-400 hover:text-white text-sm transition-colors"

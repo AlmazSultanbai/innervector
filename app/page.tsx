@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { STRENGTHS, DOMAIN_COLORS, getDomainForStrength } from '@/lib/strengths';
 import { Domain } from '@/lib/types';
 import { useLang } from '@/lib/LanguageContext';
@@ -146,8 +147,9 @@ export default function HomePage() {
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 pt-5">
 
-        {/* Left: LangToggle + History (when authed) */}
+        {/* Left: Logo + LangToggle + History */}
         <div className="flex items-center gap-3">
+          <Image src="/logo.png" alt="Inner Vector" width={36} height={36} className="rounded-lg opacity-90" />
           <LangToggle />
           {authed && (
             <button
