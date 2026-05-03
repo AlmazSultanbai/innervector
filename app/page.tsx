@@ -200,7 +200,7 @@ export default function HomePage() {
       </div>
 
       {/* Hero: DNA left + text right */}
-      <header className="pt-8 pb-8 px-4">
+      <header className="pt-2 pb-8 px-4">
         <div className="max-w-4xl mx-auto flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
 
           {/* DNA Animation */}
