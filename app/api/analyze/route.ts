@@ -55,14 +55,24 @@ Respond ONLY with a valid JSON object using this exact structure (no markdown, n
       "whyFits": "2 sentences connecting specific strengths from their profile to why this career is a natural fit",
       "firstStep": "A single concrete, actionable first step they can take this week"
     }
+  ],
+  "idealPartners": [
+    {
+      "type": "A short evocative label for this partner archetype, e.g. 'The Analytical Challenger'",
+      "topStrengths": ["Strength1", "Strength2", "Strength3"],
+      "whyComplement": "2 sentences explaining precisely why this person's strengths fill the gaps or amplify this profile — be specific about which strengths interact",
+      "dynamicInAction": "One vivid, concrete real-work scenario showing how this duo operates together"
+    }
   ]
 }
 
 Rules:
 - "dominantDomain" must be exactly one of: Executing, Influencing, Relationship Building, Strategic Thinking
-- Return exactly 5 famous people and exactly 5 careers
+- Return exactly 5 famous people, exactly 5 careers, and exactly 5 idealPartners
 - Famous people must be real, well-known figures (not obscure)
 - Careers should span different industries/contexts
+- idealPartners must be distinct archetypes covering different domains — no two should be from the same CliftonStrengths domain
+- idealPartners topStrengths must be valid CliftonStrengths names from the 34 themes
 - Every insight must reference the actual strength names provided`;
 
     const message = await client.messages.create({

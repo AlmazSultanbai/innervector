@@ -9,6 +9,7 @@ import { Lang } from '@/lib/i18n';
 import StrengthCard from '@/components/StrengthCard';
 import FamousPersonCard from '@/components/FamousPersonCard';
 import CareerCard from '@/components/CareerCard';
+import IdealPartnerCard from '@/components/IdealPartnerCard';
 import LangToggle from '@/components/LangToggle';
 
 const DOMAIN_ICONS: Record<Domain, string> = {
@@ -422,6 +423,27 @@ function ResultsContent() {
                 ))}
               </div>
             </section>
+
+            {/* Ideal Partners */}
+            {result.idealPartners?.length > 0 && (
+              <section className="animate-fade-in">
+                <h2 className="font-serif text-xl text-white mb-1 flex items-center gap-3">
+                  <span className="w-6 h-px bg-gold/40" />
+                  {lang === 'ru' ? 'Идеальные партнёры для работы' : 'Ideal Work Partners'}
+                  <span className="flex-1 h-px bg-white/5" />
+                </h2>
+                <p className="text-slate-500 text-sm mb-4 ml-9">
+                  {lang === 'ru'
+                    ? '5 типов людей, которые дополнят ваш профиль'
+                    : '5 types of people who complement your strengths profile'}
+                </p>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {result.idealPartners.map((partner, i) => (
+                    <IdealPartnerCard key={partner.type} partner={partner} index={i} />
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* Bottom CTA */}
             <div className="text-center pt-4">
