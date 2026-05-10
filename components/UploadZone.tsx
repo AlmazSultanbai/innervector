@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from 'react';
 import { useLang } from '@/lib/LanguageContext';
 
 interface Props {
-  onExtracted: (strengths: string[], fullName?: string) => void;
+  onExtracted: (strengths: string[], fullName?: string, gallupFileUrl?: string) => void;
 }
 
 type UploadState = 'idle' | 'dragging' | 'loading' | 'success' | 'error';
@@ -37,10 +37,11 @@ export default function UploadZone({ onExtracted }: Props) {
 
       const strengths: string[] = data.strengths ?? [];
       const fullName: string = data.full_name ?? '';
+      const gallupFileUrl: string | undefined = data.gallup_file_url ?? undefined;
       setFoundCount(strengths.length);
       setState('success');
-      // Pass top 10 in ranked order + name to parent
-      onExtracted(strengths.slice(0, 10), fullName);
+      // Pass top 10 in ranked order + name + original file URL to parent
+      onExtracted(strengths.slice(0, 10), fullName, gallupFileUrl);
     } catch {
       setState('error');
       setErrorMsg(t.uploadError);

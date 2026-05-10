@@ -26,11 +26,72 @@ export interface Analysis {
   lang: string;
   analysis: string;
   created_at?: string;
+  share_token?: string;
+  gallup_file_url?: string;
 }
 
-export async function saveAnalysis(data: Analysis) {
-  const { error } = await supabase.from('analyses').insert(data);
-  if (error) console.error('Supabase save error:', error.message);
+/** Save analysis.
+ *  Returns { error, share_token, duplicate }.
+ *  If an identical record (same full_name + same strengths) exists → skips insert,
+ *  returns the existing share_token with duplicate:true.
+ *  If same name but different strengths → saves new record (person retook the test).
+ */
+export async function saveAnalysis(data: Analysis): Promise<{ error: string | null; share_token: string | null; duplicate: boolean }> {
+  const name = (data.full_name ?? '').trim().toLowerCase();
+
+  // Check for existing record with same name
+  const { data: existing } = await supabase
+    .from('analyses')
+    .select('id, share_token, strengths')
+    .ilike('full_name', name)
+    .order('created_at', { ascending: false })
+    .limit(5);
+
+  if (existing && existing.length > 0) {
+    // Compare strengths arrays — same order, same values → duplicate
+    const incomingKey = [...(data.strengths ?? [])].join(',');
+    const isDuplicate = existing.some((row) => {
+      const rowKey = [...(row.strengths ?? [])].join(',');
+      return rowKey === incomingKey;
+    });
+
+    if (isDuplicate) {
+      const existingToken = existing.find((row) => [...(row.strengths ?? [])].join(',') === incomingKey)?.share_token ?? null;
+      return { error: null, share_token: existingToken, duplicate: true };
+    }
+  }
+
+  // New record (first time or different strengths)
+  const { error } = await supabase.from('analyses').insert({
+    ...data,
+    created_at: data.created_at ?? new Date().toISOString(),
+  });
+  if (error) {
+    console.error('Supabase saveAnalysis error:', error.message);
+    return { error: error.message, share_token: null, duplicate: false };
+  }
+  return { error: null, share_token: data.share_token ?? null, duplicate: false };
+}
+
+/** Get analysis by share_token (client public link) */
+export async function getAnalysisByToken(token: string): Promise<Analysis | null> {
+  const { data, error } = await supabase
+    .from('analyses')
+    .select('*')
+    .eq('share_token', token)
+    .maybeSingle();
+  if (error) { console.error('getAnalysisByToken error:', error.message); return null; }
+  return data ?? null;
+}
+
+export async function getAnalysisById(id: string): Promise<Analysis | null> {
+  const { data, error } = await supabase
+    .from('analyses')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+  if (error) { console.error('getAnalysisById error:', error.message); return null; }
+  return data ?? null;
 }
 
 export async function getAnalyses(): Promise<Analysis[]> {
@@ -43,4 +104,80 @@ export async function getAnalyses(): Promise<Analysis[]> {
     return [];
   }
   return data ?? [];
+}
+
+// ─── User settings ────────────────────────────────────────────────────────────
+
+/** Read a single setting value (returns null if not found) */
+export async function getSetting(key: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('user_settings')
+    .select('value')
+    .eq('key', key)
+    .maybeSingle();
+  if (error) { console.error('getSetting error:', error.message); return null; }
+  return data?.value ?? null;
+}
+
+/** Upsert a setting (insert or update) */
+export async function setSetting(key: string, value: string): Promise<void> {
+  const { error } = await supabase
+    .from('user_settings')
+    .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+  if (error) console.error('setSetting error:', error.message);
+}
+
+// ─── Plans ────────────────────────────────────────────────────────────────────
+
+export interface PlanRecord {
+  id: string;
+  session_id: string;
+  strengths: string[];
+  lang: string;
+  full_name: string;
+  plan: object;
+  completed: number[];
+  unlocked: number[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+/** Find an existing plan by strengths (device-independent — works from any browser) */
+export async function getPlan(
+  _session_id: string,
+  strengths: string[],
+): Promise<PlanRecord | null> {
+  const { data, error } = await supabase
+    .from('plans')
+    .select('*')
+    .eq('strengths', JSON.stringify(strengths))
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) { console.error('getPlan error:', error.message); return null; }
+  return data ?? null;
+}
+
+/** Insert a new plan row, return its id */
+export async function insertPlan(data: Omit<PlanRecord, 'id' | 'created_at' | 'updated_at'>): Promise<string | null> {
+  const { data: row, error } = await supabase
+    .from('plans')
+    .insert({ ...data, strengths: JSON.stringify(data.strengths) })
+    .select('id')
+    .single();
+  if (error) { console.error('insertPlan error:', error.message); return null; }
+  return row?.id ?? null;
+}
+
+/** Update completed + unlocked arrays for an existing plan */
+export async function updatePlanProgress(
+  plan_id: string,
+  completed: number[],
+  unlocked: number[],
+): Promise<void> {
+  const { error } = await supabase
+    .from('plans')
+    .update({ completed: JSON.stringify(completed), unlocked: JSON.stringify(unlocked) })
+    .eq('id', plan_id);
+  if (error) console.error('updatePlanProgress error:', error.message);
 }

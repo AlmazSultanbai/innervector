@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { AnalysisResult, Domain, PlanTask } from '@/lib/types';
-import { getAnalysisByToken, getPlan } from '@/lib/supabase';
+import { AnalysisResult, Domain } from '@/lib/types';
+import { getAnalysisByToken } from '@/lib/supabase';
 import { getDomainForStrength, DOMAIN_BADGE_COLORS } from '@/lib/strengths';
 import StrengthCard from '@/components/StrengthCard';
 import FamousPersonCard from '@/components/FamousPersonCard';
@@ -26,9 +26,6 @@ export default function ClientProfilePage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [tasks, setTasks] = useState<PlanTask[]>([]);
-  const [completed, setCompleted] = useState<number[]>([]);
-  const [planTitle, setPlanTitle] = useState('');
 
   useEffect(() => {
     if (!token) return;
@@ -52,18 +49,6 @@ export default function ClientProfilePage() {
         }
       } catch { setNotFound(true); }
 
-      // Load plan tasks
-      const planRow = await getPlan('', row.strengths ?? []);
-      if (planRow && planRow.plan) {
-        try {
-          const p = planRow.plan as { programTitle?: string; tasks?: PlanTask[] };
-          setPlanTitle(p.programTitle ?? '');
-          setTasks(p.tasks ?? []);
-          const comp = planRow.completed;
-          setCompleted(Array.isArray(comp) ? comp : (typeof comp === 'string' ? JSON.parse(comp) : []));
-        } catch { /* no plan */ }
-      }
-
       setLoading(false);
     })();
   }, [token]);
@@ -81,10 +66,9 @@ export default function ClientProfilePage() {
       dominantSuffix: 'Dominant',
       notFound: 'Profile not found',
       notFoundSub: 'This link may be invalid or expired.',
-      plan: '30-Day Development Plan',
-      planEmpty: 'Plan not generated yet.',
-      taskDone: 'Completed',
-      taskPending: 'Pending',
+      ctaTitle: 'Ready to activate your talents?',
+      ctaButton: 'Start with Vector Coach Daniyar',
+      ctaSubtext: 'Daily personalized tasks · Voice reports · Real coaching feedback',
     },
     ru: {
       poweredBy: 'Создано Inner Vector',
@@ -98,10 +82,9 @@ export default function ClientProfilePage() {
       dominantSuffix: 'Доминирует',
       notFound: 'Профиль не найден',
       notFoundSub: 'Ссылка недействительна или устарела.',
-      plan: '30-дневный план развития',
-      planEmpty: 'План ещё не создан.',
-      taskDone: 'Выполнено',
-      taskPending: 'Ожидает',
+      ctaTitle: 'Готов активировать свои таланты?',
+      ctaButton: 'Начать с Вектор Коучем Данияром',
+      ctaSubtext: 'Ежедневные задания · Голосовые отчёты · Живой фидбек коуча',
     },
     ky: {
       poweredBy: 'Inner Vector тарабынан түзүлдү',
@@ -115,10 +98,9 @@ export default function ClientProfilePage() {
       dominantSuffix: 'Үстөмдүк кылат',
       notFound: 'Профил табылган жок',
       notFoundSub: 'Шилтеме жараксыз же эскирген.',
-      plan: '30 күндүк өнүктүрүү планы',
-      planEmpty: 'План азырынча түзүлгөн эмес.',
-      taskDone: 'Аткарылды',
-      taskPending: 'Күтүүдө',
+      ctaTitle: 'Таланттарыңды активдештирүүгө даярсыңбы?',
+      ctaButton: 'Вектор Коуч Данияр менен баштоо',
+      ctaSubtext: 'Күнүмдүк тапшырмалар · Үн отчёттор · Жандуу коуч пикири',
     },
   };
   const L = labels[lang];
@@ -323,132 +305,37 @@ export default function ClientProfilePage() {
           </div>
         </section>
 
-        {/* 30-Day Plan */}
-        <section>
-          <h2 className="font-serif text-xl text-white mb-2 flex items-center gap-3">
-            <span className="w-6 h-px bg-gold/40" />
-            {L.plan}
-            {tasks.length > 0 && (
-              <span className="text-slate-600 text-sm font-sans font-normal">
-                ({completed.length}/{tasks.length})
-              </span>
-            )}
-            <span className="flex-1 h-px bg-white/5" />
-          </h2>
+        {/* Telegram CTA — main action */}
+        <section className="py-4">
+          <div className="relative rounded-3xl overflow-hidden border border-[#229ED9]/20 bg-gradient-to-br from-[#229ED9]/8 via-[#229ED9]/5 to-transparent p-8 text-center">
+            {/* Glow */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#229ED9]/5 to-transparent pointer-events-none" />
 
-          {tasks.length === 0 ? (
-            <p className="text-slate-600 text-sm ml-9">{L.planEmpty}</p>
-          ) : (
-            <>
-              {planTitle && (
-                <p className="text-slate-500 text-sm mb-5 ml-9">{planTitle}</p>
-              )}
-              {/* Progress bar */}
-              <div className="mb-6 ml-9 mr-2">
-                <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                    style={{ width: `${tasks.length ? (completed.length / tasks.length) * 100 : 0}%` }}
-                  />
-                </div>
+            <div className="relative">
+              {/* Icon */}
+              <div className="w-14 h-14 rounded-2xl bg-[#229ED9]/15 border border-[#229ED9]/30 flex items-center justify-center mx-auto mb-5">
+                <svg className="w-7 h-7 text-[#229ED9]" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.17 14.55l-2.945-.924c-.64-.203-.654-.64.136-.954l11.49-4.43c.538-.194 1.006.131.843.979z"/>
+                </svg>
               </div>
 
-              <div className="space-y-3">
-                {tasks.map((task) => {
-                  const isDone = completed.includes(task.id);
-                  const CATEGORY_COLORS: Record<string, string> = {
-                    awareness: 'bg-blue-500/10 border-blue-500/20 text-blue-400',
-                    practice:  'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
-                    challenge: 'bg-amber-500/10 border-amber-500/20 text-amber-400',
-                    mastery:   'bg-purple-500/10 border-purple-500/20 text-purple-400',
-                  };
-                  const catColor = CATEGORY_COLORS[task.category] ?? 'bg-white/5 border-white/10 text-slate-400';
-                  return (
-                    <div
-                      key={task.id}
-                      className={`group p-4 rounded-2xl border transition-all ${
-                        isDone
-                          ? 'bg-emerald-500/5 border-emerald-500/20'
-                          : 'bg-white/3 border-white/8'
-                      }`}
-                    >
-                      <div className="flex items-start gap-4">
-                        {/* Status circle */}
-                        <div className={`flex-shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center mt-0.5 ${
-                          isDone ? 'bg-emerald-500 border-emerald-500' : 'border-white/15 bg-white/3'
-                        }`}>
-                          {isDone ? (
-                            <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                            </svg>
-                          ) : (
-                            <span className="text-slate-600 text-xs font-bold">{task.id}</span>
-                          )}
-                        </div>
+              <h3 className="font-serif text-2xl text-white mb-2">{L.ctaTitle}</h3>
+              <p className="text-slate-400 text-sm mb-7">{L.ctaSubtext}</p>
 
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wide ${catColor}`}>
-                              {task.category}
-                            </span>
-                            <span className="text-slate-600 text-xs">{task.dayRange}</span>
-                            <span className="text-slate-700 text-xs">· {task.duration}</span>
-                          </div>
-                          <h3 className={`font-semibold text-sm mb-1 ${isDone ? 'text-slate-400 line-through' : 'text-white'}`}>
-                            {task.title}
-                          </h3>
-                          <p className="text-slate-500 text-xs leading-relaxed mb-2">{task.description}</p>
-
-                          {/* Action block */}
-                          <div className={`p-3 rounded-xl border-l-2 ${isDone ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-gold/30 bg-gold/5'}`}>
-                            <p className={`text-xs leading-relaxed ${isDone ? 'text-slate-500' : 'text-gold/80'}`}>
-                              {task.action}
-                            </p>
-                          </div>
-
-                          {/* Strengths used */}
-                          {task.strengthsUsed?.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-2">
-                              {task.strengthsUsed.map(s => (
-                                <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-500">
-                                  {s}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
+              <a
+                href={`https://t.me/innervector_1bot?start=${token}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-[#229ED9] hover:bg-[#1a8bbf] transition-all duration-200 group shadow-lg shadow-[#229ED9]/20"
+              >
+                <span className="text-white font-semibold text-sm">{L.ctaButton}</span>
+                <svg className="w-4 h-4 text-white/70 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </div>
+          </div>
         </section>
-
-        {/* Telegram Bot CTA */}
-        <div className="flex flex-col items-center gap-3 py-6">
-          <a
-            href={`https://t.me/innervector_1bot?start=${token}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-[#229ED9]/10 border border-[#229ED9]/30 hover:bg-[#229ED9]/20 hover:border-[#229ED9]/50 transition-all duration-200 group"
-          >
-            {/* Telegram icon */}
-            <svg className="w-5 h-5 text-[#229ED9] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.17 14.55l-2.945-.924c-.64-.203-.654-.64.136-.954l11.49-4.43c.538-.194 1.006.131.843.979z"/>
-            </svg>
-            <span className="text-sm font-medium text-[#229ED9] group-hover:text-[#4db8e8] transition-colors">
-              {lang === 'ru' ? 'Начать с AI-коучем Данияром' : lang === 'ky' ? 'Данияр AI-коуч менен баштоо' : 'Start with AI Coach Daniyar'}
-            </span>
-            <svg className="w-4 h-4 text-[#229ED9]/50 group-hover:text-[#229ED9] group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </a>
-          <p className="text-slate-600 text-xs text-center">
-            {lang === 'ru' ? 'Получай задания, отправляй голосовые отчёты — Данияр даёт фидбек' : lang === 'ky' ? 'Тапшырмаларды алып, үн отчёт жибер — Данияр пикир берет' : 'Get tasks, send voice reports — Daniyar gives coaching feedback'}
-          </p>
-        </div>
 
         {/* Footer */}
         <div className="text-center pt-4 border-t border-white/5">

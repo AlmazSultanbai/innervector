@@ -28,12 +28,19 @@ const DOMAIN_LABELS_RU: Record<Domain, string> = {
   'Strategic Thinking': 'Стратегическое мышление',
 };
 
+const DOMAIN_LABELS_KY: Record<Domain, string> = {
+  Executing: 'Аткаруу',
+  Influencing: 'Таасир этүү',
+  'Relationship Building': 'Мамиле куруу',
+  'Strategic Thinking': 'Стратегиялык ойлоо',
+};
+
 type InputMode = 'upload' | 'manual';
 
 export default function HomePage() {
   const router = useRouter();
   const { lang, t } = useLang();
-  const { authed, login, logout } = useAuth();
+  const { isAuthed: authed, login, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [mode, setMode] = useState<InputMode>('upload');
   const [selected, setSelected] = useState<string[]>([]);
@@ -43,8 +50,16 @@ export default function HomePage() {
   // Index of currently glowing chip (-1 = none)
   const [glowIndex, setGlowIndex] = useState(-1);
   const glowIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const tabsRef = useRef<HTMLDivElement>(null);
 
-  const domainLabels = lang === 'ru' ? DOMAIN_LABELS_RU : DOMAIN_LABELS_EN;
+  const switchMode = (m: InputMode) => {
+    setMode(m);
+    setTimeout(() => {
+      tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
+  };
+
+  const domainLabels = lang === 'ru' ? DOMAIN_LABELS_RU : lang === 'ky' ? DOMAIN_LABELS_KY : DOMAIN_LABELS_EN;
 
   const toggle = useCallback((name: string) => {
     setSelected((prev) => {
@@ -54,12 +69,18 @@ export default function HomePage() {
     });
   }, []);
 
-  const handleExtracted = useCallback((strengths: string[], fullName?: string) => {
+  const handleExtracted = useCallback((strengths: string[], fullName?: string, gallupFileUrl?: string) => {
     setSelected(strengths.slice(0, MAX));
     if (fullName?.trim()) {
       const parts = fullName.trim().split(/\s+/);
       setFirstName(parts[0] ?? '');
       setLastName(parts.slice(1).join(' ') ?? '');
+    }
+    // Store original Gallup file URL in sessionStorage for the analyze step
+    if (gallupFileUrl) {
+      sessionStorage.setItem('iv_gallup_file_url', gallupFileUrl);
+    } else {
+      sessionStorage.removeItem('iv_gallup_file_url');
     }
     setMode('manual');
   }, []);
@@ -67,6 +88,7 @@ export default function HomePage() {
   const goToResults = () => {
     const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
     const params = new URLSearchParams({ s: selected.join(','), lang, name: fullName });
+    sessionStorage.setItem('iv_show_confetti', '1');
     router.push(`/results?${params.toString()}`);
   };
 
@@ -134,8 +156,8 @@ export default function HomePage() {
     <div className="min-h-screen bg-radial flex flex-col">
       {showLogin && (
         <LoginModal
-          onSuccess={() => {
-            login();
+          onSuccess={(role) => {
+            login(role);
             setShowLogin(false);
             // Go to results only if triggered by Reveal button (has selections)
             if (selected.length >= 5) goToResults();
@@ -146,24 +168,50 @@ export default function HomePage() {
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 pt-5">
 
-        {/* Left: History (when authed) */}
-        <div className="flex items-center gap-3">
+        {/* Left: Admin + History (when authed) */}
+        <div className="flex items-center gap-3 w-40">
           {authed && (
-            <button
-              onClick={() => router.push('/history')}
-              className="flex items-center gap-2 text-slate-500 hover:text-gold text-xs font-medium tracking-wide transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              {lang === 'ru' ? 'История' : 'History'}
-            </button>
+            <>
+              <button
+                onClick={() => router.push('/admin')}
+                className="flex items-center gap-2 text-slate-500 hover:text-gold text-xs font-medium tracking-wide transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                {lang === 'ru' ? 'Админ' : lang === 'ky' ? 'Админ' : 'Admin'}
+              </button>
+              <button
+                onClick={() => router.push('/history')}
+                className="flex items-center gap-2 text-slate-500 hover:text-gold text-xs font-medium tracking-wide transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                {lang === 'ru' ? 'История' : lang === 'ky' ? 'Тарых' : 'History'}
+              </button>
+            </>
           )}
+        </div>
+
+        {/* Center: Logo */}
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center text-gold text-sm font-bold flex-shrink-0">
+            IV
+          </div>
+          <svg className="w-3 h-3 text-gold/30 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+          <span className="text-xs font-semibold tracking-widest uppercase">
+            <span className="text-white">Inner Vector</span>
+            <span className="text-gold/40 mx-1.5">·</span>
+            <span className="text-gold/60">{lang === 'ru' ? 'Твой внутренний вектор' : lang === 'ky' ? 'Сенин ички векторуң' : 'Your Inner Vector'}</span>
+          </span>
         </div>
 
         {/* Right: LangToggle + auth button */}
         {authed ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-40 justify-end">
             <LangToggle small />
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
               <div className="w-5 h-5 rounded-full bg-gold/20 border border-gold/30 flex items-center justify-center">
@@ -171,7 +219,7 @@ export default function HomePage() {
                   <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
                 </svg>
               </div>
-              <span className="text-slate-300 text-xs font-medium">mindvector</span>
+              <span className="text-slate-300 text-xs font-medium">vector</span>
             </div>
             <button
               onClick={logout}
@@ -184,7 +232,7 @@ export default function HomePage() {
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-40 justify-end">
             <LangToggle small />
             <button
             onClick={() => setShowLogin(true)}
@@ -221,10 +269,15 @@ export default function HomePage() {
             <p className="text-slate-400 text-lg max-w-lg lg:max-w-none leading-relaxed mb-6">
               {t.heroSubtitle}
             </p>
-            {/* Gallup quote */}
+            {/* Navigator quote */}
             <p className="text-slate-600 text-sm italic border-l-2 border-gold/30 pl-3 max-w-md">
-              &ldquo;You cannot be anything you want to be — but you can be a lot more of who you already are.&rdquo;
-              <span className="block mt-1 not-italic text-gold/50 text-xs">— Tom Rath, StrengthsFinder 2.0</span>
+              {lang === 'ru'
+                ? <>&ldquo;Navigator — это не очередной личностный тест. Это система, превращающая самопознание в измеримые действия.&rdquo;</>
+                : lang === 'ky'
+                ? <>&ldquo;Navigator — бул дагы бир инсандык тест эмес. Бул өз-өзүңдү тааныуну өлчөнүүчү аракетке айландырган система.&rdquo;</>
+                : <>&ldquo;Navigator is not another personality assessment — it&apos;s a system designed to turn self-awareness into measurable action.&rdquo;</>
+              }
+              <span className="block mt-1 not-italic text-gold/50 text-xs">— Inner Vector Methodology</span>
             </p>
           </div>
 
@@ -234,9 +287,9 @@ export default function HomePage() {
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 pb-20">
 
         {/* Mode tabs */}
-        <div className="flex gap-2 mb-6 p-1 rounded-xl bg-white/4 border border-white/8 w-fit mx-auto">
+        <div ref={tabsRef} className="flex gap-2 mb-6 p-1 rounded-xl bg-white/4 border border-white/8 w-fit mx-auto">
           <button
-            onClick={() => setMode('upload')}
+            onClick={() => switchMode('upload')}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
               mode === 'upload'
                 ? 'bg-gold/15 text-gold border border-gold/25 shadow-sm'
@@ -249,7 +302,7 @@ export default function HomePage() {
             {t.uploadTitle}
           </button>
           <button
-            onClick={() => setMode('manual')}
+            onClick={() => switchMode('manual')}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
               mode === 'manual'
                 ? 'bg-white/8 text-white border border-white/15'
@@ -392,33 +445,50 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Name fields */}
-        <div className="mt-8 flex gap-3">
-          <div className="flex-1">
-            <label className="block text-slate-500 text-xs font-medium mb-1.5 tracking-wide uppercase">
-              {lang === 'ru' ? 'Имя' : 'First Name'}
-            </label>
-            <input
-              type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              placeholder={lang === 'ru' ? 'Введите имя' : 'Enter first name'}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-gold/40 transition-all text-sm"
-            />
+        {/* Name fields — only in manual mode; upload mode extracts name from the file */}
+        {mode === 'manual' && <div className="mt-8">
+          <div className="flex items-center gap-2 mb-3">
+            <svg className="w-4 h-4 text-gold/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+            <span className="text-slate-400 text-xs font-medium tracking-wide uppercase">
+              {lang === 'ru' ? 'Имя клиента — обязательно для PDF и истории' : lang === 'ky' ? 'Кардың аты — PDF жана тарых үчүн талап кылынат' : 'Client name — required for PDF & history'}
+            </span>
           </div>
-          <div className="flex-1">
-            <label className="block text-slate-500 text-xs font-medium mb-1.5 tracking-wide uppercase">
-              {lang === 'ru' ? 'Фамилия' : 'Last Name'}
-            </label>
-            <input
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder={lang === 'ru' ? 'Введите фамилию' : 'Enter last name'}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-gold/40 transition-all text-sm"
-            />
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <input
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder={lang === 'ru' ? 'Имя' : lang === 'ky' ? 'Аты' : 'First name'}
+                className={`w-full rounded-xl px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none transition-all text-sm ${
+                  firstName.trim()
+                    ? 'bg-white/5 border border-white/10 focus:border-gold/40'
+                    : 'bg-gold/5 border border-gold/20 focus:border-gold/50'
+                }`}
+              />
+            </div>
+            <div className="flex-1">
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder={lang === 'ru' ? 'Фамилия' : lang === 'ky' ? 'Фамилиясы' : 'Last name'}
+                className={`w-full rounded-xl px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none transition-all text-sm ${
+                  lastName.trim()
+                    ? 'bg-white/5 border border-white/10 focus:border-gold/40'
+                    : 'bg-gold/5 border border-gold/20 focus:border-gold/50'
+                }`}
+              />
+            </div>
           </div>
-        </div>
+          {!firstName.trim() && !lastName.trim() && (
+            <p className="mt-1.5 text-gold/40 text-xs">
+              {lang === 'ru' ? '⚠ Введите имя — иначе в PDF и истории будет «Anonymous»' : lang === 'ky' ? '⚠ Атын жазыңыз — антпесе PDF жана тарыхта «Anonymous» болот' : '⚠ Enter a name — otherwise PDF & history will show «Anonymous»'}
+            </p>
+          )}
+        </div>}
 
         {/* CTA */}
         <div className="mt-6 text-center">

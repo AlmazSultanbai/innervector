@@ -2,20 +2,25 @@
 
 import { useState, useEffect } from 'react';
 
-const CORRECT_LOGIN = 'mindvector';
-const CORRECT_PASSWORD = 'mindvector123';
+const CREDENTIALS = {
+  admin:      { login: 'vector', password: 'vector123' },
+  superadmin: { login: 'vector', password: 'vector88'  },
+};
 const STORAGE_KEY = 'mv_auth';
 
+// authed: null = loading, false = not logged in, true = admin, 'super' = superadmin
 export function useAuth() {
-  const [authed, setAuthed] = useState<boolean | null>(null);
+  const [authed, setAuthed] = useState<boolean | null | 'super'>(null);
 
   useEffect(() => {
-    setAuthed(sessionStorage.getItem(STORAGE_KEY) === '1');
+    const v = sessionStorage.getItem(STORAGE_KEY);
+    setAuthed(v === 'super' ? 'super' : v === '1' ? true : false);
   }, []);
 
-  const login = () => {
-    sessionStorage.setItem(STORAGE_KEY, '1');
-    setAuthed(true);
+  const login = (role: 'admin' | 'superadmin') => {
+    const val = role === 'superadmin' ? 'super' : '1';
+    sessionStorage.setItem(STORAGE_KEY, val);
+    setAuthed(role === 'superadmin' ? 'super' : true);
   };
 
   const logout = () => {
@@ -23,10 +28,14 @@ export function useAuth() {
     setAuthed(false);
   };
 
-  return { authed, login, logout };
+  const isSuperAdmin = authed === 'super';
+  const isAuthed = authed === true || authed === 'super';
+  const authLoading = authed === null;
+
+  return { authed, isAuthed, isSuperAdmin, authLoading, login, logout };
 }
 
-export default function LoginModal({ onSuccess, onClose }: { onSuccess: () => void; onClose?: () => void }) {
+export default function LoginModal({ onSuccess, onClose }: { onSuccess: (role: 'admin' | 'superadmin') => void; onClose?: () => void }) {
   const [dismissed, setDismissed] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -36,8 +45,11 @@ export default function LoginModal({ onSuccess, onClose }: { onSuccess: () => vo
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username.trim() === CORRECT_LOGIN && password === CORRECT_PASSWORD) {
-      onSuccess();
+    const u = username.trim();
+    if (u === CREDENTIALS.superadmin.login && password === CREDENTIALS.superadmin.password) {
+      onSuccess('superadmin');
+    } else if (u === CREDENTIALS.admin.login && password === CREDENTIALS.admin.password) {
+      onSuccess('admin');
     } else {
       setError('Invalid credentials');
       setShake(true);

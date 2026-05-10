@@ -6,11 +6,13 @@ import { AnalysisResult, Domain } from '@/lib/types';
 import { getDomainForStrength, DOMAIN_BADGE_COLORS } from '@/lib/strengths';
 import { useLang } from '@/lib/LanguageContext';
 import { Lang } from '@/lib/i18n';
+import { getAnalysisById } from '@/lib/supabase';
 import StrengthCard from '@/components/StrengthCard';
 import FamousPersonCard from '@/components/FamousPersonCard';
 import CareerCard from '@/components/CareerCard';
 import IdealPartnerCard from '@/components/IdealPartnerCard';
-import LangToggle from '@/components/LangToggle';
+import CombinationCard from '@/components/CombinationCard';
+
 
 const DOMAIN_ICONS: Record<Domain, string> = {
   Executing: '⚡',
@@ -28,36 +30,101 @@ function ResultsContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copiedClient, setCopiedClient] = useState(false);
+  const [shareToken, setShareToken] = useState<string | null>(null);
   const [pdfLoading] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+  const [agentCount, setAgentCount] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const agentTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const strengthsRef = useRef<string[]>([]);
   const nameRef = useRef('');
   const initializedRef = useRef(false);
+  const skipLangEffectRef = useRef(false);
 
   const analyze = useCallback(async (strengthList: string[], language: Lang, fullName?: string) => {
     setLoading(true);
     setError(null);
     setResult(null);
+    setElapsed(0);
+    setAgentCount(0);
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (agentTimerRef.current) clearInterval(agentTimerRef.current);
+    timerRef.current = setInterval(() => setElapsed(s => s + 1), 1000);
+    // Agents connect one by one: 10 agents over ~20s = every 2s
+    let count = 0;
+    agentTimerRef.current = setInterval(() => {
+      count += 1;
+      setAgentCount(count);
+      if (count >= 10 && agentTimerRef.current) clearInterval(agentTimerRef.current);
+    }, 2000);
     try {
+      const gallupFileUrl = sessionStorage.getItem('iv_gallup_file_url') ?? undefined;
+      sessionStorage.removeItem('iv_gallup_file_url'); // use once
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ strengths: strengthList, lang: language, full_name: fullName ?? nameRef.current }),
+        body: JSON.stringify({ strengths: strengthList, lang: language, full_name: fullName ?? nameRef.current, gallup_file_url: gallupFileUrl }),
       });
       if (!res.ok) throw new Error('Analysis failed');
       const data: AnalysisResult = await res.json();
       setResult(data);
+      if (data.share_token) setShareToken(data.share_token);
     } catch (e) {
       setError(t.errorMessage);
       console.error(e);
     } finally {
+      if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+      if (agentTimerRef.current) { clearInterval(agentTimerRef.current); agentTimerRef.current = null; }
       setLoading(false);
+      // Show confetti only on first creation (flag set by main page before redirect)
+      if (sessionStorage.getItem('iv_show_confetti') === '1') {
+        sessionStorage.removeItem('iv_show_confetti');
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 4000);
+      }
     }
   }, [t.errorMessage]);
 
   // Initial load — read strengths + lang from URL
+  // Supports two modes:
+  //   ?id=uuid          → load saved analysis from Supabase (history view, instant)
+  //   ?s=A,B,C&lang=en  → run fresh analysis via API
   useEffect(() => {
-    const s = searchParams.get('s');
+    const analysisId = searchParams.get('id');
     const urlLang = searchParams.get('lang') as Lang | null;
+    const activeLang: Lang = urlLang === 'ru' ? 'ru' : urlLang === 'ky' ? 'ky' : 'en';
+
+    if (analysisId) {
+      // ── History mode: load from Supabase ──
+      skipLangEffectRef.current = true;
+      setLang(activeLang);
+      setLoading(true);
+      getAnalysisById(analysisId).then((row) => {
+        if (!row) { router.replace('/history'); return; }
+        const list: string[] = row.strengths ?? [];
+        strengthsRef.current = list;
+        setStrengths(list);
+        nameRef.current = row.full_name ?? '';
+        const rowLang: Lang = row.lang === 'ru' ? 'ru' : row.lang === 'ky' ? 'ky' : 'en';
+        skipLangEffectRef.current = true;
+        setLang(rowLang);
+        try {
+          const cleaned = row.analysis.trim()
+            .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
+          setResult(JSON.parse(cleaned) as AnalysisResult);
+          if (row.share_token) setShareToken(row.share_token);
+        } catch { setError('Failed to load analysis.'); }
+        setLoading(false);
+        // No confetti on history view — only on fresh analysis creation
+      });
+      initializedRef.current = true;
+      return;
+    }
+
+    // ── Normal mode: fresh analysis ──
+    const s = searchParams.get('s');
     if (!s) { router.replace('/'); return; }
     const list = s.split(',').map((x) => x.trim()).filter(Boolean);
     if (list.length < 5 || list.length > 10) { router.replace('/'); return; }
@@ -65,7 +132,7 @@ function ResultsContent() {
     setStrengths(list);
     const fullName = searchParams.get('name') ?? '';
     nameRef.current = fullName;
-    const activeLang = urlLang === 'ru' ? 'ru' : 'en';
+    skipLangEffectRef.current = true; // prevent double-analysis on init lang change
     setLang(activeLang);
     analyze(list, activeLang, fullName);
     initializedRef.current = true;
@@ -76,6 +143,7 @@ function ResultsContent() {
   useEffect(() => {
     if (!initializedRef.current) return;
     if (!strengthsRef.current.length) return;
+    if (skipLangEffectRef.current) { skipLangEffectRef.current = false; return; }
     analyze(strengthsRef.current, lang);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang]);
@@ -86,43 +154,143 @@ function ResultsContent() {
     const dateStr = new Date().toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
 
     const isRu = lang === 'ru';
-    const labels = {
-      report: isRu ? 'Отчёт об оценке талантов' : 'Talent Assessment Report',
-      domain: isRu ? 'Доминирующий домен' : 'Dominant Domain',
-      dna: isRu ? 'ДНК Талантов' : 'Talent DNA',
-      superpower: isRu ? 'Суперсила' : 'Superpower',
-      interact: isRu ? 'Взаимодействие сильных сторон' : 'How Strengths Interact',
-      domainReason: isRu ? 'Почему этот домен?' : 'Domain Reason',
-      strengths: isRu ? 'Топ сильных сторон' : 'Top Strengths',
-      blindSpots: isRu ? 'Слепые зоны' : 'Blind Spots',
-      famous: isRu ? 'Похожие профили' : 'Similar Profiles',
-      careers: isRu ? 'Карьерные пути' : 'Best Career Paths',
-      partners: isRu ? 'Идеальные партнёры' : 'Ideal Work Partners',
-      footer: isRu ? 'Создано Inner Vector · Оценка талантов' : 'Generated by Inner Vector · Talent Assessment',
+    const isKy = lang === 'ky';
+
+    // ── Translations ──────────────────────────────────────────────────────────
+    const STRENGTH_TR: Record<string, { ru: string; ky: string }> = {
+      'Achiever':         { ru: 'Достижение',             ky: 'Жетишкендик' },
+      'Activator':        { ru: 'Активатор',               ky: 'Активатор' },
+      'Adaptability':     { ru: 'Адаптивность',            ky: 'Ийкемдүүлүк' },
+      'Analytical':       { ru: 'Аналитика',               ky: 'Аналитика' },
+      'Arranger':         { ru: 'Организованность',        ky: 'Уюштуруучу' },
+      'Belief':           { ru: 'Убеждения',               ky: 'Ишенимдер' },
+      'Command':          { ru: 'Командование',            ky: 'Командалык' },
+      'Communication':    { ru: 'Коммуникация',            ky: 'Коммуникация' },
+      'Competition':      { ru: 'Соперничество',           ky: 'Атаандашуу' },
+      'Connectedness':    { ru: 'Связанность',             ky: 'Байланыштуулук' },
+      'Consistency':      { ru: 'Последовательность',      ky: 'Ырааттуулук' },
+      'Context':          { ru: 'Контекст',                ky: 'Контекст' },
+      'Deliberative':     { ru: 'Осторожность',            ky: 'Этияттык' },
+      'Developer':        { ru: 'Развитие людей',          ky: 'Өнүктүрүүчү' },
+      'Discipline':       { ru: 'Дисциплина',              ky: 'Тартип' },
+      'Empathy':          { ru: 'Эмпатия',                 ky: 'Эмпатия' },
+      'Focus':            { ru: 'Концентрация',            ky: 'Фокус' },
+      'Futuristic':       { ru: 'Визионерство',            ky: 'Келечекчил' },
+      'Harmony':          { ru: 'Гармония',                ky: 'Гармония' },
+      'Ideation':         { ru: 'Генерация идей',          ky: 'Идея генерациясы' },
+      'Includer':         { ru: 'Инклюзивность',           ky: 'Кошумчалоочу' },
+      'Individualization':{ ru: 'Индивидуализация',        ky: 'Жекечелештирүү' },
+      'Input':            { ru: 'Сбор информации',         ky: 'Маалымат чогултуу' },
+      'Intellection':     { ru: 'Интеллект',               ky: 'Интеллект' },
+      'Learner':          { ru: 'Обучаемость',             ky: 'Үйрөнүүчү' },
+      'Maximizer':        { ru: 'Максимизатор',            ky: 'Максималдаштыруучу' },
+      'Positivity':       { ru: 'Позитивность',            ky: 'Позитивдүүлүк' },
+      'Relator':          { ru: 'Близость',                ky: 'Жакындык' },
+      'Responsibility':   { ru: 'Ответственность',         ky: 'Жоопкерчилик' },
+      'Restorative':      { ru: 'Восстановление',          ky: 'Калыбына келтируучу' },
+      'Self-Assurance':   { ru: 'Самоуверенность',         ky: 'Өзүнө ишенүү' },
+      'Significance':     { ru: 'Значимость',              ky: 'Маанилүүлүк' },
+      'Strategic':        { ru: 'Стратегическое мышление', ky: 'Стратегиялык ой' },
+      'Woo':              { ru: 'Завоевание симпатии',     ky: 'Жактыруу' },
+    };
+    const DOMAIN_TR: Record<string, { ru: string; ky: string; color: string }> = {
+      'Executing':             { ru: 'Исполнение',              ky: 'Аткаруу',         color: '#3b82f6' },
+      'Influencing':           { ru: 'Влияние',                 ky: 'Таасир этүү',     color: '#f97316' },
+      'Relationship Building': { ru: 'Построение отношений',    ky: 'Мамиле куруу',    color: '#10b981' },
+      'Strategic Thinking':    { ru: 'Стратегическое мышление', ky: 'Стратегиялык ой', color: '#a855f7' },
+    };
+    const DOMAIN_STRENGTHS: Record<string, string[]> = {
+      'Executing':             ['Achiever','Arranger','Belief','Consistency','Deliberative','Discipline','Focus','Responsibility','Restorative'],
+      'Influencing':           ['Activator','Command','Communication','Competition','Maximizer','Self-Assurance','Significance','Woo'],
+      'Relationship Building': ['Adaptability','Connectedness','Developer','Empathy','Harmony','Includer','Individualization','Positivity','Relator'],
+      'Strategic Thinking':    ['Analytical','Context','Futuristic','Ideation','Input','Intellection','Learner','Strategic'],
     };
 
-    const sectionHtml = (label: string, content: string) => `
-      <div class="section">
-        <div class="section-label">${label}</div>
-        <div class="section-body">${content}</div>
+    const trStr = (name: string) => {
+      const t = STRENGTH_TR[name];
+      if (!t || lang === 'en') return name;
+      return `${name} <span class="tr">(${isRu ? t.ru : t.ky})</span>`;
+    };
+
+    const L = {
+      report:        isRu ? 'Отчёт об оценке талантов'        : isKy ? 'Таланттарды баалоо отчёту'              : 'Talent Assessment Report',
+      domain:        isRu ? 'Доминирующий домен'               : isKy ? 'Үстөмдүк кылган домен'                  : 'Dominant Domain',
+      superpower:    isRu ? 'Суперсила'                        : isKy ? 'Суперкүч'                                : 'Superpower',
+      interact:      isRu ? 'Взаимодействие сильных сторон'    : isKy ? 'Күчтүү жактардын өз ара аракети'         : 'How Strengths Interact',
+      domainReason:  isRu ? 'Почему этот домен?'               : isKy ? 'Эмне үчүн бул домен?'                    : 'Domain Reason',
+      strengthsLabel:isRu ? 'Топ сильных сторон'               : isKy ? 'Топ күчтүү жактар'                       : 'Top Strengths',
+      blindSpots:    isRu ? 'Слепые зоны'                      : isKy ? 'Байкалбаган жактар'                      : 'Blind Spots',
+      combinations:  isRu ? 'Сочетания талантов'               : isKy ? 'Талант айкалыштары'                      : 'Talent Combinations',
+      famous:        isRu ? 'Известные люди с похожим профилем': isKy ? 'Окшош профилдеги белгилүү адамдар'       : 'Famous Similar Profiles',
+      careers:       isRu ? 'Идеальные карьеры'                : isKy ? 'Идеалдуу карьера'                        : 'Ideal Careers',
+      firstStep:     isRu ? 'Первый шаг'                       : isKy ? 'Биринчи кадам'                           : 'First step',
+      partners:      isRu ? 'Идеальные партнёры'               : isKy ? 'Идеалдуу иш өнөктөштөр'                 : 'Ideal Work Partners',
+      footer:        isRu ? 'Создано Inner Vector · innervector.co' : isKy ? 'Inner Vector тарабынан · innervector.co' : 'Generated by Inner Vector · innervector.co',
+    };
+
+    const dominantDomain = result.dominantDomain;
+    const dColor = DOMAIN_TR[dominantDomain]?.color ?? '#d4a843';
+    const dTr = lang !== 'en' && DOMAIN_TR[dominantDomain]
+      ? ` <span class="tr-domain">(${isRu ? DOMAIN_TR[dominantDomain].ru : DOMAIN_TR[dominantDomain].ky})</span>`
+      : '';
+
+    // ── HTML blocks ──────────────────────────────────────────────────────────
+    const strengthsHtml = strengths.map((s, i) => {
+      const domEntry = Object.entries(DOMAIN_STRENGTHS).find(([, arr]) => arr.includes(s));
+      const sColor = domEntry ? DOMAIN_TR[domEntry[0]]?.color ?? '#d4a843' : '#d4a843';
+      return `<div class="strength-row">
+        <span class="s-num" style="background:${sColor}20;color:${sColor};border:1px solid ${sColor}40">${i + 1}</span>
+        <span class="s-name">${trStr(s)}</span>
+        <span class="s-dot" style="background:${sColor}"></span>
       </div>`;
+    }).join('');
 
-    const strengthsHtml = strengths.map((s, i) => `
-      <div class="strength-item"><span class="rank">${i + 1}</span>${s}</div>`).join('');
-
-    const blindSpotsHtml = result.blindSpots?.map(b => `<div class="bullet">• ${b}</div>`).join('') ?? '';
-
-    const famousHtml = result.famousPeople?.map(p =>
-      `<div class="famous-item"><strong>${p.name}</strong> <span class="field">${p.field}</span><div class="sub">${p.whyMatch}</div><div class="achievement">${p.achievement}</div></div>`
+    const blindSpotsHtml = result.blindSpots?.map((b, i) =>
+      `<div class="blind-row"><span class="blind-num">${i + 1}</span><span>${b}</span></div>`
     ).join('') ?? '';
 
-    const careersHtml = result.careers?.map(c =>
-      `<div class="career-item"><strong>${c.title}</strong><div class="sub">${c.whyFits}</div><div class="step">→ ${c.firstStep}</div></div>`
+    const combinationsHtml = result.combinations?.map(c =>
+      `<div class="combo-card">
+        <div class="combo-header"><span class="combo-name">${c.name}</span><span class="combo-meta">${c.type} · ${c.rarity}</span></div>
+        <div class="combo-talents">${(c.talents||[]).map(t => `<span class="ctag">${trStr(t)}</span>`).join('')}</div>
+        <div class="combo-mech">${c.mechanism}</div>
+        <div class="combo-grid">
+          <div class="combo-good">✓ ${c.atItsBest}</div>
+          <div class="combo-bad">✗ ${c.whenItBackfires}</div>
+        </div>
+      </div>`
+    ).join('') ?? '';
+
+    const famousHtml = result.famousPeople?.map(p =>
+      `<div class="person-card">
+        <div class="person-header"><span class="person-name">${p.name}</span><span class="person-field">${p.field}</span></div>
+        <div class="person-why">${p.whyMatch}</div>
+        <div class="person-ach">${p.achievement}</div>
+      </div>`
+    ).join('') ?? '';
+
+    const careersHtml = result.careers?.map((c, i) =>
+      `<div class="career-card">
+        <div class="career-num">${i + 1}</div>
+        <div class="career-body">
+          <div class="career-title">${c.title}</div>
+          <div class="career-why">${c.whyFits}</div>
+          <div class="career-step"><span class="step-label">${L.firstStep}:</span> ${c.firstStep}</div>
+        </div>
+      </div>`
     ).join('') ?? '';
 
     const partnersHtml = result.idealPartners?.map(p =>
-      `<div class="partner-item"><strong>${p.type}</strong><div class="tags">${p.topStrengths.map(s => `<span class="tag">${s}</span>`).join('')}</div><div class="sub">${p.whyComplement}</div><div class="dynamic">${p.dynamicInAction}</div></div>`
+      `<div class="partner-card">
+        <div class="partner-type">${p.type}</div>
+        <div class="partner-tags">${p.topStrengths.map(s => `<span class="ptag">${trStr(s)}</span>`).join('')}</div>
+        <div class="partner-why">${p.whyComplement}</div>
+        <div class="partner-dyn">${p.dynamicInAction}</div>
+      </div>`
     ).join('') ?? '';
+
+    const secHtml = (icon: string, label: string, content: string) =>
+      content ? `<div class="section"><div class="sec-head"><span class="sec-icon">${icon}</span><span class="sec-label">${label}</span></div><div class="sec-body">${content}</div></div>` : '';
 
     const html = `<!DOCTYPE html>
 <html lang="${lang}">
@@ -130,77 +298,132 @@ function ResultsContent() {
 <meta charset="UTF-8"/>
 <title>Inner Vector — ${displayName}</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: 'Inter', sans-serif; color: #1e2937; background: #fff; font-size: 11pt; line-height: 1.6; }
-  .header { background: #0d111e; padding: 24px 32px 20px; display: flex; justify-content: space-between; align-items: flex-end; }
-  .header-left h1 { color: #d4a843; font-size: 22pt; font-weight: 700; letter-spacing: 0.02em; }
-  .header-left p { color: #94a3b8; font-size: 9pt; margin-top: 2px; }
-  .header-right { text-align: right; }
-  .header-right .name { color: #fff; font-size: 14pt; font-weight: 600; }
-  .header-right .date { color: #64748b; font-size: 8pt; margin-top: 2px; }
-  .domain-badge { background: #d4a84315; border-left: 3px solid #d4a843; padding: 8px 32px; font-size: 9pt; font-weight: 600; color: #d4a843; letter-spacing: 0.1em; text-transform: uppercase; }
-  .content { padding: 20px 32px; }
-  .section { margin-bottom: 18px; break-inside: avoid; }
-  .section-label { font-size: 7.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #64748b; background: #f1f5f9; padding: 4px 8px; border-radius: 3px; margin-bottom: 6px; }
-  .section-body { font-size: 10pt; color: #1e2937; line-height: 1.65; }
-  .strengths-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; }
-  .strength-item { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 10pt; }
-  .rank { background: #f1f5f9; color: #64748b; font-weight: 700; font-size: 8pt; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .bullet { padding: 3px 0; font-size: 10pt; color: #334155; }
-  .famous-item, .career-item, .partner-item { padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
-  .famous-item:last-child, .career-item:last-child, .partner-item:last-child { border-bottom: none; }
-  .field { font-size: 8.5pt; color: #64748b; font-style: italic; }
-  .sub { font-size: 9.5pt; color: #475569; margin-top: 3px; line-height: 1.5; }
-  .achievement, .step, .dynamic { font-size: 9pt; color: #94a3b8; margin-top: 2px; font-style: italic; }
-  .tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
-  .tag { background: #f1f5f9; color: #475569; font-size: 8pt; padding: 2px 8px; border-radius: 10px; }
-  .footer { border-top: 1px solid #f1f5f9; padding: 10px 32px; display: flex; justify-content: space-between; font-size: 7.5pt; color: #94a3b8; margin-top: 12px; }
-  @media print {
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .domain-badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;color:#1a2332;background:#fff;font-size:10.5pt;line-height:1.65;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .header{background:linear-gradient(135deg,#0d111e 0%,#111827 60%,#0f1829 100%);padding:28px 36px 24px;position:relative;overflow:hidden}
+  .header::after{content:'';position:absolute;top:0;right:0;width:220px;height:100%;background:radial-gradient(ellipse at top right,${dColor}18 0%,transparent 70%)}
+  .header-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand-dot{width:32px;height:32px;border-radius:50%;background:${dColor}25;border:1.5px solid ${dColor}50;display:flex;align-items:center;justify-content:center;font-size:10pt;font-weight:700;color:${dColor}}
+  .brand-name{color:#d4a843;font-family:'Playfair Display',serif;font-size:18pt;font-weight:700;letter-spacing:.02em}
+  .brand-sub{color:#64748b;font-size:8pt;margin-top:1px;letter-spacing:.06em}
+  .header-person{text-align:right}
+  .person-name-h{color:#fff;font-size:14pt;font-weight:600;letter-spacing:.01em}
+  .person-date{color:#475569;font-size:8pt;margin-top:3px}
+  .domain-strip{margin-top:18px;display:flex;align-items:center;gap:10px;position:relative}
+  .domain-pill{display:inline-flex;align-items:center;gap:7px;background:${dColor}18;border:1.5px solid ${dColor}40;border-radius:20px;padding:5px 14px}
+  .domain-dot{width:8px;height:8px;border-radius:50%;background:${dColor}}
+  .domain-text{color:${dColor};font-size:8.5pt;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+  .tr-domain{color:${dColor}90;font-weight:400;font-style:italic}
+  .dna-quote{color:#94a3b8;font-size:9pt;font-style:italic;margin-top:10px;padding-left:12px;line-height:1.5;position:relative}
+  .dna-quote::before{content:'"';font-size:20pt;color:${dColor}40;position:absolute;left:0;top:-4px;font-family:'Playfair Display',serif;line-height:1}
+  .content{padding:20px 36px 10px}
+  .section{margin-bottom:18px;break-inside:avoid;page-break-inside:avoid}
+  .sec-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;border-bottom:1.5px solid #f1f5f9;padding-bottom:5px}
+  .sec-icon{font-size:11pt}
+  .sec-label{font-size:7.5pt;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b}
+  .sec-body{font-size:10pt;color:#1e2937;line-height:1.7}
+  .highlight-box{background:#fafbfc;border-left:3px solid ${dColor};border-radius:0 6px 6px 0;padding:10px 14px;font-size:10.5pt;color:#1e2937;line-height:1.65}
+  .highlight-box.gold{border-left-color:#d4a843;background:#fffdf5}
+  .strengths-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px}
+  .strength-row{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;background:#fafbfc}
+  .s-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7.5pt;font-weight:700;flex-shrink:0}
+  .s-name{font-size:10pt;font-weight:500;color:#1e2937;flex:1}
+  .s-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+  .tr{color:#94a3b8;font-weight:400;font-style:italic;font-size:9pt}
+  .blind-row{display:flex;gap:10px;padding:5px 0;border-bottom:1px solid #f8fafc}
+  .blind-row:last-child{border-bottom:none}
+  .blind-num{width:20px;height:20px;border-radius:50%;background:#fef3c7;color:#b45309;font-size:8pt;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+  .combo-card{background:#fafbfc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:8px;break-inside:avoid}
+  .combo-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:5px}
+  .combo-name{font-weight:700;font-size:10.5pt;color:#1e2937}
+  .combo-meta{font-size:7.5pt;color:#94a3b8;font-style:italic}
+  .combo-talents{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:5px}
+  .ctag{background:#e0e7ff;color:#3730a3;font-size:7.5pt;padding:2px 8px;border-radius:10px}
+  .combo-mech{font-size:9.5pt;color:#475569;margin-bottom:6px;line-height:1.5}
+  .combo-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .combo-good{font-size:8.5pt;color:#059669;background:#ecfdf5;padding:4px 8px;border-radius:4px}
+  .combo-bad{font-size:8.5pt;color:#dc2626;background:#fef2f2;padding:4px 8px;border-radius:4px}
+  .famous-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .person-card{background:#fafbfc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px}
+  .person-header{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+  .person-name{font-weight:700;font-size:10.5pt;color:#1e2937}
+  .person-field{font-size:7.5pt;color:#64748b;font-style:italic}
+  .person-why{font-size:9pt;color:#475569;line-height:1.5;margin-bottom:3px}
+  .person-ach{font-size:8.5pt;color:#94a3b8;font-style:italic}
+  .career-card{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid #f1f5f9;align-items:flex-start}
+  .career-card:last-child{border-bottom:none}
+  .career-num{width:26px;height:26px;border-radius:50%;background:${dColor}15;border:1.5px solid ${dColor}30;color:${dColor};font-size:9pt;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+  .career-title{font-weight:700;font-size:10.5pt;color:#1e2937;margin-bottom:3px}
+  .career-why{font-size:9pt;color:#475569;line-height:1.5;margin-bottom:3px}
+  .career-step{font-size:8.5pt;color:#64748b;font-style:italic}
+  .step-label{color:${dColor};font-weight:600;font-style:normal}
+  .partner-card{background:#fafbfc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:8px}
+  .partner-type{font-weight:700;font-size:10.5pt;color:#1e2937;margin-bottom:5px}
+  .partner-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:5px}
+  .ptag{background:#f0fdf4;color:#166534;font-size:7.5pt;padding:2px 8px;border-radius:10px;border:1px solid #bbf7d0}
+  .partner-why{font-size:9pt;color:#475569;line-height:1.5;margin-bottom:3px}
+  .partner-dyn{font-size:8.5pt;color:#94a3b8;font-style:italic}
+  .footer{background:#0d111e;padding:10px 36px;display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+  .footer-left{color:#475569;font-size:7.5pt}
+  .footer-brand{color:#d4a843;font-size:8pt;font-weight:600;letter-spacing:.06em}
+  @media print{body,html{-webkit-print-color-adjust:exact;print-color-adjust:exact}.section{page-break-inside:avoid}}
 </style>
 </head>
 <body>
 <div class="header">
-  <div class="header-left">
-    <h1>Inner Vector</h1>
-    <p>${labels.report}</p>
+  <div class="header-top">
+    <div class="brand">
+      <div class="brand-dot">IV</div>
+      <div><div class="brand-name">Inner Vector</div><div class="brand-sub">${isRu ? 'ВАШ ВНУТРЕННИЙ ВЕКТОР' : isKy ? 'СИЗДИН ИЧКИ ВЕКТОРУНУЗ' : 'YOUR INNER VECTOR'}</div></div>
+    </div>
+    <div class="header-person">
+      <div class="person-name-h">${displayName}</div>
+      <div class="person-date">${dateStr}</div>
+    </div>
   </div>
-  <div class="header-right">
-    <div class="name">${displayName}</div>
-    <div class="date">${dateStr}</div>
+  <div class="domain-strip">
+    <div class="domain-pill">
+      <span class="domain-dot"></span>
+      <span class="domain-text">${L.domain}: ${dominantDomain}${dTr}</span>
+    </div>
   </div>
+  <div class="dna-quote">${result.talentDNA}</div>
 </div>
-<div class="domain-badge">${labels.domain}: ${result.dominantDomain}</div>
+
 <div class="content">
-  ${sectionHtml(labels.dna, result.talentDNA)}
-  ${sectionHtml(labels.superpower, result.superpower)}
-  ${sectionHtml(labels.interact, result.strengthsInteraction)}
-  ${sectionHtml(labels.domainReason, result.domainReason)}
   <div class="section">
-    <div class="section-label">${labels.strengths}</div>
+    <div class="sec-head"><span class="sec-icon">✦</span><span class="sec-label">${L.superpower}</span></div>
+    <div class="highlight-box gold">${result.superpower}</div>
+  </div>
+  <div class="section">
+    <div class="sec-head"><span class="sec-icon">◎</span><span class="sec-label">${L.interact}</span></div>
+    <div class="highlight-box">${result.strengthsInteraction}</div>
+  </div>
+  ${secHtml('◆', L.domainReason, result.domainReason)}
+  <div class="section">
+    <div class="sec-head"><span class="sec-icon">★</span><span class="sec-label">${L.strengthsLabel} (${strengths.length})</span></div>
     <div class="strengths-grid">${strengthsHtml}</div>
   </div>
-  ${result.blindSpots?.length ? `<div class="section"><div class="section-label">${labels.blindSpots}</div><div class="section-body">${blindSpotsHtml}</div></div>` : ''}
-  ${result.famousPeople?.length ? `<div class="section"><div class="section-label">${labels.famous}</div><div class="section-body">${famousHtml}</div></div>` : ''}
-  ${result.careers?.length ? `<div class="section"><div class="section-label">${labels.careers}</div><div class="section-body">${careersHtml}</div></div>` : ''}
-  ${result.idealPartners?.length ? `<div class="section"><div class="section-label">${labels.partners}</div><div class="section-body">${partnersHtml}</div></div>` : ''}
+  ${blindSpotsHtml ? `<div class="section"><div class="sec-head"><span class="sec-icon">⚠</span><span class="sec-label">${L.blindSpots}</span></div><div class="sec-body">${blindSpotsHtml}</div></div>` : ''}
+  ${combinationsHtml ? `<div class="section"><div class="sec-head"><span class="sec-icon">⚡</span><span class="sec-label">${L.combinations}</span></div><div class="sec-body">${combinationsHtml}</div></div>` : ''}
+  ${famousHtml ? `<div class="section"><div class="sec-head"><span class="sec-icon">👤</span><span class="sec-label">${L.famous}</span></div><div class="famous-grid">${famousHtml}</div></div>` : ''}
+  ${careersHtml ? `<div class="section"><div class="sec-head"><span class="sec-icon">💼</span><span class="sec-label">${L.careers}</span></div><div class="sec-body">${careersHtml}</div></div>` : ''}
+  ${partnersHtml ? `<div class="section"><div class="sec-head"><span class="sec-icon">🤝</span><span class="sec-label">${L.partners}</span></div><div class="sec-body">${partnersHtml}</div></div>` : ''}
 </div>
+
 <div class="footer">
-  <span>${labels.footer}</span>
-  <span>${dateStr}</span>
+  <span class="footer-left">${L.footer}</span>
+  <span class="footer-brand">INNER VECTOR</span>
 </div>
-</body>
-</html>`;
+</body></html>`;
 
     const win = window.open('', '_blank');
     if (!win) return;
     win.document.write(html);
     win.document.close();
-    win.onload = () => { win.print(); };
+    setTimeout(() => { win.print(); }, 900);
   };
 
   const handleShare = () => {
@@ -217,7 +440,7 @@ function ResultsContent() {
     <div className="min-h-screen bg-radial">
       {/* Header nav */}
       <header className="sticky top-0 z-10 border-b border-white/5 bg-navy-900/80 backdrop-blur-xl">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between gap-2">
           <button
             onClick={() => router.push('/')}
             className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
@@ -227,48 +450,67 @@ function ResultsContent() {
             </svg>
             {t.newAnalysis}
           </button>
-          <div className="flex items-center gap-3">
-            <LangToggle />
-            <div className="text-gold text-xs font-medium tracking-widest uppercase hidden sm:block">
-              {t.badge}
-            </div>
+
+          <div className="text-gold text-xs font-medium tracking-widest uppercase hidden sm:block">
+            {t.badge}
           </div>
-          {result && (
-            <button
-              onClick={handleDownloadPDF}
-              disabled={pdfLoading}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gold/10 border border-gold/20 text-gold hover:bg-gold/20 transition-all text-sm disabled:opacity-50"
-            >
-              {pdfLoading ? (
-                <span className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
-              ) : (
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              )}
-              PDF
-            </button>
-          )}
-          <button
-            onClick={handleShare}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/8 transition-all text-sm"
-          >
-            {copied ? (
-              <>
-                <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-emerald-400">{t.copied}</span>
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                </svg>
-                {t.share}
-              </>
+
+          <div className="flex items-center gap-2">
+            {/* Client link — copy for sharing with client */}
+            {result && shareToken && (
+              <button
+                onClick={() => {
+                  const url = `${window.location.origin}/profile/${shareToken}`;
+                  navigator.clipboard.writeText(url).then(() => {
+                    setCopiedClient(true);
+                    setTimeout(() => setCopiedClient(false), 2000);
+                  });
+                }}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 hover:bg-emerald-500/20 transition-all text-sm"
+                title="Copy client link"
+              >
+                {copiedClient ? (
+                  <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                  <span className="hidden sm:inline">{lang === 'ru' ? 'Скопировано!' : lang === 'ky' ? 'Көчүрүлдү!' : 'Copied!'}</span></>
+                ) : (
+                  <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                  <span className="hidden sm:inline">{lang === 'ru' ? 'Ссылка клиента' : lang === 'ky' ? 'Клиент шилтемеси' : 'Client link'}</span></>
+                )}
+              </button>
             )}
-          </button>
+
+            {/* PDF */}
+            {result && (
+              <button
+                onClick={handleDownloadPDF}
+                disabled={pdfLoading}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gold/10 border border-gold/20 text-gold hover:bg-gold/20 transition-all text-sm disabled:opacity-50"
+              >
+                {pdfLoading ? (
+                  <span className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                ) : (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                )}
+                PDF
+              </button>
+            )}
+
+            {/* Share */}
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/8 transition-all text-sm"
+            >
+              {copied ? (
+                <><svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                <span className="text-emerald-400 hidden sm:inline">{t.copied}</span></>
+              ) : (
+                <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                <span className="hidden sm:inline">{t.share}</span></>
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -279,13 +521,81 @@ function ResultsContent() {
             <div className="spinner" />
             <div className="text-center">
               <p className="text-white font-serif text-2xl mb-2">{t.analyzingTitle}</p>
-              <p className="text-slate-500 text-sm">{t.analyzingSubtitle}</p>
+              <p className="text-slate-500 text-sm">
+                <span className="text-gold font-bold tabular-nums">{agentCount}</span>{' '}
+                {t.analyzingSubtitle}
+              </p>
+              <div className="mt-4 flex flex-col items-center gap-2 w-full max-w-xs">
+                <div className="flex items-center justify-between w-full px-1">
+                  <span className="text-slate-500 text-xs">
+                    {lang === 'ru' ? 'Анализ' : lang === 'ky' ? 'Талдоо' : 'Analysis'}
+                  </span>
+                  <span className="text-gold font-bold text-sm tabular-nums">
+                    {Math.min(95, Math.round(1 + (elapsed / 38) * 94))}%
+                  </span>
+                </div>
+                <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full transition-all duration-1000 ease-out"
+                    style={{ width: `${Math.min(95, Math.round(1 + (elapsed / 38) * 94))}%` }}
+                  />
+                </div>
+              </div>
             </div>
-            <div className="flex gap-2 mt-2 flex-wrap justify-center">
-              {strengths.map((s, i) => (
-                <span key={s} className={`text-xs px-2.5 py-1 rounded-full bg-white/5 text-slate-400 animate-slide-in delay-${i * 100}`}>{s}</span>
-              ))}
+            <div className="flex gap-2 mt-4 flex-wrap justify-center max-w-xl">
+              {(strengthsRef.current.length ? strengthsRef.current : strengths).map((s, i) => {
+                const domain = getDomainForStrength(s);
+                const domainColors: Record<string, { rgb: string }> = {
+                  'Executing':           { rgb: '59,130,246'  }, // blue
+                  'Influencing':         { rgb: '249,115,22'  }, // orange
+                  'Relationship Building':{ rgb: '16,185,129' }, // emerald
+                  'Strategic Thinking':  { rgb: '168,85,247'  }, // purple
+                };
+                const color = domain ? domainColors[domain]?.rgb ?? '212,168,67' : '212,168,67';
+                return (
+                  <span
+                    key={s}
+                    className="analyzing-chip text-xs px-2.5 py-1 rounded-full"
+                    style={{
+                      '--chip-color': color,
+                      animationDelay: `${i * 288}ms`,
+                    } as React.CSSProperties}
+                  >
+                    <span className="chip-dot" style={{ animationDelay: `${i * 288}ms` }} />
+                    {s}
+                  </span>
+                );
+              })}
             </div>
+            <style>{`
+              .analyzing-chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.08);
+                color: #64748b;
+                animation: chip-scan 2.88s ease-in-out infinite;
+              }
+              @keyframes chip-scan {
+                0%,100% { border-color: rgba(255,255,255,0.08); color: #64748b; background: rgba(255,255,255,0.03); box-shadow: none; }
+                20%     { border-color: rgba(var(--chip-color),0.7); color: rgb(var(--chip-color)); background: rgba(var(--chip-color),0.12); box-shadow: 0 0 12px rgba(var(--chip-color),0.3); }
+                45%     { border-color: rgba(255,255,255,0.08); color: #94a3b8; background: rgba(255,255,255,0.04); box-shadow: none; }
+              }
+              .chip-dot {
+                width: 5px; height: 5px;
+                border-radius: 50%;
+                background: currentColor;
+                opacity: 0.5;
+                flex-shrink: 0;
+                animation: dot-pulse 2.88s ease-in-out infinite;
+              }
+              @keyframes dot-pulse {
+                0%,100% { transform: scale(1);   opacity: 0.3; }
+                20%     { transform: scale(2);   opacity: 1;   }
+                45%     { transform: scale(1);   opacity: 0.3; }
+              }
+            `}</style>
           </div>
         )}
 
@@ -300,6 +610,59 @@ function ResultsContent() {
             >
               {t.tryAgain}
             </button>
+          </div>
+        )}
+
+        {/* Confetti */}
+        {showConfetti && result && (
+          <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+            {Array.from({ length: 140 }).map((_, i) => {
+              const colors = ['#d4a843','#e8c96a','#f5d878','#b8922a','#ffd700','#c9a227','#ffe066','#a07820','#fff9c4','#ffec6e'];
+              const color = colors[i % colors.length];
+              const x = Math.random() * 100;
+              const delay = Math.random() * 1.2;
+              const duration = 2.5 + Math.random() * 1.8;
+              const size = 5 + Math.random() * 10;
+              const rotate = Math.random() * 900;
+              const shape = i % 4 === 0 ? '50%' : i % 4 === 1 ? '2px' : i % 4 === 2 ? '0%' : '30%';
+              const drift = (Math.random() - 0.5) * 120;
+              return (
+                <div
+                  key={i}
+                  style={{
+                    position: 'absolute',
+                    left: `${x}%`,
+                    top: '-24px',
+                    width: `${size}px`,
+                    height: `${size * (i % 3 === 0 ? 1 : i % 3 === 1 ? 0.35 : 0.65)}px`,
+                    background: color,
+                    borderRadius: shape,
+                    animation: `confetti-fall-${i % 3} ${duration}s ${delay}s ease-in forwards`,
+                    transform: `rotate(${rotate}deg)`,
+                    opacity: 0.95,
+                    filter: 'drop-shadow(0 0 2px rgba(212,168,67,0.4))',
+                    '--drift': `${drift}px`,
+                  } as React.CSSProperties}
+                />
+              );
+            })}
+            <style>{`
+              @keyframes confetti-fall-0 {
+                0%   { transform: translateY(0) translateX(0) rotate(0deg) scale(1); opacity: 1; }
+                70%  { opacity: 1; }
+                100% { transform: translateY(105vh) translateX(var(--drift)) rotate(800deg) scale(0.4); opacity: 0; }
+              }
+              @keyframes confetti-fall-1 {
+                0%   { transform: translateY(0) translateX(0) rotate(0deg) scale(1); opacity: 1; }
+                60%  { opacity: 0.9; }
+                100% { transform: translateY(105vh) translateX(calc(var(--drift) * -1)) rotate(600deg) scale(0.3); opacity: 0; }
+              }
+              @keyframes confetti-fall-2 {
+                0%   { transform: translateY(0) translateX(0) rotate(0deg) scale(1.2); opacity: 1; }
+                75%  { opacity: 1; }
+                100% { transform: translateY(105vh) translateX(var(--drift)) rotate(1000deg) scale(0.5); opacity: 0; }
+              }
+            `}</style>
           </div>
         )}
 
@@ -356,6 +719,25 @@ function ResultsContent() {
               </div>
             </section>
 
+            {/* Talent Combinations */}
+            {result.combinations?.length > 0 && (
+              <section className="animate-fade-in">
+                <h2 className="font-serif text-xl text-white mb-1 flex items-center gap-3">
+                  <span className="w-6 h-px bg-gold/40" />
+                  {lang === 'ru' ? 'Сочетания талантов' : lang === 'ky' ? 'Талант айкалыштары' : 'Talent Combinations'}
+                  <span className="flex-1 h-px bg-white/5" />
+                </h2>
+                <p className="text-slate-500 text-sm mb-4 ml-9">
+                  {lang === 'ru' ? 'Как ваши таланты усиливают и конфликтуют друг с другом' : lang === 'ky' ? 'Таланттарыңыз бири-бирин кантип күчөтөт жана карама-каршы келет' : 'How your talents amplify and conflict with each other'}
+                </p>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {result.combinations.map((combo) => (
+                    <CombinationCard key={combo.type} combo={combo} lang={lang} />
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* Blind Spots */}
             <section className="animate-slide-in delay-200">
               <h2 className="font-serif text-xl text-white mb-4 flex items-center gap-3">
@@ -408,12 +790,14 @@ function ResultsContent() {
               <section className="animate-fade-in">
                 <h2 className="font-serif text-xl text-white mb-1 flex items-center gap-3">
                   <span className="w-6 h-px bg-gold/40" />
-                  {lang === 'ru' ? 'Идеальные партнёры для работы' : 'Ideal Work Partners'}
+                  {lang === 'ru' ? 'Идеальные партнёры для работы' : lang === 'ky' ? 'Идеалдуу иш өнөктөштөр' : 'Ideal Work Partners'}
                   <span className="flex-1 h-px bg-white/5" />
                 </h2>
                 <p className="text-slate-500 text-sm mb-4 ml-9">
                   {lang === 'ru'
                     ? '5 типов людей, которые дополнят ваш профиль'
+                    : lang === 'ky'
+                    ? 'Профилиңизди толуктай турган 5 тип адам'
                     : '5 types of people who complement your strengths profile'}
                 </p>
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -425,7 +809,18 @@ function ResultsContent() {
             )}
 
             {/* Bottom CTA */}
-            <div className="text-center pt-4">
+            <div className="text-center pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <a
+                href={shareToken ? `https://t.me/innervector_1bot?start=${shareToken}` : 'https://t.me/innervector_1bot'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-[#229ED9] text-white font-semibold hover:bg-[#1a8bbf] transition-all text-sm shadow-lg shadow-[#229ED9]/20"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.17 14.55l-2.945-.924c-.64-.203-.654-.64.136-.954l11.49-4.43c.538-.194 1.006.131.843.979z"/>
+                </svg>
+                {lang === 'ru' ? 'Начать с Вектор Коучем Данияром' : lang === 'ky' ? 'Данияр менен баштоо' : 'Start with Vector Coach Daniyar'}
+              </a>
               <button
                 onClick={() => router.push('/')}
                 className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/8 transition-all text-sm font-medium"

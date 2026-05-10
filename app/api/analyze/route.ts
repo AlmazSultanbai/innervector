@@ -1,13 +1,37 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 import { AnalysisResult } from '@/lib/types';
 import { saveAnalysis } from '@/lib/supabase';
 
 const client = new Anthropic();
 
+/** Check for existing identical profile before running Claude */
+async function findExistingAnalysis(full_name: string, strengths: string[]): Promise<{ share_token: string; analysis: string } | null> {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    );
+    const name = full_name.trim().toLowerCase();
+    const { data } = await supabase
+      .from('analyses')
+      .select('share_token, analysis, strengths')
+      .ilike('full_name', name)
+      .order('created_at', { ascending: false })
+      .limit(5);
+    if (!data) return null;
+    const incomingKey = strengths.join(',');
+    const match = data.find((row) => (row.strengths ?? []).join(',') === incomingKey);
+    return match ? { share_token: match.share_token, analysis: match.analysis } : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const { strengths, lang = 'en', full_name = '' } = await req.json();
+    const { strengths, lang = 'en', full_name = '', gallup_file_url } = await req.json();
 
     if (!strengths || !Array.isArray(strengths) || strengths.length < 5 || strengths.length > 10) {
       return NextResponse.json({ error: '5 to 10 strengths required' }, { status: 400 });
@@ -15,8 +39,24 @@ export async function POST(req: NextRequest) {
 
     const langInstruction =
       lang === 'ru'
-        ? 'IMPORTANT: Respond ENTIRELY in Russian. Every single text value in the JSON must be written in Russian. Do not use any English words except for proper names of people and the dominantDomain field.'
+        ? 'IMPORTANT: Respond ENTIRELY in Russian. Every single text value in the JSON must be written in Russian. Do not use any English words except for proper names of people and the dominantDomain field. CRITICAL: Every time you mention a CliftonStrengths theme name in the text, write it as: EnglishName (Русский перевод) — for example: "Self-Assurance (Самоуверенность)", "Futuristic (Визионерство)", "Individualization (Индивидуализация)", "Strategic (Стратегическое мышление)", "Ideation (Генерация идей)", "Learner (Обучаемость)", "Deliberative (Осторожность)", "Competition (Соперничество)", "Focus (Концентрация)", "Achiever (Достижение)", "Activator (Активатор)", "Adaptability (Адаптивность)", "Analytical (Аналитика)", "Arranger (Организованность)", "Belief (Убеждения)", "Command (Командование)", "Communication (Коммуникация)", "Connectedness (Связанность)", "Consistency (Последовательность)", "Context (Контекст)", "Developer (Развитие людей)", "Discipline (Дисциплина)", "Empathy (Эмпатия)", "Harmony (Гармония)", "Includer (Инклюзивность)", "Input (Сбор информации)", "Intellection (Интеллект)", "Maximizer (Максимизатор)", "Positivity (Позитивность)", "Relator (Близость)", "Responsibility (Ответственность)", "Restorative (Восстановление)", "Self-Assurance (Самоуверенность)", "Significance (Значимость)", "Woo (Завоевание симпатии)". Always show both: the English name first, then the Russian translation in parentheses.'
+        : lang === 'ky'
+        ? 'IMPORTANT: Respond ENTIRELY in Kyrgyz. Every single text value in the JSON must be written in Kyrgyz. Do not use any English words except for proper names of people and the dominantDomain field. CRITICAL: Every time you mention a CliftonStrengths theme name in the text, write it as: EnglishName (Кыргызча котормо) — for example: "Self-Assurance (Өз-өзүнө ишенүү)", "Futuristic (Болочокту көрүү)", "Individualization (Жекелештирүү)", "Strategic (Стратегиялык ой)", "Ideation (Идея жаратуу)", "Learner (Үйрөнүүчү)", "Deliberative (Этияттык)", "Competition (Атаандашуу)", "Focus (Топтолуу)", "Achiever (Жетишкендик)". Always show both: the English name first, then the Kyrgyz translation in parentheses.'
         : 'Respond entirely in English.';
+
+    // ── Duplicate check before calling Claude ──────────────────────────────
+    const existing = await findExistingAnalysis(full_name, strengths);
+    if (existing) {
+      console.info(`ℹ Duplicate profile for "${full_name}" — returning cached analysis`);
+      try {
+        const cleaned = existing.analysis.trim()
+          .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
+        const cached: AnalysisResult = JSON.parse(cleaned);
+        return NextResponse.json({ ...cached, share_token: existing.share_token });
+      } catch {
+        // If cached JSON is broken, fall through to re-generate
+      }
+    }
 
     const rankedList = strengths.map((s: string, i: number) => `  ${i + 1}. ${s}`).join('\n');
 
@@ -63,6 +103,44 @@ Respond ONLY with a valid JSON object using this exact structure (no markdown, n
       "whyComplement": "2 sentences explaining precisely why this person's strengths fill the gaps or amplify this profile — be specific about which strengths interact",
       "dynamicInAction": "One vivid, concrete real-work scenario showing how this duo operates together"
     }
+  ],
+  "combinations": [
+    {
+      "type": "signature",
+      "name": "A memorable label for the top-3 combination",
+      "talents": ["Talent1", "Talent2", "Talent3"],
+      "mechanism": "Exactly how these 3 amplify each other — 2 sentences, name the talents explicitly",
+      "atItsBest": "One sharp sentence: what this looks like when firing perfectly",
+      "whenItBackfires": "One sharp sentence: the specific failure mode",
+      "rarity": "1 in 10 / 1 in 50 / 1 in 100 people"
+    },
+    {
+      "type": "hidden",
+      "name": "A memorable label for a talent #4-7 paired with a top-3",
+      "talents": ["TopTalent", "Mid-rangeTalent"],
+      "mechanism": "How this specific pair amplifies each other — 2 sentences",
+      "atItsBest": "One sharp sentence",
+      "whenItBackfires": "One sharp sentence",
+      "rarity": "1 in 10 / 1 in 50 / 1 in 100 people"
+    },
+    {
+      "type": "tension",
+      "name": "A memorable label for the conflicting pair",
+      "talents": ["Talent1", "Talent2"],
+      "mechanism": "Exactly how these two create internal tension — 2 sentences",
+      "atItsBest": "One sharp sentence: when the tension becomes productive",
+      "whenItBackfires": "One sharp sentence: when it causes paralysis or conflict",
+      "rarity": "1 in 10 / 1 in 50 / 1 in 100 people"
+    },
+    {
+      "type": "sleeper",
+      "name": "A memorable label for the unexpected pair most people miss",
+      "talents": ["Talent1", "Talent2"],
+      "mechanism": "Why this surprising pair is actually powerful — 2 sentences",
+      "atItsBest": "One sharp sentence",
+      "whenItBackfires": "One sharp sentence",
+      "rarity": "1 in 10 / 1 in 50 / 1 in 100 people"
+    }
   ]
 }
 
@@ -73,11 +151,13 @@ Rules:
 - Careers should span different industries/contexts
 - idealPartners must be distinct archetypes covering different domains — no two should be from the same CliftonStrengths domain
 - idealPartners topStrengths must be valid CliftonStrengths names from the 34 themes
+- combinations must have exactly 4 items: one of each type (signature, hidden, tension, sleeper)
+- combinations talents must be valid CliftonStrengths names actually present in the user's profile
 - Every insight must reference the actual strength names provided`;
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 4096,
+      max_tokens: 8192,
       system: 'You are a Gallup-certified CliftonStrengths Master Coach. You give deeply personalized, non-generic strength analysis. Always respond with valid JSON only — no markdown fences, no text before or after the JSON object.',
       messages: [{ role: 'user', content: prompt }],
     });
@@ -91,16 +171,28 @@ Rules:
     const cleaned = content.text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
     const result: AnalysisResult = JSON.parse(cleaned);
 
-    // Save to Supabase (fire-and-forget, don't block the response)
-    saveAnalysis({
-      username: 'mindvector',
+    // Generate unique share token for client link
+    const share_token = crypto.randomUUID();
+
+    // Save to Supabase — skips insert if identical record already exists
+    const { error: saveError, share_token: finalToken, duplicate } = await saveAnalysis({
+      username: 'vector',
       full_name,
       strengths,
       lang,
       analysis: cleaned,
+      created_at: new Date().toISOString(),
+      share_token,
+      ...(gallup_file_url ? { gallup_file_url } : {}),
     });
+    if (saveError) {
+      console.error('⚠ Analysis completed but failed to save to history:', saveError);
+    }
+    if (duplicate) {
+      console.info(`ℹ Duplicate analysis skipped for "${full_name}" — returning existing record`);
+    }
 
-    return NextResponse.json(result);
+    return NextResponse.json({ ...result, share_token: finalToken ?? share_token });
   } catch (err) {
     console.error('Analyze error:', err);
     return NextResponse.json({ error: 'Analysis failed' }, { status: 500 });

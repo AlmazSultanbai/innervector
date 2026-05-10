@@ -1,6 +1,14 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { STRENGTH_NAMES } from '@/lib/strengths';
+import { createClient } from '@supabase/supabase-js';
+
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 const client = new Anthropic();
 
@@ -35,8 +43,17 @@ export async function POST(req: NextRequest) {
     const extractPrompt = `This is a Gallup CliftonStrengths (StrengthsFinder) assessment report.
 
 TASK: Extract the following from this document:
-1. The full name of the person this report belongs to (usually shown at the top of the report)
+1. The full name of the person this report belongs to
 2. The TOP 10 CliftonStrengths themes, strictly in rank order from #1 (strongest) to #10
+
+WHERE TO LOOK FOR THE NAME:
+- Top of the page / header area (most common — "Name: John Smith" or just "John Smith")
+- Title block, e.g. "John Smith's CliftonStrengths" or "Report for John Smith"
+- Any greeting like "Hello, John" or "Dear John Smith"
+- Watermark or footer with person's name
+- Any text that looks like a personal name (two capitalised words, e.g. "Anna Petrova")
+- The name may be in any language (English, Russian, Kyrgyz, etc.)
+- Look carefully — even a single first name is better than nothing
 
 The 34 valid CliftonStrengths theme names are:
 ${validStrengths}
@@ -47,7 +64,7 @@ Rules:
 - Use EXACT spelling from the list above (e.g. "Self-Assurance" not "Self Assurance")
 - Do NOT invent, guess, or add any themes not clearly visible in the document
 - The order matters — rank #1 must be first in the array
-- For "full_name": extract the person's name exactly as written. If no name is visible, return ""
+- For "full_name": search the ENTIRE document thoroughly. Return the name exactly as written. Only return "" if absolutely no name is visible anywhere.
 
 Respond ONLY with a valid JSON object, no markdown fences:
 {
@@ -104,8 +121,38 @@ Respond ONLY with a valid JSON object, no markdown fences:
       );
     }
 
+    // Upload original file to Supabase Storage
+    let gallup_file_url: string | null = null;
+    try {
+      const ext = file.type === 'application/pdf' ? 'pdf'
+        : file.type === 'image/png' ? 'png'
+        : file.type === 'image/webp' ? 'webp'
+        : 'jpg';
+      const fileName = `${crypto.randomUUID()}.${ext}`;
+      const fileBuffer = Buffer.from(bytes);
+
+      const supabaseAdmin = getSupabaseAdmin();
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from('gallup-reports')
+        .upload(fileName, fileBuffer, {
+          contentType: file.type,
+          upsert: false,
+        });
+
+      if (!uploadError) {
+        const { data: urlData } = supabaseAdmin.storage
+          .from('gallup-reports')
+          .getPublicUrl(fileName);
+        gallup_file_url = urlData.publicUrl;
+      } else {
+        console.error('Storage upload error:', uploadError.message);
+      }
+    } catch (storageErr) {
+      console.error('Storage error (non-fatal):', storageErr);
+    }
+
     // Always return up to 10, in the ranked order extracted
-    return NextResponse.json({ strengths: valid.slice(0, 10), full_name: fullName });
+    return NextResponse.json({ strengths: valid.slice(0, 10), full_name: fullName, gallup_file_url });
   } catch (err) {
     console.error('Extract error:', err);
     return NextResponse.json({ error: 'Failed to read the file. Please try again.' }, { status: 500 });

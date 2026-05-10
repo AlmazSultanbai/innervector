@@ -28,6 +28,16 @@ export default function LangToggle({ small }: { small?: boolean }) {
         >
           RU
         </button>
+        <button
+          onClick={() => setLang('ky')}
+          className={`px-1.5 py-0.5 rounded text-[10px] font-semibold transition-all ${
+            lang === 'ky'
+              ? 'bg-gold/20 text-gold border border-gold/30'
+              : 'text-slate-500 hover:text-slate-300'
+          }`}
+        >
+          KY
+        </button>
       </div>
     );
   }
@@ -53,6 +63,16 @@ export default function LangToggle({ small }: { small?: boolean }) {
         }`}
       >
         RU
+      </button>
+      <button
+        onClick={() => setLang('ky')}
+        className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+          lang === 'ky'
+            ? 'bg-gold/20 text-gold border border-gold/30'
+            : 'text-slate-500 hover:text-slate-300'
+        }`}
+      >
+        KY
       </button>
     </div>
   );
