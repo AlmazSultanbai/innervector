@@ -4,7 +4,23 @@ import { createClient } from '@supabase/supabase-js';
 import { AnalysisResult } from '@/lib/types';
 import { saveAnalysis } from '@/lib/supabase';
 
+export const maxDuration = 120; // Vercel Pro: up to 300s
+
 const client = new Anthropic();
+
+// Simple in-memory rate limiter: max 5 requests per IP per 10 minutes
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + 10 * 60 * 1000 });
+    return true;
+  }
+  if (entry.count >= 5) return false;
+  entry.count++;
+  return true;
+}
 
 /** Check for existing identical profile before running Claude */
 async function findExistingAnalysis(full_name: string, strengths: string[]): Promise<{ share_token: string; analysis: string } | null> {
@@ -30,6 +46,12 @@ async function findExistingAnalysis(full_name: string, strengths: string[]): Pro
 }
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 5 analyses per IP per 10 minutes
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+  if (!checkRateLimit(ip)) {
+    return NextResponse.json({ error: 'Too many requests. Please wait a few minutes.' }, { status: 429 });
+  }
+
   try {
     const { strengths, lang = 'en', full_name = '', gallup_file_url } = await req.json();
 
