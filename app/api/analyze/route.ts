@@ -159,7 +159,7 @@ Rules:
 - Every insight must reference the actual strength names provided`;
 
     const message = await client.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-5',
       max_tokens: 8192,
       system: 'You are a Gallup-certified CliftonStrengths Master Coach. You give deeply personalized, non-generic strength analysis. Always respond with valid JSON only — no markdown fences, no text before or after the JSON object.',
       messages: [{ role: 'user', content: prompt }],
