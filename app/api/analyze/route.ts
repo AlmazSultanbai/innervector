@@ -8,7 +8,7 @@ export const maxDuration = 120; // Vercel Pro: up to 300s
 
 const client = new Anthropic();
 
-// Simple in-memory rate limiter: max 5 requests per IP per 10 minutes
+// Simple in-memory rate limiter: max 20 requests per IP per 10 minutes
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
@@ -17,7 +17,7 @@ function checkRateLimit(ip: string): boolean {
     rateLimitMap.set(ip, { count: 1, resetAt: now + 10 * 60 * 1000 });
     return true;
   }
-  if (entry.count >= 5) return false;
+  if (entry.count >= 20) return false;
   entry.count++;
   return true;
 }
