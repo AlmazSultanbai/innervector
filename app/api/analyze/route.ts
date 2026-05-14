@@ -197,7 +197,8 @@ Rules:
 
     return NextResponse.json({ ...result, share_token: finalToken ?? share_token });
   } catch (err) {
-    console.error('Analyze error:', err);
-    return NextResponse.json({ error: 'Analysis failed' }, { status: 500 });
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('Analyze error:', msg);
+    return NextResponse.json({ error: 'Analysis failed', detail: msg }, { status: 500 });
   }
 }
