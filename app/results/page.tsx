@@ -577,7 +577,7 @@ function ResultsContent() {
                     className="analyzing-chip text-xs px-2.5 py-1 rounded-full"
                     style={{
                       '--chip-color': color,
-                      animationDelay: `${i * 288}ms`,
+                      animationDelay: `${i * 403}ms`,
                     } as React.CSSProperties}
                   >
                     <span className="chip-dot" style={{ animationDelay: `${i * 288}ms` }} />
@@ -594,7 +594,7 @@ function ResultsContent() {
                 background: rgba(255,255,255,0.03);
                 border: 1px solid rgba(255,255,255,0.08);
                 color: #64748b;
-                animation: chip-scan 2.88s ease-in-out infinite;
+                animation: chip-scan 4.03s ease-in-out infinite;
               }
               @keyframes chip-scan {
                 0%,100% { border-color: rgba(255,255,255,0.08); color: #64748b; background: rgba(255,255,255,0.03); box-shadow: none; }
@@ -607,7 +607,7 @@ function ResultsContent() {
                 background: currentColor;
                 opacity: 0.5;
                 flex-shrink: 0;
-                animation: dot-pulse 2.88s ease-in-out infinite;
+                animation: dot-pulse 4.03s ease-in-out infinite;
               }
               @keyframes dot-pulse {
                 0%,100% { transform: scale(1);   opacity: 0.3; }
