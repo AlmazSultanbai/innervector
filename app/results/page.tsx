@@ -12,6 +12,7 @@ import FamousPersonCard from '@/components/FamousPersonCard';
 import CareerCard from '@/components/CareerCard';
 import IdealPartnerCard from '@/components/IdealPartnerCard';
 import CombinationCard from '@/components/CombinationCard';
+import LoginModal, { useAuth } from '@/components/LoginModal';
 
 
 const DOMAIN_ICONS: Record<Domain, string> = {
@@ -21,10 +22,15 @@ const DOMAIN_ICONS: Record<Domain, string> = {
   'Strategic Thinking': '💡',
 };
 
+const PAYMENT_LINK = 'https://innervector.co/pay';
+const ANALYSIS_PRICE = '$29';
+
 function ResultsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { lang, setLang, t } = useLang();
+  const { isAuthed, isSuperAdmin, login } = useAuth();
+  const [showLogin, setShowLogin] = useState(false);
   const [strengths, setStrengths] = useState<string[]>([]);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -438,6 +444,19 @@ function ResultsContent() {
 
   return (
     <div className="min-h-screen bg-radial">
+      {showLogin && (
+        <LoginModal
+          onSuccess={(role, meta) => {
+            login(role);
+            setShowLogin(false);
+            // If client has their own profile — redirect to it
+            if (role === 'client' && meta?.analysis_id) {
+              router.push(`/results?id=${meta.analysis_id}`);
+            }
+          }}
+          onClose={() => setShowLogin(false)}
+        />
+      )}
       {/* Header nav */}
       <header className="sticky top-0 z-10 border-b border-white/5 bg-navy-900/80 backdrop-blur-xl">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between gap-2">
@@ -719,118 +738,351 @@ function ResultsContent() {
               </div>
             </section>
 
-            {/* Talent Combinations */}
-            {result.combinations?.length > 0 && (
-              <section className="animate-fade-in">
-                <h2 className="font-serif text-xl text-white mb-1 flex items-center gap-3">
-                  <span className="w-6 h-px bg-gold/40" />
-                  {lang === 'ru' ? 'Сочетания талантов' : lang === 'ky' ? 'Талант айкалыштары' : 'Talent Combinations'}
-                  <span className="flex-1 h-px bg-white/5" />
-                </h2>
-                <p className="text-slate-500 text-sm mb-4 ml-9">
-                  {lang === 'ru' ? 'Как ваши таланты усиливают и конфликтуют друг с другом' : lang === 'ky' ? 'Таланттарыңыз бири-бирин кантип күчөтөт жана карама-каршы келет' : 'How your talents amplify and conflict with each other'}
-                </p>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {result.combinations.map((combo) => (
-                    <CombinationCard key={combo.type} combo={combo} lang={lang} />
-                  ))}
-                </div>
-              </section>
-            )}
+            {/* ── PAYWALL WALL — starts at Combinations ── */}
+            {(isAuthed || isSuperAdmin) ? (
+              <>
+                {/* Talent Combinations */}
+                {result.combinations?.length > 0 && (
+                  <section className="animate-fade-in">
+                    <h2 className="font-serif text-xl text-white mb-1 flex items-center gap-3">
+                      <span className="w-6 h-px bg-gold/40" />
+                      {lang === 'ru' ? 'Сочетания талантов' : lang === 'ky' ? 'Талант айкалыштары' : 'Talent Combinations'}
+                      <span className="flex-1 h-px bg-white/5" />
+                    </h2>
+                    <p className="text-slate-500 text-sm mb-4 ml-9">
+                      {lang === 'ru' ? 'Как ваши таланты усиливают и конфликтуют друг с другом' : lang === 'ky' ? 'Таланттарыңыз бири-бирин кантип күчөтөт жана карама-каршы келет' : 'How your talents amplify and conflict with each other'}
+                    </p>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {result.combinations.map((combo) => (
+                        <CombinationCard key={combo.type} combo={combo} lang={lang} />
+                      ))}
+                    </div>
+                  </section>
+                )}
 
-            {/* Blind Spots */}
-            <section className="animate-slide-in delay-200">
-              <h2 className="font-serif text-xl text-white mb-4 flex items-center gap-3">
-                <span className="w-6 h-px bg-gold/40" />
-                {t.blindSpotsTitle}
-                <span className="flex-1 h-px bg-white/5" />
-              </h2>
-              <div className="grid sm:grid-cols-3 gap-3">
-                {result.blindSpots.map((spot, i) => (
-                  <div key={i} className={`card p-4 animate-slide-in delay-${i * 100}`}>
-                    <div className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xs flex-shrink-0 mt-0.5">{i + 1}</div>
-                      <p className="text-slate-300 text-sm leading-relaxed">{spot}</p>
+                {/* Blind Spots */}
+                <section className="animate-slide-in delay-200">
+                  <h2 className="font-serif text-xl text-white mb-4 flex items-center gap-3">
+                    <span className="w-6 h-px bg-gold/40" />
+                    {t.blindSpotsTitle}
+                    <span className="flex-1 h-px bg-white/5" />
+                  </h2>
+                  <div className="grid sm:grid-cols-3 gap-3">
+                    {result.blindSpots.map((spot, i) => (
+                      <div key={i} className={`card p-4 animate-slide-in delay-${i * 100}`}>
+                        <div className="flex items-start gap-3">
+                          <div className="w-5 h-5 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xs flex-shrink-0 mt-0.5">{i + 1}</div>
+                          <p className="text-slate-300 text-sm leading-relaxed">{spot}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* Famous People */}
+                <section>
+                  <h2 className="font-serif text-xl text-white mb-4 flex items-center gap-3">
+                    <span className="w-6 h-px bg-gold/40" />
+                    {t.famousTitle}
+                    <span className="flex-1 h-px bg-white/5" />
+                  </h2>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {result.famousPeople.map((person, i) => (
+                      <FamousPersonCard key={person.name} person={person} animDelay={i * 100} />
+                    ))}
+                  </div>
+                </section>
+
+                {/* Careers */}
+                <section>
+                  <h2 className="font-serif text-xl text-white mb-4 flex items-center gap-3">
+                    <span className="w-6 h-px bg-gold/40" />
+                    {t.careersTitle}
+                    <span className="flex-1 h-px bg-white/5" />
+                  </h2>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {result.careers.map((career, i) => (
+                      <CareerCard key={career.title} career={career} rank={i + 1} animDelay={i * 100} />
+                    ))}
+                  </div>
+                </section>
+
+                {/* Ideal Partners */}
+                {result.idealPartners?.length > 0 && (
+                  <section className="animate-fade-in">
+                    <h2 className="font-serif text-xl text-white mb-1 flex items-center gap-3">
+                      <span className="w-6 h-px bg-gold/40" />
+                      {lang === 'ru' ? 'Идеальные партнёры для работы' : lang === 'ky' ? 'Идеалдуу иш өнөктөштөр' : 'Ideal Work Partners'}
+                      <span className="flex-1 h-px bg-white/5" />
+                    </h2>
+                    <p className="text-slate-500 text-sm mb-4 ml-9">
+                      {lang === 'ru'
+                        ? '5 типов людей, которые дополнят ваш профиль'
+                        : lang === 'ky'
+                        ? 'Профилиңизди толуктай турган 5 тип адам'
+                        : '5 types of people who complement your strengths profile'}
+                    </p>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {result.idealPartners.map((partner, i) => (
+                        <IdealPartnerCard key={partner.type} partner={partner} index={i} />
+                      ))}
+                    </div>
+                  </section>
+                )}
+              </>
+            ) : (
+              /* Paywall block — covers combinations + everything below */
+              <section className="relative animate-fade-in">
+                {/* Real blurred content — actual data rendered but blurred */}
+                <div className="relative overflow-hidden rounded-2xl" style={{ background: 'linear-gradient(160deg, #0a1628 0%, #0d1f3c 40%, #0a1a35 70%, #091525 100%)' }}>
+                  {/* Real content — blurred so silhouette is visible */}
+                  <div className="pointer-events-none select-none space-y-10 p-2" style={{ filter: 'blur(5px)', opacity: 0.6 }}>
+
+                    {/* Combinations silhouette */}
+                    <div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="w-6 h-px bg-gold/40 inline-block" />
+                        <span className="font-serif text-xl text-white">{lang === 'ru' ? 'Сочетания талантов' : lang === 'ky' ? 'Талант айкалыштары' : 'Talent Combinations'}</span>
+                      </div>
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        {[
+                          { name: lang === 'ru' ? 'Архитектор решений' : 'Solution Architect', tags: ['Ideation', 'Context', 'Analytical'], good: lang === 'ru' ? 'Генерирует нестандартные решения' : 'Generates breakthrough ideas', bad: lang === 'ru' ? 'Может застрять в анализе' : 'Can get stuck in analysis' },
+                          { name: lang === 'ru' ? 'Стратег отношений' : 'Relationship Strategist', tags: ['Empathy', 'Individualization', 'Relator'], good: lang === 'ru' ? 'Создаёт глубокие связи' : 'Creates deep connections', bad: lang === 'ru' ? 'Сложно масштабировать' : 'Hard to scale' },
+                        ].map((c, i) => (
+                          <div key={i} className="rounded-xl border border-white/10 bg-white/4 p-5">
+                            <div className="flex justify-between items-start mb-3">
+                              <span className="font-bold text-white text-base">{c.name}</span>
+                              <span className="text-slate-500 text-xs">1 in 50</span>
+                            </div>
+                            <div className="flex gap-2 flex-wrap mb-3">
+                              {c.tags.map(t => <span key={t} className="px-2.5 py-1 rounded-full bg-white/8 border border-white/10 text-slate-300 text-xs">{t}</span>)}
+                            </div>
+                            <p className="text-slate-400 text-sm leading-relaxed mb-3">
+                              {lang === 'ru'
+                                ? 'Эта комбинация создаёт редкую способность видеть паттерны там, где другие видят хаос, превращая сложные системы в понятные стратегии.'
+                                : 'This combination creates a rare ability to see patterns where others see chaos, turning complex systems into clear strategies.'}
+                            </p>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-2.5">
+                                <div className="text-emerald-400 text-xs font-semibold mb-1">● {lang === 'ru' ? 'В лучшем виде' : 'At its best'}</div>
+                                <p className="text-emerald-300/80 text-xs">{c.good}</p>
+                              </div>
+                              <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-2.5">
+                                <div className="text-red-400 text-xs font-semibold mb-1">● {lang === 'ru' ? 'Риск' : 'Risk'}</div>
+                                <p className="text-red-300/80 text-xs">{c.bad}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Blind spots silhouette */}
+                    <div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="w-6 h-px bg-gold/40 inline-block" />
+                        <span className="font-serif text-xl text-white">{lang === 'ru' ? 'Слепые зоны' : lang === 'ky' ? 'Байкалбаган жактар' : 'Blind Spots'}</span>
+                      </div>
+                      <div className="grid sm:grid-cols-3 gap-3">
+                        {[
+                          lang === 'ru' ? 'Склонность переусложнять простые задачи из-за стремления к идеальному решению' : 'Tendency to overcomplicate simple tasks',
+                          lang === 'ru' ? 'Трудность с быстрыми решениями — потребность в полном контексте замедляет действие' : 'Difficulty with quick decisions',
+                          lang === 'ru' ? 'Риск изоляции: глубина мышления создаёт барьер в коммуникации с менее вдумчивыми людьми' : 'Risk of isolation from deeper thinking',
+                        ].map((spot, i) => (
+                          <div key={i} className="card p-4">
+                            <div className="flex items-start gap-3">
+                              <div className="w-5 h-5 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xs flex-shrink-0 mt-0.5">{i + 1}</div>
+                              <p className="text-slate-300 text-sm leading-relaxed">{spot}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Famous people silhouette */}
+                    <div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="w-6 h-px bg-gold/40 inline-block" />
+                        <span className="font-serif text-xl text-white">{lang === 'ru' ? 'Известные люди' : lang === 'ky' ? 'Белгилүү адамдар' : 'Famous People'}</span>
+                      </div>
+                      <div className="grid sm:grid-cols-3 gap-4">
+                        {['Elon Musk', 'Steve Jobs', 'Warren Buffett'].map((name, i) => (
+                          <div key={i} className="card p-4">
+                            <div className="font-bold text-white mb-1">{name}</div>
+                            <div className="text-slate-500 text-xs mb-2">{['Tech / Business', 'Design / Innovation', 'Finance / Strategy'][i]}</div>
+                            <p className="text-slate-400 text-xs leading-relaxed">
+                              {lang === 'ru' ? 'Схожий профиль талантов позволил создать уникальный стиль лидерства.' : 'Similar talent profile enabled a unique leadership style.'}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Careers silhouette */}
+                    <div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="w-6 h-px bg-gold/40 inline-block" />
+                        <span className="font-serif text-xl text-white">{lang === 'ru' ? 'Идеальные карьеры' : lang === 'ky' ? 'Идеалдуу карьера' : 'Ideal Careers'}</span>
+                      </div>
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        {[
+                          { title: lang === 'ru' ? 'Стратегический консультант' : 'Strategic Consultant', why: lang === 'ru' ? 'Ваша комбинация Ideation + Context даёт редкую способность видеть системные решения' : 'Your Ideation + Context gives rare systemic thinking' },
+                          { title: lang === 'ru' ? 'Коуч руководителей' : 'Executive Coach', why: lang === 'ru' ? 'Empathy + Individualization создают глубокое понимание каждого клиента' : 'Empathy + Individualization enable deep client understanding' },
+                        ].map((c, i) => (
+                          <div key={i} className="card p-5 flex gap-4">
+                            <div className="w-7 h-7 rounded-full bg-gold/10 border border-gold/20 text-gold text-sm font-bold flex items-center justify-center flex-shrink-0">{i + 1}</div>
+                            <div>
+                              <div className="font-bold text-white text-base mb-1">{c.title}</div>
+                              <p className="text-slate-400 text-sm leading-relaxed">{c.why}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </section>
 
-            {/* Famous People */}
-            <section>
-              <h2 className="font-serif text-xl text-white mb-4 flex items-center gap-3">
-                <span className="w-6 h-px bg-gold/40" />
-                {t.famousTitle}
-                <span className="flex-1 h-px bg-white/5" />
-              </h2>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {result.famousPeople.map((person, i) => (
-                  <FamousPersonCard key={person.name} person={person} animDelay={i * 100} />
-                ))}
-              </div>
-            </section>
+                  {/* Gradient overlay — transparent top, deep blue at bottom */}
+                  <div className="absolute inset-0 pointer-events-none" style={{
+                    background: 'linear-gradient(to bottom, transparent 0%, transparent 15%, rgba(10,20,45,0.55) 40%, rgba(8,18,42,0.96) 62%, rgba(7,16,38,1) 100%)'
+                  }} />
 
-            {/* Careers */}
-            <section>
-              <h2 className="font-serif text-xl text-white mb-4 flex items-center gap-3">
-                <span className="w-6 h-px bg-gold/40" />
-                {t.careersTitle}
-                <span className="flex-1 h-px bg-white/5" />
-              </h2>
-              <div className="grid sm:grid-cols-2 gap-4">
-                {result.careers.map((career, i) => (
-                  <CareerCard key={career.title} career={career} rank={i + 1} animDelay={i * 100} />
-                ))}
-              </div>
-            </section>
+                  {/* Lock overlay content — pinned to bottom */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-end pb-10 px-6"
+                    style={{ background: 'linear-gradient(to bottom, transparent 0%, transparent 55%, rgba(7,16,38,0.98) 75%, rgba(7,16,38,1) 100%)' }}
+                  >
+                    {/* Logo + tagline */}
+                    <div className="absolute top-[28%] left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none flex flex-col items-center gap-4">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/logo.png" alt="Inner Vector" width={208} height={208} style={{ objectFit: 'contain' }} />
+                      <div className="text-center">
+                        <p className="text-white font-serif leading-snug" style={{ fontFamily: 'Georgia, serif', fontSize: '1.43rem', textShadow: '0 2px 20px rgba(7,16,38,0.9)' }}>
+                          {lang === 'ru' ? (
+                            <><span style={{ color: '#d4a843', fontWeight: 700 }}>Компас</span> — за 30 дней переводим<br />таланты — в действие.</>
+                          ) : lang === 'ky' ? (
+                            <><span style={{ color: '#d4a843', fontWeight: 700 }}>Компас</span> — 30 күндө таланттарды<br />иш-аракетке которобуз.</>
+                          ) : (
+                            <><span style={{ color: '#d4a843', fontWeight: 700 }}>Compass</span> — in 30 days we turn<br />talents into action.</>
+                          )}
+                        </p>
+                      </div>
+                    </div>
 
-            {/* Ideal Partners */}
-            {result.idealPartners?.length > 0 && (
-              <section className="animate-fade-in">
-                <h2 className="font-serif text-xl text-white mb-1 flex items-center gap-3">
-                  <span className="w-6 h-px bg-gold/40" />
-                  {lang === 'ru' ? 'Идеальные партнёры для работы' : lang === 'ky' ? 'Идеалдуу иш өнөктөштөр' : 'Ideal Work Partners'}
-                  <span className="flex-1 h-px bg-white/5" />
-                </h2>
-                <p className="text-slate-500 text-sm mb-4 ml-9">
-                  {lang === 'ru'
-                    ? '5 типов людей, которые дополнят ваш профиль'
-                    : lang === 'ky'
-                    ? 'Профилиңизди толуктай турган 5 тип адам'
-                    : '5 types of people who complement your strengths profile'}
-                </p>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {result.idealPartners.map((partner, i) => (
-                    <IdealPartnerCard key={partner.type} partner={partner} index={i} />
-                  ))}
+                    {/* Lock icon */}
+                    <div className="w-14 h-14 rounded-2xl bg-gold/10 border border-gold/25 flex items-center justify-center mb-5"
+                      style={{ boxShadow: '0 0 40px rgba(212,168,67,0.2), 0 0 80px rgba(30,80,160,0.15)' }}
+                    >
+                      <svg className="w-7 h-7 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                      </svg>
+                    </div>
+
+                    <h3 className="font-serif text-2xl text-white mb-2 text-center">
+                      {lang === 'ru' ? 'В закрытой части:' : lang === 'ky' ? 'Жабык бөлүктө:' : 'In the private part:'}
+                    </h3>
+                    <ul className="text-slate-400 text-sm mb-7 space-y-1.5 text-center">
+                      {lang === 'ru' ? (
+                        <>
+                          <li>— Сочетания талантов — как они усиливают и конфликтуют</li>
+                          <li>— Слепые зоны — что тормозит ваш рост</li>
+                          <li>— Известные люди с похожим профилем</li>
+                          <li>— Идеальные карьеры под ваш ДНК талантов</li>
+                          <li>— 5 типов идеальных партнёров для работы</li>
+                          <li>— 30 дней с ИИ коуч-экспертом в Telegram</li>
+                          <li>— Геймификация и задания, развивающие таланты</li>
+                        </>
+                      ) : lang === 'ky' ? (
+                        <>
+                          <li>— Талант айкалыштары — алар кантип күчөтөт жана карама-каршы келет</li>
+                          <li>— Байкалбаган жактар — өсүүңүзгө тоскоол болгон нерселер</li>
+                          <li>— Окшош профилдеги белгилүү адамдар</li>
+                          <li>— Талант ДНКыңызга ылайыктуу карьера</li>
+                          <li>— 5 тип идеалдуу иш өнөктөш</li>
+                          <li>— Telegramда 30 күн ИИ коуч-эксперт менен</li>
+                          <li>— Геймификация жана таланттарды өнүктүрүүчү тапшырмалар</li>
+                        </>
+                      ) : (
+                        <>
+                          <li>— Talent combinations — how they amplify and conflict</li>
+                          <li>— Blind spots — what&apos;s holding your growth back</li>
+                          <li>— Famous people with a similar profile</li>
+                          <li>— Ideal careers for your talent DNA</li>
+                          <li>— 5 types of ideal work partners</li>
+                          <li>— 30 days with an AI coach expert in Telegram</li>
+                          <li>— Gamification & talent-building daily challenges</li>
+                        </>
+                      )}
+                    </ul>
+
+                    {/* CTA button */}
+                    <a
+                      href={PAYMENT_LINK}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 px-10 py-4 rounded-xl font-semibold text-base text-navy-900 transition-all duration-200"
+                      style={{
+                        background: 'linear-gradient(135deg, #d4a843 0%, #e8c96a 100%)',
+                        boxShadow: '0 0 32px rgba(212,168,67,0.35)',
+                      }}
+                    >
+                      <span>💎</span>
+                      <span>
+                        {lang === 'ru' ? `Полный доступ — ${ANALYSIS_PRICE}` : lang === 'ky' ? `Толук жеткиликтүүлүк — ${ANALYSIS_PRICE}` : `Full access — ${ANALYSIS_PRICE}`}
+                      </span>
+                    </a>
+
+                    {/* Already paid sign-in link */}
+                    <p className="mt-5 text-slate-600 text-xs">
+                      {lang === 'ru' ? 'Уже оплатили? ' : lang === 'ky' ? 'Жазылдыңызбы? ' : 'Already paid? '}
+                      <button
+                        onClick={() => setShowLogin(true)}
+                        className="text-gold/70 hover:text-gold underline transition-colors"
+                      >
+                        {lang === 'ru' ? 'Войти' : lang === 'ky' ? 'Кирүү' : 'Sign in'}
+                      </button>
+                    </p>
+                  </div>
+                </div>
+
+                {/* New analysis button — always shown below paywall */}
+                <div className="text-center mt-6">
+                  <button
+                    onClick={() => router.push('/')}
+                    className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/8 transition-all text-sm font-medium"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    {t.analyzeAnother}
+                  </button>
                 </div>
               </section>
             )}
 
-            {/* Bottom CTA */}
-            <div className="text-center pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <a
-                href={shareToken ? `https://t.me/innervector_1bot?start=${shareToken}` : 'https://t.me/innervector_1bot'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-[#229ED9] text-white font-semibold hover:bg-[#1a8bbf] transition-all text-sm shadow-lg shadow-[#229ED9]/20"
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.17 14.55l-2.945-.924c-.64-.203-.654-.64.136-.954l11.49-4.43c.538-.194 1.006.131.843.979z"/>
-                </svg>
-                {lang === 'ru' ? 'Начать с Вектор Коучем Данияром' : lang === 'ky' ? 'Данияр менен баштоо' : 'Start with Vector Coach Daniyar'}
-              </a>
-              <button
-                onClick={() => router.push('/')}
-                className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/8 transition-all text-sm font-medium"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                {t.analyzeAnother}
-              </button>
-            </div>
+            {/* Bottom CTA — Telegram button only for authed users */}
+            {isAuthed && (
+              <div className="text-center pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a
+                  href={shareToken ? `https://t.me/innervector_1bot?start=${shareToken}` : 'https://t.me/innervector_1bot'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-[#229ED9] text-white font-semibold hover:bg-[#1a8bbf] transition-all text-sm shadow-lg shadow-[#229ED9]/20"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.17 14.55l-2.945-.924c-.64-.203-.654-.64.136-.954l11.49-4.43c.538-.194 1.006.131.843.979z"/>
+                  </svg>
+                  {lang === 'ru' ? 'Начать с Вектор Коучем Данияром' : lang === 'ky' ? 'Данияр менен баштоо' : 'Start with Vector Coach Daniyar'}
+                </a>
+                <button
+                  onClick={() => router.push('/')}
+                  className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/8 transition-all text-sm font-medium"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  {t.analyzeAnother}
+                </button>
+              </div>
+            )}
 
           </div>
         )}
