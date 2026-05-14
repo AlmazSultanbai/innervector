@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { AnalysisResult } from '@/lib/types';
 import { saveAnalysis } from '@/lib/supabase';
 
-export const maxDuration = 120; // Vercel Pro: up to 300s
+export const maxDuration = 300; // Vercel Pro: up to 300s
 
 const client = new Anthropic();
 
