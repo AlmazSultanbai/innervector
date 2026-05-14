@@ -149,7 +149,7 @@ Respond ONLY with a valid JSON object using this exact structure (no markdown, n
 
 Rules:
 - "dominantDomain" must be exactly one of: Executing, Influencing, Relationship Building, Strategic Thinking
-- Return exactly 5 famous people, exactly 5 careers, and exactly 5 idealPartners
+- Return exactly 3 famous people, exactly 3 careers, and exactly 3 idealPartners
 - Famous people must be real, well-known figures (not obscure)
 - Careers should span different industries/contexts
 - idealPartners must be distinct archetypes covering different domains — no two should be from the same CliftonStrengths domain
@@ -160,7 +160,7 @@ Rules:
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 4096,
+      max_tokens: 8192,
       system: 'You are a Gallup-certified CliftonStrengths Master Coach. You give deeply personalized, non-generic strength analysis. Always respond with valid JSON only — no markdown fences, no text before or after the JSON object.',
       messages: [{ role: 'user', content: prompt }],
     });
