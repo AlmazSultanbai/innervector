@@ -446,7 +446,7 @@ function ResultsContent() {
     <div className="min-h-screen bg-radial">
       {showLogin && (
         <LoginModal
-          onSuccess={(role, meta) => {
+          onSuccess={(role: 'admin' | 'superadmin' | 'client', meta) => {
             login(role);
             setShowLogin(false);
             // If client has their own profile — redirect to it
