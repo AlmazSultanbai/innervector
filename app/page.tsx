@@ -40,7 +40,7 @@ type InputMode = 'upload' | 'manual';
 export default function HomePage() {
   const router = useRouter();
   const { lang, t } = useLang();
-  const { isAuthed: authed, login, logout } = useAuth();
+  const { isAuthed: authed, authed: authRole, login, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [mode, setMode] = useState<InputMode>('upload');
   const [selected, setSelected] = useState<string[]>([]);
@@ -49,8 +49,16 @@ export default function HomePage() {
   const [lastName, setLastName] = useState('');
   // Index of currently glowing chip (-1 = none)
   const [glowIndex, setGlowIndex] = useState(-1);
+  const [profileCount, setProfileCount] = useState<number | null>(null);
   const glowIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch('/api/profile-count')
+      .then((r) => r.json())
+      .then((d) => setProfileCount(d.count ?? null))
+      .catch(() => {});
+  }, []);
 
   const switchMode = (m: InputMode) => {
     setMode(m);
@@ -95,11 +103,7 @@ export default function HomePage() {
   const handleAnalyze = () => {
     stopGlow();
     if (selected.length < 5) return;
-    if (authed) {
-      goToResults();
-    } else {
-      setShowLogin(true);
-    }
+    goToResults();
   };
 
   // Sequential glow animation when hovering the CTA button
@@ -147,39 +151,36 @@ export default function HomePage() {
 
   const ready = selected.length >= 5;
 
-  // Wait for sessionStorage to be read before rendering (prevents SSR flash)
-  if (authed === null) return (
-    <div className="min-h-screen bg-radial" />
-  );
-
   return (
     <div className="min-h-screen bg-radial flex flex-col">
       {showLogin && (
         <LoginModal
-          onSuccess={(role) => {
+          onSuccess={(role, meta) => {
             login(role);
             setShowLogin(false);
-            // Go to results only if triggered by Reveal button (has selections)
-            if (selected.length >= 5) goToResults();
+            // If client logs in from home page — go to their profile
+            if (role === 'client' && meta?.analysis_id) {
+              router.push(`/results?id=${meta.analysis_id}`);
+            }
           }}
           onClose={() => setShowLogin(false)}
         />
       )}
       {/* Top bar */}
-      <div className="flex items-center justify-between px-6 pt-5">
+      <div className="flex items-center justify-between px-4 sm:px-6 pt-5">
 
         {/* Left: Admin + History (when authed) */}
-        <div className="flex items-center gap-3 w-40">
-          {authed && (
+        <div className="flex items-center gap-3 flex-1">
+          {authed && authRole !== 'client' && (
             <>
               <button
-                onClick={() => router.push('/admin')}
-                className="flex items-center gap-2 text-slate-500 hover:text-gold text-xs font-medium tracking-wide transition-colors"
+                onClick={() => router.push('/dashboard')}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gold/10 border border-gold/25 text-gold text-xs font-semibold hover:bg-gold/20 transition-all duration-200"
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
-                {lang === 'ru' ? 'Админ' : lang === 'ky' ? 'Админ' : 'Admin'}
+                Dashboard
               </button>
               <button
                 onClick={() => router.push('/history')}
@@ -211,7 +212,7 @@ export default function HomePage() {
 
         {/* Right: LangToggle + auth button */}
         {authed ? (
-          <div className="flex items-center gap-2 w-40 justify-end">
+          <div className="flex items-center gap-2 flex-1 justify-end">
             <LangToggle small />
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
               <div className="w-5 h-5 rounded-full bg-gold/20 border border-gold/30 flex items-center justify-center">
@@ -232,7 +233,7 @@ export default function HomePage() {
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-2 w-40 justify-end">
+          <div className="flex items-center gap-2 flex-1 justify-end">
             <LangToggle small />
             <button
             onClick={() => setShowLogin(true)}
@@ -285,6 +286,31 @@ export default function HomePage() {
       </header>
 
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 pb-20">
+
+        {/* Profile counter */}
+        {profileCount !== null && profileCount > 0 && (
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <div className="flex -space-x-1.5">
+              {[
+                'bg-gold/80', 'bg-blue-400/70', 'bg-emerald-400/70',
+                'bg-purple-400/70', 'bg-rose-400/70',
+              ].map((c, i) => (
+                <div key={i} className={`w-6 h-6 rounded-full border-2 border-white/10 ${c}`} />
+              ))}
+            </div>
+            <p className="text-slate-400 text-base">
+              <span className="text-white font-semibold">
+                {(profileCount + 30).toLocaleString()}+
+              </span>
+              {' '}
+              {lang === 'ru'
+                ? 'человек уже узнали свой вектор'
+                : lang === 'ky'
+                ? 'адам өз векторун билди'
+                : 'people have discovered their vector'}
+            </p>
+          </div>
+        )}
 
         {/* Mode tabs */}
         <div ref={tabsRef} className="flex gap-2 mb-6 p-1 rounded-xl bg-white/4 border border-white/8 w-fit mx-auto">
@@ -455,7 +481,7 @@ export default function HomePage() {
               {lang === 'ru' ? 'Имя клиента — обязательно для PDF и истории' : lang === 'ky' ? 'Кардың аты — PDF жана тарых үчүн талап кылынат' : 'Client name — required for PDF & history'}
             </span>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1">
               <input
                 type="text"
@@ -497,7 +523,7 @@ export default function HomePage() {
             onMouseEnter={startGlow}
             onMouseLeave={stopGlow}
             disabled={!ready}
-            className={`relative inline-flex items-center gap-3 px-10 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 ${
+            className={`relative inline-flex items-center gap-3 px-6 sm:px-10 py-4 rounded-2xl font-semibold text-base sm:text-lg transition-all duration-300 w-full sm:w-auto justify-center ${
               ready
                 ? 'bg-gold text-navy-900 hover:bg-gold-light shadow-lg glow-gold cursor-pointer'
                 : 'bg-white/5 text-slate-600 cursor-not-allowed border border-white/10'
@@ -519,6 +545,7 @@ export default function HomePage() {
           {ready && (
             <p className="mt-3 text-slate-500 text-sm">{t.poweredBy}</p>
           )}
+
         </div>
       </main>
 
