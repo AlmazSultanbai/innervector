@@ -26,7 +26,6 @@ export default function VectorTestPage() {
     if (circleRef.current) {
       circleRef.current.style.strokeDashoffset = '0'
     }
-
     timerRef.current = setInterval(() => {
       timeLeftRef.current -= 1
       const offset = CIRCUMFERENCE - (timeLeftRef.current / TIMER_DURATION) * CIRCUMFERENCE
@@ -63,173 +62,166 @@ export default function VectorTestPage() {
     <div
       style={{
         minHeight: '100vh',
-        background: '#0a0a0f',
-        color: '#f0ede8',
+        color: '#e2e8f0',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        fontFamily: 'var(--font-sans, Inter, system-ui, sans-serif)',
       }}
     >
-      {/* Progress bar */}
-      <div style={{ width: '100%', maxWidth: '860px', padding: '20px 40px 0', margin: '0 auto' }}>
+      {/* Progress bar — top */}
+      <div style={{ width: '100%', height: '3px', background: 'rgba(255,255,255,0.06)' }}>
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontSize: '10px',
-            color: '#7a7870',
+            height: '100%',
+            width: `${progress}%`,
+            background: domainColor,
+            transition: 'width 0.6s cubic-bezier(.4,0,.2,1)',
+            boxShadow: `0 0 12px ${domainColor}66`,
+          }}
+        />
+      </div>
+
+      {/* Header bar */}
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '860px',
+          padding: '16px 32px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            padding: '5px 14px',
+            borderRadius: '999px',
+            fontSize: '11px',
             letterSpacing: '1px',
-            marginBottom: '8px',
+            fontWeight: 500,
+            border: `1px solid ${domainColor}55`,
+            color: domainColor,
+            background: `${domainColor}12`,
           }}
         >
-          <span>ВОПРОС {current + 1}</span>
-          <span>{Math.round(progress)}%</span>
-          <span>180</span>
-        </div>
-        <div
-          style={{
-            width: '100%',
-            height: '2px',
-            background: '#232328',
-            borderRadius: '2px',
-            overflow: 'hidden',
-          }}
-        >
-          <div
-            style={{
-              height: '100%',
-              width: `${progress}%`,
-              background: domainColor,
-              borderRadius: '2px',
-              transition: 'width 0.6s cubic-bezier(.4,0,.2,1)',
-            }}
-          />
-        </div>
+          {domainNames[currentQuestion.d]}
+        </span>
+        <span style={{ fontSize: '12px', color: '#64748b', letterSpacing: '1px' }}>
+          {qNum} / 180
+        </span>
       </div>
 
       {/* Question card */}
       <div
         style={{
           width: '100%',
-          maxWidth: '780px',
-          margin: '28px auto 0',
-          padding: '0 40px',
+          maxWidth: '820px',
+          margin: '16px auto 0',
+          padding: '0 24px',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
         }}
       >
-        {/* Meta row */}
+        {/* Statements + scale */}
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '32px',
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '20px',
+            padding: '40px 40px 32px',
           }}
         >
-          <span
+          <div
             style={{
-              display: 'inline-flex',
+              display: 'grid',
+              gridTemplateColumns: '1fr auto 1fr',
+              gap: '32px',
               alignItems: 'center',
-              padding: '5px 14px',
-              borderRadius: '20px',
-              fontSize: '10px',
+            }}
+          >
+            {/* Statement A */}
+            <div
+              style={{
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: 'clamp(16px, 2vw, 20px)',
+                fontWeight: 400,
+                lineHeight: 1.55,
+                textAlign: 'right',
+                color: '#e2e8f0',
+              }}
+            >
+              {currentQuestion.a}
+            </div>
+
+            {/* Scale */}
+            <ScaleRadio onAnswer={handleAnswer} color={domainColor} />
+
+            {/* Statement B */}
+            <div
+              style={{
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: 'clamp(16px, 2vw, 20px)',
+                fontWeight: 400,
+                lineHeight: 1.55,
+                color: '#e2e8f0',
+              }}
+            >
+              {currentQuestion.b}
+            </div>
+          </div>
+
+          {/* Timer */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '28px' }}>
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 30 30"
+              style={{ transform: 'rotate(-90deg)', opacity: 0.7 }}
+            >
+              <circle cx="15" cy="15" r="13" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="2.5" />
+              <circle
+                ref={circleRef}
+                cx="15"
+                cy="15"
+                r="13"
+                fill="none"
+                stroke={domainColor}
+                strokeWidth="2.5"
+                strokeDasharray={String(CIRCUMFERENCE)}
+                strokeDashoffset="0"
+                strokeLinecap="round"
+                style={{ transition: 'stroke-dashoffset 1s linear' }}
+              />
+            </svg>
+          </div>
+        </div>
+
+        {/* Skip */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', marginBottom: '40px' }}>
+          <button
+            onClick={() => handleAnswer(3)}
+            style={{
+              background: 'none',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: '#64748b',
+              padding: '10px 36px',
+              fontSize: '11px',
               letterSpacing: '2px',
-              fontWeight: 500,
-              border: `1px solid ${domainColor}`,
-              color: domainColor,
-              background: `${domainColor}15`,
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              transition: 'all 0.2s',
             }}
           >
-            {domainNames[currentQuestion.d]}
-          </span>
-          <span style={{ fontSize: '11px', color: '#7a7870', letterSpacing: '1px' }}>
-            {qNum} / 180
-          </span>
+            Пропустить
+          </button>
         </div>
-
-        {/* Scale wrapper */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr auto 1fr',
-            gap: '28px',
-            alignItems: 'center',
-          }}
-        >
-          {/* Statement A */}
-          <div
-            style={{
-              fontFamily: 'Georgia, serif',
-              fontSize: '20px',
-              fontWeight: 400,
-              lineHeight: 1.5,
-              textAlign: 'right',
-              color: '#f0ede8',
-            }}
-          >
-            {currentQuestion.a}
-          </div>
-
-          {/* Scale radio buttons */}
-          <ScaleRadio onAnswer={handleAnswer} color={domainColor} />
-
-          {/* Statement B */}
-          <div
-            style={{
-              fontFamily: 'Georgia, serif',
-              fontSize: '20px',
-              fontWeight: 400,
-              lineHeight: 1.5,
-              color: '#f0ede8',
-            }}
-          >
-            {currentQuestion.b}
-          </div>
-        </div>
-
-        {/* Timer */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
-          <svg
-            width="32"
-            height="32"
-            viewBox="0 0 30 30"
-            style={{ transform: 'rotate(-90deg)' }}
-          >
-            <circle cx="15" cy="15" r="13" fill="none" stroke="#232328" strokeWidth="2.5" />
-            <circle
-              ref={circleRef}
-              cx="15"
-              cy="15"
-              r="13"
-              fill="none"
-              stroke={domainColor}
-              strokeWidth="2.5"
-              strokeDasharray={String(CIRCUMFERENCE)}
-              strokeDashoffset="0"
-              strokeLinecap="round"
-              style={{ transition: 'stroke-dashoffset 1s linear' }}
-            />
-          </svg>
-        </div>
-      </div>
-
-      {/* Skip button */}
-      <div style={{ display: 'flex', justifyContent: 'center', margin: '40px 0 48px' }}>
-        <button
-          onClick={() => handleAnswer(3)}
-          style={{
-            background: 'none',
-            border: '1px solid #232328',
-            color: '#7a7870',
-            padding: '12px 40px',
-            fontSize: '11px',
-            letterSpacing: '2px',
-            borderRadius: '2px',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}
-        >
-          Пропустить
-        </button>
       </div>
     </div>
   )
@@ -242,11 +234,13 @@ function ScaleRadio({
   onAnswer: (value: number) => void
   color: string
 }) {
-  const sizes = [38, 28, 20, 28, 38]
+  const sizes = [40, 30, 22, 30, 40]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-      <span style={{ fontSize: '9px', color: '#7a7870', letterSpacing: '1px' }}>НЕЙТРАЛЬНО</span>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+      <span style={{ fontSize: '9px', color: '#64748b', letterSpacing: '2px', textTransform: 'uppercase' }}>
+        нейтрально
+      </span>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         {[1, 2, 3, 4, 5].map((value, i) => {
           const size = sizes[i]
@@ -259,26 +253,30 @@ function ScaleRadio({
                 width: `${size}px`,
                 height: `${size}px`,
                 borderRadius: '50%',
-                border: `1.5px solid #232328`,
-                background: '#13131a',
+                border: '1.5px solid rgba(255,255,255,0.1)',
+                background: 'rgba(255,255,255,0.03)',
                 cursor: 'pointer',
-                transition: 'all 0.2s',
+                transition: 'all 0.15s',
                 padding: 0,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '10px',
-                color: '#7a7870',
+                color: '#64748b',
               }}
               onMouseEnter={e => {
                 const el = e.currentTarget as HTMLButtonElement
                 el.style.borderColor = color
                 el.style.background = `${color}22`
+                el.style.boxShadow = `0 0 16px ${color}44`
+                el.style.color = color
               }}
               onMouseLeave={e => {
                 const el = e.currentTarget as HTMLButtonElement
-                el.style.borderColor = '#232328'
-                el.style.background = '#13131a'
+                el.style.borderColor = 'rgba(255,255,255,0.1)'
+                el.style.background = 'rgba(255,255,255,0.03)'
+                el.style.boxShadow = 'none'
+                el.style.color = '#64748b'
               }}
             >
               {value}
@@ -286,7 +284,16 @@ function ScaleRadio({
           )
         })}
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '9px', color: '#7a7870', letterSpacing: '1px' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          width: '100%',
+          fontSize: '9px',
+          color: '#64748b',
+          letterSpacing: '1px',
+        }}
+      >
         <span>A</span>
         <span>B</span>
       </div>

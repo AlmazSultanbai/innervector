@@ -13,11 +13,10 @@ export default function VectorTestIntro() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '40px 20px',
+        padding: '60px 24px',
         textAlign: 'center',
-        background: '#0a0a0f',
-        color: '#f0ede8',
-        fontFamily: 'inherit',
+        color: '#e2e8f0',
+        fontFamily: 'var(--font-sans, Inter, system-ui, sans-serif)',
       }}
     >
       {/* Label */}
@@ -25,23 +24,26 @@ export default function VectorTestIntro() {
         style={{
           fontSize: '11px',
           letterSpacing: '4px',
-          color: '#7a7870',
-          marginBottom: '24px',
+          color: '#d4a843',
+          marginBottom: '20px',
           fontWeight: 500,
+          textTransform: 'uppercase',
+          opacity: 0.8,
         }}
       >
-        VECTOR TEST
+        Inner Vector
       </div>
 
       {/* Headline */}
       <h1
         style={{
-          fontSize: 'clamp(36px, 6vw, 64px)',
-          fontWeight: 300,
-          letterSpacing: '8px',
-          color: '#f0ede8',
+          fontSize: 'clamp(36px, 6vw, 60px)',
+          fontWeight: 400,
+          letterSpacing: '2px',
+          color: '#e2e8f0',
           marginBottom: '16px',
-          fontFamily: 'Georgia, serif',
+          fontFamily: "'Playfair Display', Georgia, serif",
+          lineHeight: 1.2,
         }}
       >
         Узнай свой вектор
@@ -50,10 +52,11 @@ export default function VectorTestIntro() {
       {/* Subtitle */}
       <p
         style={{
-          fontSize: '13px',
-          color: '#7a7870',
-          letterSpacing: '2px',
+          fontSize: '14px',
+          color: '#94a3b8',
+          letterSpacing: '1px',
           marginBottom: '48px',
+          lineHeight: 1.6,
         }}
       >
         180 вопросов · 36 характеристик · ~15 минут
@@ -67,7 +70,7 @@ export default function VectorTestIntro() {
           gap: '10px',
           justifyContent: 'center',
           marginBottom: '56px',
-          maxWidth: '500px',
+          maxWidth: '520px',
         }}
       >
         {domains.map(d => (
@@ -75,12 +78,12 @@ export default function VectorTestIntro() {
             key={d}
             style={{
               padding: '6px 16px',
-              borderRadius: '20px',
-              border: `1px solid ${domainColors[d]}`,
+              borderRadius: '999px',
+              border: `1px solid ${domainColors[d]}55`,
               color: domainColors[d],
-              background: `${domainColors[d]}15`,
-              fontSize: '11px',
-              letterSpacing: '1.5px',
+              background: `${domainColors[d]}12`,
+              fontSize: '12px',
+              letterSpacing: '0.5px',
               fontWeight: 500,
             }}
           >
@@ -89,21 +92,32 @@ export default function VectorTestIntro() {
         ))}
       </div>
 
+      {/* Divider */}
+      <div
+        style={{
+          width: '60px',
+          height: '1px',
+          background: 'rgba(212,168,67,0.3)',
+          marginBottom: '48px',
+        }}
+      />
+
       {/* CTA Button */}
       <Link
         href="/vector-test/test"
         style={{
           display: 'inline-block',
-          background: '#c9a96e',
-          color: '#0a0a0f',
-          padding: '18px 64px',
-          borderRadius: '2px',
-          fontSize: '12px',
-          fontWeight: 500,
-          letterSpacing: '3px',
+          background: 'linear-gradient(135deg, #d4a843 0%, #b8922e 100%)',
+          color: '#111628',
+          padding: '16px 64px',
+          borderRadius: '8px',
+          fontSize: '13px',
+          fontWeight: 600,
+          letterSpacing: '2px',
           textDecoration: 'none',
           marginBottom: '24px',
           transition: 'all 0.2s',
+          boxShadow: '0 0 40px rgba(212,168,67,0.2), 0 0 80px rgba(212,168,67,0.08)',
         }}
       >
         Начать тест →
@@ -112,15 +126,35 @@ export default function VectorTestIntro() {
       {/* Note */}
       <p
         style={{
-          fontSize: '11px',
-          color: '#7a7870',
-          letterSpacing: '1px',
+          fontSize: '12px',
+          color: '#64748b',
+          letterSpacing: '0.5px',
           maxWidth: '360px',
           lineHeight: 1.7,
+          marginTop: '8px',
         }}
       >
         Отвечай быстро — первый импульс точнее
       </p>
+
+      {/* Back link */}
+      <Link
+        href="/"
+        style={{
+          position: 'fixed',
+          top: '24px',
+          left: '24px',
+          fontSize: '12px',
+          color: '#64748b',
+          textDecoration: 'none',
+          letterSpacing: '1px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+        }}
+      >
+        ← Главная
+      </Link>
     </div>
   )
 }

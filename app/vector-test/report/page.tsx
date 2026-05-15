@@ -17,7 +17,9 @@ interface TraitScore {
 export default function VectorTestReport() {
   const { scores } = useVectorTestStore()
 
-  const hasResults = Object.keys(scores).length > 0 && Object.values(scores).some(s => s.a > 0 || s.b > 0)
+  const hasResults =
+    Object.keys(scores).length > 0 &&
+    Object.values(scores).some(s => s.a > 0 || s.b > 0)
 
   const traitScores: TraitScore[] = useMemo(() => {
     return Object.keys(scores)
@@ -32,8 +34,13 @@ export default function VectorTestReport() {
   const top5 = traitScores.slice(0, 5)
 
   const domainAverages: Record<Domain, number> = useMemo(() => {
-    const totals: Record<Domain, { sum: number; count: number }> = {} as Record<Domain, { sum: number; count: number }>
-    DOMAINS.forEach(d => { totals[d] = { sum: 0, count: 0 } })
+    const totals: Record<Domain, { sum: number; count: number }> = {} as Record<
+      Domain,
+      { sum: number; count: number }
+    >
+    DOMAINS.forEach(d => {
+      totals[d] = { sum: 0, count: 0 }
+    })
     traitScores.forEach(t => {
       totals[t.d].sum += t.pct
       totals[t.d].count += 1
@@ -50,8 +57,7 @@ export default function VectorTestReport() {
       <div
         style={{
           minHeight: '100vh',
-          background: '#0a0a0f',
-          color: '#f0ede8',
+          color: '#e2e8f0',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -59,21 +65,28 @@ export default function VectorTestReport() {
           gap: '24px',
           textAlign: 'center',
           padding: '40px',
+          fontFamily: 'var(--font-sans, Inter, system-ui, sans-serif)',
         }}
       >
-        <div style={{ fontSize: '32px', fontFamily: 'Georgia, serif', color: '#7a7870' }}>
+        <div
+          style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: '28px',
+            color: '#94a3b8',
+          }}
+        >
           Пройди тест сначала
         </div>
         <Link
           href="/vector-test"
           style={{
-            color: '#c9a96e',
+            color: '#d4a843',
             textDecoration: 'none',
-            fontSize: '13px',
+            fontSize: '12px',
             letterSpacing: '2px',
-            border: '1px solid #c9a96e',
+            border: '1px solid rgba(212,168,67,0.3)',
             padding: '12px 32px',
-            borderRadius: '2px',
+            borderRadius: '8px',
           }}
         >
           К началу
@@ -90,55 +103,75 @@ export default function VectorTestReport() {
       style={{
         maxWidth: '900px',
         margin: '0 auto',
-        padding: '48px 40px 80px',
-        background: '#0a0a0f',
-        color: '#f0ede8',
+        padding: '56px 32px 96px',
+        color: '#e2e8f0',
         minHeight: '100vh',
+        fontFamily: 'var(--font-sans, Inter, system-ui, sans-serif)',
       }}
     >
       {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '64px' }}>
         <div
           style={{
             fontSize: '11px',
-            color: '#7a7870',
-            letterSpacing: '3px',
-            marginBottom: '16px',
+            color: '#d4a843',
+            letterSpacing: '4px',
+            marginBottom: '20px',
+            fontWeight: 500,
+            opacity: 0.8,
           }}
         >
-          VECTOR REPORT
+          INNER VECTOR · РЕЗУЛЬТАТ
         </div>
         <div
           style={{
-            fontFamily: 'Georgia, serif',
-            fontSize: 'clamp(28px, 5vw, 48px)',
-            fontWeight: 300,
-            letterSpacing: '4px',
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: 'clamp(26px, 4vw, 40px)',
+            fontWeight: 400,
+            color: '#94a3b8',
             marginBottom: '8px',
+            letterSpacing: '1px',
           }}
         >
           Твой вектор —
         </div>
         <div
           style={{
-            fontFamily: 'Georgia, serif',
-            fontSize: 'clamp(32px, 6vw, 56px)',
-            fontWeight: 500,
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: 'clamp(36px, 6vw, 56px)',
+            fontWeight: 600,
             color: topColor,
-            letterSpacing: '2px',
+            letterSpacing: '1px',
+            lineHeight: 1.1,
+            textShadow: `0 0 40px ${topColor}44`,
           }}
         >
           {topTrait.name}
         </div>
-        <div style={{ width: '80px', height: '1px', background: '#232328', margin: '24px auto' }} />
-        <div style={{ fontSize: '13px', color: '#7a7870', lineHeight: 1.6, maxWidth: '500px', margin: '0 auto' }}>
+        <div
+          style={{
+            width: '60px',
+            height: '1px',
+            background: 'rgba(212,168,67,0.3)',
+            margin: '28px auto',
+          }}
+        />
+        <div
+          style={{
+            fontSize: '15px',
+            color: '#94a3b8',
+            lineHeight: 1.7,
+            maxWidth: '500px',
+            margin: '0 auto',
+          }}
+        >
           {traitData[topTrait.name]?.short}
         </div>
       </div>
 
       {/* Top 5 */}
       <SectionTitle>ТОП-5 ХАРАКТЕРИСТИК</SectionTitle>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '56px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '64px' }}>
         {top5.map((trait, i) => {
           const color = domainColors[trait.d]
           const data = traitData[trait.name]
@@ -146,39 +179,44 @@ export default function VectorTestReport() {
             <div
               key={trait.name}
               style={{
-                background: '#13131a',
-                borderRadius: '12px',
-                border: `1px solid ${i === 0 ? color : '#232328'}`,
+                background: 'rgba(255,255,255,0.03)',
+                borderRadius: '16px',
+                border: `1px solid ${i === 0 ? color + '55' : 'rgba(255,255,255,0.08)'}`,
+                backdropFilter: 'blur(10px)',
                 overflow: 'hidden',
+                transition: 'all 0.3s ease',
               }}
             >
-              {/* Bar */}
-              <div style={{ height: '3px', background: '#232328' }}>
+              {/* Progress bar top */}
+              <div style={{ height: '3px', background: 'rgba(255,255,255,0.05)' }}>
                 <div
                   style={{
                     height: '100%',
                     width: `${trait.pct}%`,
                     background: color,
                     transition: 'width 1.2s cubic-bezier(.4,0,.2,1)',
+                    boxShadow: `0 0 8px ${color}66`,
                   }}
                 />
               </div>
-              {/* Header */}
+
+              {/* Header row */}
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '48px 1fr auto',
+                  gridTemplateColumns: '52px 1fr auto',
                   alignItems: 'center',
                   gap: '16px',
-                  padding: '20px 24px',
+                  padding: '22px 28px',
                 }}
               >
                 <div
                   style={{
-                    fontFamily: 'Georgia, serif',
-                    fontSize: '32px',
+                    fontFamily: "'Playfair Display', Georgia, serif",
+                    fontSize: '36px',
                     fontWeight: 300,
-                    color: '#7a7870',
+                    color: 'rgba(255,255,255,0.15)',
+                    lineHeight: 1,
                   }}
                 >
                   {i + 1}
@@ -186,49 +224,77 @@ export default function VectorTestReport() {
                 <div>
                   <div
                     style={{
-                      fontFamily: 'Georgia, serif',
+                      fontFamily: "'Playfair Display', Georgia, serif",
                       fontSize: '22px',
                       fontWeight: 500,
-                      color: '#f0ede8',
+                      color: '#e2e8f0',
                     }}
                   >
                     {trait.name}
                   </div>
-                  <div style={{ fontSize: '10px', color: '#7a7870', letterSpacing: '2px', marginTop: '2px' }}>
+                  <div
+                    style={{
+                      fontSize: '11px',
+                      color: color,
+                      letterSpacing: '1.5px',
+                      marginTop: '3px',
+                      opacity: 0.8,
+                    }}
+                  >
                     {domainNames[trait.d]}
                   </div>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div
-                    style={{
-                      fontFamily: 'Georgia, serif',
-                      fontSize: '28px',
-                      color,
-                    }}
-                  >
-                    {trait.pct}%
-                  </div>
+                <div
+                  style={{
+                    fontFamily: "'Playfair Display', Georgia, serif",
+                    fontSize: '32px',
+                    color: color,
+                    lineHeight: 1,
+                  }}
+                >
+                  {trait.pct}%
                 </div>
               </div>
+
               {/* Body */}
               {data && (
-                <div style={{ padding: '0 24px 24px', borderTop: '1px solid #232328' }}>
-                  <p style={{ fontSize: '14px', color: '#b0ada8', lineHeight: 1.75, margin: '20px 0 16px' }}>
+                <div
+                  style={{
+                    padding: '0 28px 28px',
+                    borderTop: '1px solid rgba(255,255,255,0.06)',
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: '14px',
+                      color: '#94a3b8',
+                      lineHeight: 1.75,
+                      margin: '20px 0 16px',
+                    }}
+                  >
                     {data.short}
                   </p>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div>
-                      <div style={{ fontSize: '10px', letterSpacing: '2px', fontWeight: 500, color: '#7a7870', marginBottom: '8px' }}>
+                      <div
+                        style={{
+                          fontSize: '10px',
+                          letterSpacing: '2px',
+                          fontWeight: 500,
+                          color: '#64748b',
+                          marginBottom: '8px',
+                        }}
+                      >
                         СИЛЬНАЯ СТОРОНА
                       </div>
                       <div
                         style={{
-                          background: 'rgba(201,169,110,0.06)',
-                          borderLeft: '2px solid #c9a96e',
+                          background: 'rgba(212,168,67,0.06)',
+                          borderLeft: '2px solid rgba(212,168,67,0.5)',
                           padding: '14px 16px',
                           borderRadius: '0 8px 8px 0',
-                          fontSize: '12px',
-                          color: '#c8c4be',
+                          fontSize: '13px',
+                          color: '#cbd5e1',
                           lineHeight: 1.65,
                         }}
                       >
@@ -236,17 +302,25 @@ export default function VectorTestReport() {
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '10px', letterSpacing: '2px', fontWeight: 500, color: '#7a7870', marginBottom: '8px' }}>
+                      <div
+                        style={{
+                          fontSize: '10px',
+                          letterSpacing: '2px',
+                          fontWeight: 500,
+                          color: '#64748b',
+                          marginBottom: '8px',
+                        }}
+                      >
                         ТЁМНАЯ СТОРОНА
                       </div>
                       <div
                         style={{
                           background: 'rgba(180,80,80,0.06)',
-                          borderLeft: '2px solid rgba(224,92,92,0.4)',
+                          borderLeft: '2px solid rgba(224,92,92,0.35)',
                           padding: '14px 16px',
                           borderRadius: '0 8px 8px 0',
-                          fontSize: '12px',
-                          color: '#a09898',
+                          fontSize: '13px',
+                          color: '#94a3b8',
                           lineHeight: 1.65,
                         }}
                       >
@@ -268,7 +342,7 @@ export default function VectorTestReport() {
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
           gap: '16px',
-          marginBottom: '56px',
+          marginBottom: '64px',
         }}
       >
         {DOMAINS.map(d => {
@@ -278,21 +352,37 @@ export default function VectorTestReport() {
             <div
               key={d}
               style={{
-                background: '#13131a',
-                borderRadius: '12px',
-                padding: '20px',
-                border: '1px solid #232328',
+                background: 'rgba(255,255,255,0.03)',
+                borderRadius: '16px',
+                padding: '22px',
+                border: '1px solid rgba(255,255,255,0.08)',
+                backdropFilter: 'blur(10px)',
               }}
             >
-              <div style={{ fontSize: '12px', fontWeight: 500, letterSpacing: '2px', color, marginBottom: '4px' }}>
+              <div
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  letterSpacing: '1.5px',
+                  color,
+                  marginBottom: '4px',
+                }}
+              >
                 {domainNames[d]}
               </div>
-              <div style={{ fontSize: '11px', color: '#7a7870', marginBottom: '14px' }}>
+              <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px', lineHeight: 1.5 }}>
                 {domainDescs[d]}
               </div>
-              {/* Average bar */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                <div style={{ flex: 1, height: '4px', background: '#232328', borderRadius: '2px', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+                <div
+                  style={{
+                    flex: 1,
+                    height: '4px',
+                    background: 'rgba(255,255,255,0.06)',
+                    borderRadius: '2px',
+                    overflow: 'hidden',
+                  }}
+                >
                   <div
                     style={{
                       height: '100%',
@@ -300,26 +390,47 @@ export default function VectorTestReport() {
                       background: color,
                       borderRadius: '2px',
                       transition: 'width 1.4s cubic-bezier(.4,0,.2,1)',
+                      boxShadow: `0 0 8px ${color}55`,
                     }}
                   />
                 </div>
-                <span style={{ fontSize: '11px', color: '#7a7870', minWidth: '36px', textAlign: 'right' }}>
+                <span style={{ fontSize: '12px', color: '#94a3b8', minWidth: '36px', textAlign: 'right' }}>
                   {avg}%
                 </span>
               </div>
-              {/* Traits in domain */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
                 {traitScores
                   .filter(t => t.d === d)
                   .slice(0, 4)
                   .map(t => (
                     <div
                       key={t.name}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '8px',
+                      }}
                     >
-                      <span style={{ fontSize: '11px', color: '#7a7870' }}>{t.name}</span>
-                      <div style={{ width: '80px', height: '3px', background: '#232328', borderRadius: '2px', overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${t.pct}%`, background: color, borderRadius: '2px' }} />
+                      <span style={{ fontSize: '12px', color: '#64748b' }}>{t.name}</span>
+                      <div
+                        style={{
+                          width: '80px',
+                          height: '3px',
+                          background: 'rgba(255,255,255,0.06)',
+                          borderRadius: '2px',
+                          overflow: 'hidden',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <div
+                          style={{
+                            height: '100%',
+                            width: `${t.pct}%`,
+                            background: color,
+                            borderRadius: '2px',
+                          }}
+                        />
                       </div>
                     </div>
                   ))}
@@ -330,8 +441,8 @@ export default function VectorTestReport() {
       </div>
 
       {/* Full ranking */}
-      <SectionTitle>ВСЕ 36 ХАРАКТЕРИСТИК — РЕЙТИНГ</SectionTitle>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '56px' }}>
+      <SectionTitle>ВСЕ 36 ХАРАКТЕРИСТИК</SectionTitle>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '64px' }}>
         {traitScores.map((trait, i) => {
           const color = domainColors[trait.d]
           const isTop = i < 5
@@ -340,29 +451,36 @@ export default function VectorTestReport() {
               key={trait.name}
               style={{
                 display: 'grid',
-                gridTemplateColumns: '32px 1fr 120px 48px',
+                gridTemplateColumns: '32px 1fr 100px 44px',
                 alignItems: 'center',
-                gap: '12px',
-                padding: '12px 16px',
-                borderRadius: '8px',
-                background: '#13131a',
-                border: `1px solid ${isTop ? color : '#232328'}`,
+                gap: '14px',
+                padding: '12px 18px',
+                borderRadius: '10px',
+                background: isTop ? `${color}08` : 'rgba(255,255,255,0.02)',
+                border: `1px solid ${isTop ? color + '30' : 'rgba(255,255,255,0.06)'}`,
                 transition: 'all 0.2s',
               }}
             >
-              <span style={{ fontSize: '11px', color: '#7a7870', textAlign: 'center' }}>
+              <span style={{ fontSize: '11px', color: '#64748b', textAlign: 'center' }}>
                 {i + 1}
               </span>
               <span
                 style={{
-                  fontFamily: 'Georgia, serif',
-                  fontSize: '17px',
-                  color: '#f0ede8',
+                  fontFamily: "'Playfair Display', Georgia, serif",
+                  fontSize: '16px',
+                  color: isTop ? '#e2e8f0' : '#94a3b8',
                 }}
               >
                 {trait.name}
               </span>
-              <div style={{ height: '4px', background: '#232328', borderRadius: '2px', overflow: 'hidden' }}>
+              <div
+                style={{
+                  height: '3px',
+                  background: 'rgba(255,255,255,0.06)',
+                  borderRadius: '2px',
+                  overflow: 'hidden',
+                }}
+              >
                 <div
                   style={{
                     height: '100%',
@@ -373,7 +491,7 @@ export default function VectorTestReport() {
                   }}
                 />
               </div>
-              <span style={{ fontSize: '11px', color: '#7a7870', textAlign: 'right' }}>
+              <span style={{ fontSize: '12px', color: '#64748b', textAlign: 'right' }}>
                 {trait.pct}%
               </span>
             </div>
@@ -381,22 +499,40 @@ export default function VectorTestReport() {
         })}
       </div>
 
-      {/* Retake */}
-      <div style={{ textAlign: 'center' }}>
+      {/* Actions */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
         <Link
           href="/vector-test"
           style={{
             display: 'inline-block',
-            border: '1px solid #232328',
-            color: '#7a7870',
-            padding: '14px 48px',
-            borderRadius: '2px',
-            fontSize: '11px',
-            letterSpacing: '3px',
+            border: '1px solid rgba(255,255,255,0.1)',
+            color: '#94a3b8',
+            padding: '14px 40px',
+            borderRadius: '8px',
+            fontSize: '12px',
+            letterSpacing: '2px',
             textDecoration: 'none',
+            transition: 'all 0.2s',
           }}
         >
           Пройти заново
+        </Link>
+        <Link
+          href="/"
+          style={{
+            display: 'inline-block',
+            background: 'linear-gradient(135deg, #d4a843 0%, #b8922e 100%)',
+            color: '#111628',
+            padding: '14px 40px',
+            borderRadius: '8px',
+            fontSize: '12px',
+            fontWeight: 600,
+            letterSpacing: '2px',
+            textDecoration: 'none',
+            boxShadow: '0 0 30px rgba(212,168,67,0.2)',
+          }}
+        >
+          Главная →
         </Link>
       </div>
     </div>
@@ -407,11 +543,12 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
-        fontSize: '10px',
-        color: '#7a7870',
+        fontSize: '11px',
+        color: '#d4a843',
         letterSpacing: '3px',
         fontWeight: 500,
-        marginBottom: '24px',
+        marginBottom: '20px',
+        opacity: 0.7,
       }}
     >
       {children}
