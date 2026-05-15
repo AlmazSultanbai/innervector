@@ -2,25 +2,21 @@
 
 import { useState, useEffect } from 'react';
 
-const CREDENTIALS = {
-  admin:      { login: 'vector', password: 'vector123' },
-  superadmin: { login: 'vector', password: 'vector88'  },
-};
 const STORAGE_KEY = 'mv_auth';
 
-// authed: null = loading, false = not logged in, true = admin, 'super' = superadmin
+// authed: null = loading, false = not logged in, true = admin, 'super' = superadmin, 'client' = paying client
 export function useAuth() {
-  const [authed, setAuthed] = useState<boolean | null | 'super'>(null);
+  const [authed, setAuthed] = useState<boolean | null | 'super' | 'client'>(null);
 
   useEffect(() => {
     const v = sessionStorage.getItem(STORAGE_KEY);
-    setAuthed(v === 'super' ? 'super' : v === '1' ? true : false);
+    setAuthed(v === 'super' ? 'super' : v === 'client' ? 'client' : v === '1' ? true : false);
   }, []);
 
-  const login = (role: 'admin' | 'superadmin') => {
-    const val = role === 'superadmin' ? 'super' : '1';
+  const login = (role: 'admin' | 'superadmin' | 'client') => {
+    const val = role === 'superadmin' ? 'super' : role === 'client' ? 'client' : '1';
     sessionStorage.setItem(STORAGE_KEY, val);
-    setAuthed(role === 'superadmin' ? 'super' : true);
+    setAuthed(role === 'superadmin' ? 'super' : role === 'client' ? 'client' : true);
   };
 
   const logout = () => {
@@ -29,31 +25,49 @@ export function useAuth() {
   };
 
   const isSuperAdmin = authed === 'super';
-  const isAuthed = authed === true || authed === 'super';
+  const isAuthed = authed === true || authed === 'super' || authed === 'client';
   const authLoading = authed === null;
 
   return { authed, isAuthed, isSuperAdmin, authLoading, login, logout };
 }
 
-export default function LoginModal({ onSuccess, onClose }: { onSuccess: (role: 'admin' | 'superadmin') => void; onClose?: () => void }) {
+interface AuthMeta { analysis_id?: string; share_token?: string; telegram_id?: number }
+
+export default function LoginModal({ onSuccess, onClose }: { onSuccess: (role: 'admin' | 'superadmin' | 'client', meta?: AuthMeta) => void; onClose?: () => void }) {
   const [dismissed, setDismissed] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [shake, setShake] = useState(false);
   const [showPass, setShowPass] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const u = username.trim();
-    if (u === CREDENTIALS.superadmin.login && password === CREDENTIALS.superadmin.password) {
-      onSuccess('superadmin');
-    } else if (u === CREDENTIALS.admin.login && password === CREDENTIALS.admin.password) {
-      onSuccess('admin');
-    } else {
-      setError('Invalid credentials');
-      setShake(true);
-      setTimeout(() => setShake(false), 600);
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ login: username.trim(), password: password.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setError('Неверный логин или пароль');
+        setShake(true);
+        setTimeout(() => setShake(false), 600);
+      } else {
+        onSuccess(data.role as 'admin' | 'superadmin' | 'client', {
+          analysis_id: data.analysis_id,
+          share_token: data.share_token,
+          telegram_id: data.telegram_id,
+        });
+      }
+    } catch {
+      setError('Ошибка соединения');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -118,22 +132,22 @@ export default function LoginModal({ onSuccess, onClose }: { onSuccess: (role: '
                   d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
               </svg>
             </div>
-            <h2 className="font-serif text-2xl text-white font-semibold mb-1">Welcome back</h2>
-            <p className="text-slate-500 text-sm">Sign in to Inner Vector</p>
+            <h2 className="font-serif text-2xl text-white font-semibold mb-1">С возвращением</h2>
+            <p className="text-slate-500 text-sm">Войдите с логином из Telegram</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Username */}
             <div>
               <label className="block text-slate-400 text-xs font-medium mb-1.5 tracking-wide uppercase">
-                Login
+                Логин
               </label>
               <input
                 type="text"
                 autoComplete="username"
                 value={username}
                 onChange={(e) => { setUsername(e.target.value); setError(''); }}
-                placeholder="Enter your login"
+                placeholder="Введите логин"
                 className="w-full rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none transition-all"
                 style={{
                   background: 'rgba(255,255,255,0.05)',
@@ -147,7 +161,7 @@ export default function LoginModal({ onSuccess, onClose }: { onSuccess: (role: '
             {/* Password */}
             <div>
               <label className="block text-slate-400 text-xs font-medium mb-1.5 tracking-wide uppercase">
-                Password
+                Пароль
               </label>
               <div className="relative">
                 <input
@@ -155,7 +169,7 @@ export default function LoginModal({ onSuccess, onClose }: { onSuccess: (role: '
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                  placeholder="Enter your password"
+                  placeholder="Введите пароль"
                   className="w-full rounded-xl px-4 py-3 pr-11 text-sm text-white placeholder-slate-600 outline-none transition-all"
                   style={{
                     background: 'rgba(255,255,255,0.05)',
@@ -197,7 +211,8 @@ export default function LoginModal({ onSuccess, onClose }: { onSuccess: (role: '
             {/* Submit */}
             <button
               type="submit"
-              className="w-full mt-2 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 text-navy-900"
+              disabled={loading}
+              className="w-full mt-2 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 text-navy-900 flex items-center justify-center gap-2 disabled:opacity-70"
               style={{
                 background: 'linear-gradient(135deg, #d4a843 0%, #e8c96a 100%)',
                 boxShadow: '0 0 24px rgba(212,168,67,0.25)',
@@ -205,7 +220,10 @@ export default function LoginModal({ onSuccess, onClose }: { onSuccess: (role: '
               onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 0 36px rgba(212,168,67,0.4)')}
               onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 0 24px rgba(212,168,67,0.25)')}
             >
-              Sign In
+              {loading ? (
+                <span className="w-4 h-4 border-2 border-navy-900/30 border-t-navy-900 rounded-full animate-spin" />
+              ) : null}
+              {loading ? 'Входим...' : 'Войти'}
             </button>
           </form>
         </div>
