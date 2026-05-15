@@ -340,6 +340,15 @@ export default function HomePage() {
             </svg>
             {t.uploadManualTitle}
           </button>
+          <a
+            href="/vector-test"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-slate-500 hover:text-gold hover:bg-gold/8 border border-transparent hover:border-gold/20"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+            Inner Vector Test
+          </a>
         </div>
 
         {/* Upload mode */}
