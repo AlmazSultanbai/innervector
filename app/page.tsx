@@ -314,41 +314,28 @@ export default function HomePage() {
 
         {/* Mode tabs */}
         <div ref={tabsRef} className="flex gap-2 mb-6 p-1 rounded-xl bg-white/4 border border-white/8 w-fit mx-auto">
-          <button
-            onClick={() => switchMode('upload')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-              mode === 'upload'
-                ? 'bg-gold/15 text-gold border border-gold/25 shadow-sm'
-                : 'text-slate-500 hover:text-slate-300'
-            }`}
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-            </svg>
-            {t.uploadTitle}
-          </button>
-          <button
-            onClick={() => switchMode('manual')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-              mode === 'manual'
-                ? 'bg-white/8 text-white border border-white/15'
-                : 'text-slate-500 hover:text-slate-300'
-            }`}
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
-            </svg>
-            {t.uploadManualTitle}
-          </button>
           <a
             href="/vector-test"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-slate-500 hover:text-gold hover:bg-gold/8 border border-transparent hover:border-gold/20"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 bg-gold/15 text-gold border border-gold/25 shadow-sm"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
             </svg>
             Inner Vector Test
           </a>
+          <button
+            onClick={() => switchMode('upload')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+              mode === 'upload'
+                ? 'bg-white/8 text-white border border-white/15'
+                : 'text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+            </svg>
+            Gallup Strengths
+          </button>
         </div>
 
         {/* Upload mode */}
