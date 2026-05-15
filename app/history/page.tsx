@@ -5,8 +5,18 @@ import { useRouter } from 'next/navigation';
 import { supabase, Analysis } from '@/lib/supabase';
 import { DOMAIN_COLORS, getDomainForStrength } from '@/lib/strengths';
 import { useAuth } from '@/components/LoginModal';
-
 import { useLang } from '@/lib/LanguageContext';
+import { domainColors } from '@/data/vectorTraits';
+import type { Domain } from '@/data/vectorTraits';
+
+interface VectorTestRecord {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  phone: string | null;
+  top5: Array<{ name: string; pct: number; d: Domain }> | null;
+  completed_at: string | null;
+}
 
 
 function formatDate(iso: string) {
@@ -401,6 +411,8 @@ export default function HistoryPage() {
   const { isAuthed, isSuperAdmin, authLoading } = useAuth();
   const { lang } = useLang();
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
+  const [vectorResults, setVectorResults] = useState<VectorTestRecord[]>([]);
+  const [activeTab, setActiveTab] = useState<'gallup' | 'vector'>('gallup');
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -439,14 +451,21 @@ export default function HistoryPage() {
     if (authLoading) return;
     if (!isAuthed) { router.replace('/'); return; }
 
-    supabase
-      .from('analyses')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        setAnalyses(data ?? []);
-        setLoading(false);
-      });
+    Promise.all([
+      supabase
+        .from('analyses')
+        .select('*')
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('vector_test_results')
+        .select('id, full_name, email, phone, top5, completed_at')
+        .not('full_name', 'is', null)
+        .order('completed_at', { ascending: false }),
+    ]).then(([analysesRes, vectorRes]) => {
+      setAnalyses(analysesRes.data ?? []);
+      setVectorResults((vectorRes.data ?? []) as VectorTestRecord[]);
+      setLoading(false);
+    });
   }, [isAuthed, authLoading, router]);
 
   if (authLoading || loading) {
@@ -466,7 +485,7 @@ export default function HistoryPage() {
   return (
     <div className="min-h-screen bg-radial flex flex-col">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-white/5">
+      <div className="flex items-center justify-between flex-wrap gap-2 px-4 sm:px-6 pt-5 pb-4 border-b border-white/5">
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push('/')}
@@ -494,29 +513,55 @@ export default function HistoryPage() {
               {lang === 'ru' ? 'Все профили' : lang === 'ky' ? 'Бардык профилдер' : 'All Profiles'}
             </h1>
             <p className="text-slate-500 text-sm mt-1">
-              {filtered.length} {lang === 'ru' ? 'записей' : lang === 'ky' ? 'жазуу' : 'records'}
+              {activeTab === 'gallup' ? filtered.length : vectorResults.length} {lang === 'ru' ? 'записей' : lang === 'ky' ? 'жазуу' : 'records'}
             </p>
           </div>
 
-          {/* Search */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-              <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+          {/* Search (only for Gallup tab) */}
+          {activeTab === 'gallup' && (
+            <div className="relative">
+              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={lang === 'ru' ? 'Поиск по имени...' : lang === 'ky' ? 'Аты боюнча издөө...' : 'Search by name...'}
+                className="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-gold/40 transition-all text-sm w-full sm:w-52"
+              />
             </div>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={lang === 'ru' ? 'Поиск по имени...' : lang === 'ky' ? 'Аты боюнча издөө...' : 'Search by name...'}
-              className="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-gold/40 transition-all text-sm w-52"
-            />
-          </div>
+          )}
         </div>
 
-        {/* List */}
-        {filtered.length === 0 ? (
+        {/* Tabs */}
+        <div className="flex items-center gap-1 bg-white/4 border border-white/8 p-1 rounded-xl w-fit mb-6">
+          <button
+            onClick={() => setActiveTab('gallup')}
+            className={`px-5 py-2 rounded-lg text-xs font-semibold tracking-widest uppercase transition-all duration-200 ${
+              activeTab === 'gallup'
+                ? 'bg-gold/15 text-gold border border-gold/25'
+                : 'text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            Gallup
+          </button>
+          <button
+            onClick={() => setActiveTab('vector')}
+            className={`px-5 py-2 rounded-lg text-xs font-semibold tracking-widest uppercase transition-all duration-200 ${
+              activeTab === 'vector'
+                ? 'bg-gold/15 text-gold border border-gold/25'
+                : 'text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            Inner Vector
+          </button>
+        </div>
+
+        {/* Gallup Tab */}
+        {activeTab === 'gallup' && (filtered.length === 0 ? (
           <div className="text-center py-20 text-slate-600">
             <svg className="w-10 h-10 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -532,7 +577,7 @@ export default function HistoryPage() {
               return (
                 <div
                   key={a.id ?? idx}
-                  className="group flex items-center gap-4 p-4 rounded-2xl border border-white/8 bg-white/3 hover:bg-white/5 hover:border-white/12 transition-all duration-200 cursor-pointer"
+                  className="group flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-4 rounded-2xl border border-white/8 bg-white/3 hover:bg-white/5 hover:border-white/12 transition-all duration-200 cursor-pointer"
                   onClick={() => router.push(`/results?id=${a.id}&lang=${a.lang ?? 'en'}`)}
                 >
                   {/* Index */}
@@ -571,7 +616,7 @@ export default function HistoryPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex-shrink-0 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex-shrink-0 flex flex-wrap items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     {/* Open profile */}
                     <button
                       onClick={() => router.push(`/results?id=${a.id}&lang=${a.lang ?? 'en'}`)}
@@ -631,6 +676,76 @@ export default function HistoryPage() {
               );
             })}
           </div>
+        ))}
+
+        {/* Inner Vector Tab */}
+        {activeTab === 'vector' && (
+          vectorResults.length === 0 ? (
+            <div className="text-center py-20 text-slate-600">
+              <svg className="w-10 h-10 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              {lang === 'ru' ? 'Нет записей' : lang === 'ky' ? 'Жазуулар жок' : 'No records found'}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {vectorResults.map((r, idx) => {
+                const top5 = r.top5 ?? [];
+                return (
+                  <div
+                    key={r.id ?? idx}
+                    className="flex flex-col gap-3 p-4 rounded-2xl border border-white/8 bg-white/3 hover:bg-white/5 hover:border-white/12 transition-all duration-200"
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Index */}
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 text-xs font-bold">
+                        {idx + 1}
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="text-white font-semibold text-sm truncate">
+                            {r.full_name?.trim() || <span className="text-slate-600 italic">—</span>}
+                          </span>
+                          <span className="text-slate-600 text-xs flex-shrink-0">
+                            {r.completed_at ? formatDate(r.completed_at) : ''}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                          {r.email && <span className="text-slate-500 text-xs">{r.email}</span>}
+                          {r.phone && <span className="text-slate-500 text-xs">{r.phone}</span>}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Top 5 trait pills */}
+                    {top5.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pl-11">
+                        {top5.map((t, i) => {
+                          const color = domainColors[t.d as Domain] ?? '#d4a843';
+                          return (
+                            <span
+                              key={t.name}
+                              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs border font-medium"
+                              style={{
+                                color,
+                                borderColor: color + '55',
+                                background: color + '12',
+                              }}
+                            >
+                              <span className="opacity-50 text-[10px] font-bold">{i + 1}</span>
+                              {t.name}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )
         )}
       </main>
 

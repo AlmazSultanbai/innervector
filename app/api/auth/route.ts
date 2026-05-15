@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { createClient } from '@supabase/supabase-js';
+import { signValue } from '@/lib/session';
 
 export const maxDuration = 30;
 
@@ -20,6 +22,14 @@ export async function POST(req: NextRequest) {
   // 1. Check hardcoded admin credentials
   const admin = ADMIN_CREDENTIALS.find(c => c.login === u && c.password === p);
   if (admin) {
+    const cookieStore = await cookies();
+    cookieStore.set('iv_role', signValue(admin.role), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 8, // 8 hours
+    });
     return NextResponse.json({ role: admin.role });
   }
 

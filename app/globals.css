@@ -14,7 +14,7 @@
 }
 
 body {
-  background-color: #0e1120;
+  background-color: #111628;
   color: #e2e8f0;
   font-family: var(--font-sans);
   min-height: 100vh;
@@ -26,7 +26,7 @@ body {
 
 /* Radial gradient background */
 .bg-radial {
-  background: radial-gradient(ellipse at top, #1e2440 0%, #0e1120 65%);
+  background: radial-gradient(ellipse at top, #202845 0%, #111628 65%);
 }
 
 /* Gold accent text */
@@ -164,7 +164,7 @@ body {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0e1120;
+  background: #111628;
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(212, 168, 67, 0.3);

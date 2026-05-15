@@ -474,7 +474,7 @@ function ResultsContent() {
             {t.badge}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1 sm:gap-2">
             {/* Client link — copy for sharing with client */}
             {result && shareToken && (
               <button
@@ -485,7 +485,7 @@ function ResultsContent() {
                     setTimeout(() => setCopiedClient(false), 2000);
                   });
                 }}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 hover:bg-emerald-500/20 transition-all text-sm"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 hover:bg-emerald-500/20 transition-all text-xs sm:text-sm"
                 title="Copy client link"
               >
                 {copiedClient ? (
@@ -503,7 +503,7 @@ function ResultsContent() {
               <button
                 onClick={handleDownloadPDF}
                 disabled={pdfLoading}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gold/10 border border-gold/20 text-gold hover:bg-gold/20 transition-all text-sm disabled:opacity-50"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gold/10 border border-gold/20 text-gold hover:bg-gold/20 transition-all text-xs sm:text-sm disabled:opacity-50"
               >
                 {pdfLoading ? (
                   <span className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
@@ -519,7 +519,7 @@ function ResultsContent() {
             {/* Share */}
             <button
               onClick={handleShare}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/8 transition-all text-sm"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/8 transition-all text-xs sm:text-sm"
             >
               {copied ? (
                 <><svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
@@ -752,7 +752,7 @@ function ResultsContent() {
                     <p className="text-slate-500 text-sm mb-4 ml-9">
                       {lang === 'ru' ? 'Как ваши таланты усиливают и конфликтуют друг с другом' : lang === 'ky' ? 'Таланттарыңыз бири-бирин кантип күчөтөт жана карама-каршы келет' : 'How your talents amplify and conflict with each other'}
                     </p>
-                    <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {result.combinations.map((combo) => (
                         <CombinationCard key={combo.type} combo={combo} lang={lang} />
                       ))}
@@ -800,7 +800,7 @@ function ResultsContent() {
                     {t.careersTitle}
                     <span className="flex-1 h-px bg-white/5" />
                   </h2>
-                  <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {result.careers.map((career, i) => (
                       <CareerCard key={career.title} career={career} rank={i + 1} animDelay={i * 100} />
                     ))}
@@ -822,7 +822,7 @@ function ResultsContent() {
                         ? 'Профилиңизди толуктай турган 5 тип адам'
                         : '5 types of people who complement your strengths profile'}
                     </p>
-                    <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {result.idealPartners.map((partner, i) => (
                         <IdealPartnerCard key={partner.type} partner={partner} index={i} />
                       ))}
@@ -844,7 +844,7 @@ function ResultsContent() {
                         <span className="w-6 h-px bg-gold/40 inline-block" />
                         <span className="font-serif text-xl text-white">{lang === 'ru' ? 'Сочетания талантов' : lang === 'ky' ? 'Талант айкалыштары' : 'Talent Combinations'}</span>
                       </div>
-                      <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {[
                           { name: lang === 'ru' ? 'Архитектор решений' : 'Solution Architect', tags: ['Ideation', 'Context', 'Analytical'], good: lang === 'ru' ? 'Генерирует нестандартные решения' : 'Generates breakthrough ideas', bad: lang === 'ru' ? 'Может застрять в анализе' : 'Can get stuck in analysis' },
                           { name: lang === 'ru' ? 'Стратег отношений' : 'Relationship Strategist', tags: ['Empathy', 'Individualization', 'Relator'], good: lang === 'ru' ? 'Создаёт глубокие связи' : 'Creates deep connections', bad: lang === 'ru' ? 'Сложно масштабировать' : 'Hard to scale' },
@@ -883,7 +883,7 @@ function ResultsContent() {
                         <span className="w-6 h-px bg-gold/40 inline-block" />
                         <span className="font-serif text-xl text-white">{lang === 'ru' ? 'Слепые зоны' : lang === 'ky' ? 'Байкалбаган жактар' : 'Blind Spots'}</span>
                       </div>
-                      <div className="grid sm:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {[
                           lang === 'ru' ? 'Склонность переусложнять простые задачи из-за стремления к идеальному решению' : 'Tendency to overcomplicate simple tasks',
                           lang === 'ru' ? 'Трудность с быстрыми решениями — потребность в полном контексте замедляет действие' : 'Difficulty with quick decisions',
@@ -905,7 +905,7 @@ function ResultsContent() {
                         <span className="w-6 h-px bg-gold/40 inline-block" />
                         <span className="font-serif text-xl text-white">{lang === 'ru' ? 'Известные люди' : lang === 'ky' ? 'Белгилүү адамдар' : 'Famous People'}</span>
                       </div>
-                      <div className="grid sm:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {['Elon Musk', 'Steve Jobs', 'Warren Buffett'].map((name, i) => (
                           <div key={i} className="card p-4">
                             <div className="font-bold text-white mb-1">{name}</div>
@@ -924,7 +924,7 @@ function ResultsContent() {
                         <span className="w-6 h-px bg-gold/40 inline-block" />
                         <span className="font-serif text-xl text-white">{lang === 'ru' ? 'Идеальные карьеры' : lang === 'ky' ? 'Идеалдуу карьера' : 'Ideal Careers'}</span>
                       </div>
-                      <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {[
                           { title: lang === 'ru' ? 'Стратегический консультант' : 'Strategic Consultant', why: lang === 'ru' ? 'Ваша комбинация Ideation + Context даёт редкую способность видеть системные решения' : 'Your Ideation + Context gives rare systemic thinking' },
                           { title: lang === 'ru' ? 'Коуч руководителей' : 'Executive Coach', why: lang === 'ru' ? 'Empathy + Individualization создают глубокое понимание каждого клиента' : 'Empathy + Individualization enable deep client understanding' },

@@ -12,9 +12,11 @@ interface TestStore {
   answers: Record<number, number>
   scores: Record<string, TraitScore>
   isComplete: boolean
+  userInfo: { fullName: string; phone: string; email: string } | null
   answer: (value: number) => void
   skip: () => void
   reset: () => void
+  setUserInfo: (info: { fullName: string; phone: string; email: string }) => void
 }
 
 function initScores(): Record<string, TraitScore> {
@@ -32,6 +34,7 @@ export const useVectorTestStore = create<TestStore>()(
       answers: {},
       scores: initScores(),
       isComplete: false,
+      userInfo: null,
 
       answer: (value: number) => {
         const { current, answers, scores } = get()
@@ -60,7 +63,9 @@ export const useVectorTestStore = create<TestStore>()(
 
       skip: () => get().answer(3),
 
-      reset: () => set({ current: 0, answers: {}, scores: initScores(), isComplete: false }),
+      reset: () => set({ current: 0, answers: {}, scores: initScores(), isComplete: false, userInfo: null }),
+
+      setUserInfo: (info) => set({ userInfo: info }),
     }),
     {
       name: 'vector-test-results', // localStorage key

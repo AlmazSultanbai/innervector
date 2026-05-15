@@ -12,7 +12,7 @@ const DOMAINS: Domain[] = ['impulse', 'sozidanie', 'svyaz', 'navigacia', 'energi
 interface TraitScore { name: string; pct: number; d: Domain }
 
 export default function VectorTestReport() {
-  const { scores } = useVectorTestStore()
+  const { scores, userInfo } = useVectorTestStore()
 
   const hasResults = Object.keys(scores).length > 0 &&
     Object.values(scores).some(s => s.a > 0 || s.b > 0)
@@ -55,7 +55,11 @@ export default function VectorTestReport() {
       top5,
       domain_averages: domainAverages,
       lang: 'ru',
+      full_name: userInfo?.fullName,
+      email: userInfo?.email,
+      phone: userInfo?.phone,
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasResults, scores, top5, domainAverages])
 
   if (!hasResults) {

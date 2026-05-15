@@ -22,8 +22,8 @@ export default function AdminPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (authed === false) { router.replace('/'); return; }
     if (authed === null) return;
+    if (!authed || authed === 'client') { router.replace('/'); return; }
     supabase
       .from('analyses')
       .select('*')
@@ -72,7 +72,18 @@ export default function AdminPage() {
             <span className="text-white/10">|</span>
             <span className="text-gold text-xs font-bold tracking-widest uppercase">Admin Panel</span>
           </div>
-          <span className="text-slate-500 text-xs">Inner Vector · {total} профилей</span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gold/10 border border-gold/20 text-gold text-xs font-medium hover:bg-gold/20 transition-all"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              Dashboard
+            </button>
+            <span className="text-slate-500 text-xs">Inner Vector · {total} профилей</span>
+          </div>
         </div>
       </header>
 
@@ -106,7 +117,7 @@ export default function AdminPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Поиск по имени..."
-                className="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-gold/40 text-sm w-52"
+                className="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-gold/40 text-sm w-full sm:w-52"
               />
             </div>
           </div>
@@ -119,7 +130,7 @@ export default function AdminPage() {
               return (
                 <div
                   key={a.id ?? idx}
-                  className="group flex items-center gap-4 p-4 rounded-2xl border border-white/8 bg-white/3 hover:bg-white/5 hover:border-white/12 transition-all"
+                  className="group flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-4 rounded-2xl border border-white/8 bg-white/3 hover:bg-white/5 hover:border-white/12 transition-all"
                 >
                   {/* Index */}
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 text-xs font-bold">
@@ -155,7 +166,7 @@ export default function AdminPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex-shrink-0 flex items-center gap-2">
+                  <div className="flex-shrink-0 flex flex-wrap items-center gap-2">
                     {/* Copy client link */}
                     <button
                       onClick={() => a.share_token && copyClientLink(a.share_token, a.id!)}

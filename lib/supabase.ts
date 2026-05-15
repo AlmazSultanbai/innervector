@@ -190,6 +190,9 @@ export interface VectorTestResult {
   top5: Array<{ name: string; pct: number; d: string }>
   domain_averages: Record<string, number>
   lang?: string
+  full_name?: string
+  email?: string
+  phone?: string
 }
 
 /** Save vector test result to Supabase. Returns the new record id or null on error. */
@@ -210,6 +213,9 @@ export async function saveVectorTestResult(data: VectorTestResult): Promise<stri
       lang: data.lang ?? 'ru',
       retake_count: count ?? 0,
       completed_at: new Date().toISOString(),
+      full_name: data.full_name ?? null,
+      email: data.email ?? null,
+      phone: data.phone ?? null,
     })
     .select('id')
     .single()
