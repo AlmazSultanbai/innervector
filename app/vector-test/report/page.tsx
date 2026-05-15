@@ -1,9 +1,10 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useVectorTestStore } from '@/store/vectorTestStore'
 import { traitData, domainColors, domainNames, domainDescs } from '@/data/vectorTraits'
+import { saveVectorTestResult } from '@/lib/supabase'
 import type { Domain } from '@/data/vectorTraits'
 
 const DOMAINS: Domain[] = ['impulse', 'sozidanie', 'svyaz', 'navigacia', 'energia', 'rost']
@@ -29,11 +30,33 @@ export default function VectorTestReport() {
 
   const top5 = traitScores.slice(0, 5)
 
+  // Save to Supabase once per completed test
+  const savedRef = useRef(false)
   const domainAverages = useMemo(() => {
     const totals = Object.fromEntries(DOMAINS.map(d => [d, { sum: 0, count: 0 }])) as Record<Domain, { sum: number; count: number }>
     traitScores.forEach(t => { totals[t.d].sum += t.pct; totals[t.d].count += 1 })
     return Object.fromEntries(DOMAINS.map(d => [d, totals[d].count > 0 ? Math.round(totals[d].sum / totals[d].count) : 0])) as Record<Domain, number>
   }, [traitScores])
+
+  useEffect(() => {
+    if (!hasResults || savedRef.current) return
+    savedRef.current = true
+
+    // Get or create anonymous session id
+    let sessionId = localStorage.getItem('vector-session-id')
+    if (!sessionId) {
+      sessionId = crypto.randomUUID()
+      localStorage.setItem('vector-session-id', sessionId)
+    }
+
+    saveVectorTestResult({
+      session_id: sessionId,
+      scores,
+      top5,
+      domain_averages: domainAverages,
+      lang: 'ru',
+    })
+  }, [hasResults, scores, top5, domainAverages])
 
   if (!hasResults) {
     return (

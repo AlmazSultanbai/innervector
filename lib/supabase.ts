@@ -181,3 +181,42 @@ export async function updatePlanProgress(
     .eq('id', plan_id);
   if (error) console.error('updatePlanProgress error:', error.message);
 }
+
+// ─── Vector Test Results ──────────────────────────────────────────────────────
+
+export interface VectorTestResult {
+  session_id: string
+  scores: Record<string, { a: number; b: number }>
+  top5: Array<{ name: string; pct: number; d: string }>
+  domain_averages: Record<string, number>
+  lang?: string
+}
+
+/** Save vector test result to Supabase. Returns the new record id or null on error. */
+export async function saveVectorTestResult(data: VectorTestResult): Promise<string | null> {
+  // Count how many times this session has taken the test before
+  const { count } = await supabase
+    .from('vector_test_results')
+    .select('id', { count: 'exact', head: true })
+    .eq('session_id', data.session_id)
+
+  const { data: row, error } = await supabase
+    .from('vector_test_results')
+    .insert({
+      session_id: data.session_id,
+      scores: data.scores,
+      top5: data.top5,
+      domain_averages: data.domain_averages,
+      lang: data.lang ?? 'ru',
+      retake_count: count ?? 0,
+      completed_at: new Date().toISOString(),
+    })
+    .select('id')
+    .single()
+
+  if (error) {
+    console.error('saveVectorTestResult error:', error.message)
+    return null
+  }
+  return row?.id ?? null
+}
