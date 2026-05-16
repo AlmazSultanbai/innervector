@@ -72,7 +72,7 @@ export const useVectorTestStore = create<TestStore>()(
 
       skip: () => get().answer(3),
 
-      reset: () => set({ current: 0, answers: {}, scores: initScores(), isComplete: false }),
+      reset: () => set({ current: 0, answers: {}, scores: initScores(), isComplete: false, shareToken: null }),
 
       setUserInfo: (info) => set({ userInfo: info }),
 

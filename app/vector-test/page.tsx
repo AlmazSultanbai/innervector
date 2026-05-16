@@ -15,9 +15,7 @@ const domains: Domain[] = ['vliyanie', 'realizacia', 'otnosenia', 'myshlenie', '
 
 export default function VectorTestIntro() {
   const router = useRouter()
-  const setUserInfo = useVectorTestStore(s => s.setUserInfo)
-  const testMode = useVectorTestStore(s => s.testMode)
-  const setTestMode = useVectorTestStore(s => s.setTestMode)
+  const { setUserInfo, testMode, setTestMode, reset } = useVectorTestStore()
   const locale = useLocaleStore(s => s.locale)
   const t = ui[locale]
 
@@ -54,6 +52,8 @@ export default function VectorTestIntro() {
     e.preventDefault()
     const errs = validate()
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
+    // Reset all previous answers, scores and share token before starting a new test
+    reset()
     setUserInfo({ fullName: fullName.trim(), phone: phone.trim(), email: email.trim() })
     router.push('/vector-test/test')
   }
