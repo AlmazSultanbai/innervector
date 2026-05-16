@@ -2,27 +2,51 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { domainColors, domainNames } from '@/data/vectorTraits'
+import { domainColors } from '@/data/vectorTraits'
 import { useVectorTestStore } from '@/store/vectorTestStore'
+import { useLocaleStore } from '@/store/localeStore'
+import { ui } from '@/locales/ui'
+import { domainNamesI18n } from '@/locales/domainNames'
+import LangSwitcher from '@/components/LangSwitcher'
 import type { Domain } from '@/data/vectorTraits'
+import type { TestMode } from '@/store/vectorTestStore'
 
-const domains: Domain[] = ['impulse', 'sozidanie', 'svyaz', 'navigacia', 'energia', 'rost']
+const domains: Domain[] = ['vliyanie', 'realizacia', 'otnosenia', 'myshlenie', 'energia', 'rost']
 
 export default function VectorTestIntro() {
   const router = useRouter()
   const setUserInfo = useVectorTestStore(s => s.setUserInfo)
+  const testMode = useVectorTestStore(s => s.testMode)
+  const setTestMode = useVectorTestStore(s => s.setTestMode)
+  const locale = useLocaleStore(s => s.locale)
+  const t = ui[locale]
 
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  const getDomainLabel = (d: Domain) => {
+    if (locale === 'en') return domainNamesI18n[d]?.en ?? d
+    if (locale === 'ky') return domainNamesI18n[d]?.ky ?? d
+    // Russian — use the domain key to get original Russian labels
+    const ruLabels: Record<Domain, string> = {
+      vliyanie:   'ВЛИЯНИЕ',
+      realizacia: 'РЕАЛИЗАЦИЯ',
+      otnosenia:  'ОТНОШЕНИЯ',
+      myshlenie:  'МЫШЛЕНИЕ',
+      energia:    'ЭНЕРГИЯ',
+      rost:       'РОСТ',
+    }
+    return ruLabels[d]
+  }
+
   const validate = () => {
     const e: Record<string, string> = {}
-    if (!fullName.trim()) e.fullName = 'Введите имя и фамилию'
-    if (!phone.trim()) e.phone = 'Введите телефон'
-    if (!email.trim()) e.email = 'Введите email'
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = 'Некорректный email'
+    if (!fullName.trim()) e.fullName = t.nameError
+    if (!phone.trim()) e.phone = t.phoneError
+    if (!email.trim()) e.email = t.emailError
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = t.emailInvalidError
     return e
   }
 
@@ -43,7 +67,7 @@ export default function VectorTestIntro() {
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
-          Назад
+          {t.back}
         </a>
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center text-gold text-xs font-bold flex-shrink-0">
@@ -51,11 +75,9 @@ export default function VectorTestIntro() {
           </div>
           <span className="text-xs font-semibold tracking-widest uppercase">
             <span className="text-white">Inner Vector</span>
-            <span className="text-gold/40 mx-1.5">·</span>
-            <span className="text-gold/60">Тест</span>
           </span>
         </div>
-        <div className="w-16" />
+        <LangSwitcher />
       </div>
 
       {/* Hero */}
@@ -64,18 +86,18 @@ export default function VectorTestIntro() {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-xs font-medium tracking-widest uppercase animate-fade-in">
           <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse-gold" />
-          Авторская методология
+          {t.testBadge}
         </div>
 
         {/* Headline */}
         <h1 className="font-serif text-5xl md:text-6xl font-bold text-white mb-4 leading-tight animate-slide-in delay-100 text-center">
-          Узнай свой{' '}
-          <span className="text-gold-light italic">вектор</span>
+          {t.headline1}{' '}
+          <span className="text-gold-light italic">{t.headline2}</span>
         </h1>
 
         {/* Subtitle */}
         <p className="text-slate-400 text-base mb-8 animate-fade-in delay-200 text-center">
-          180 вопросов · 36 характеристик · ~15 минут
+          {testMode === 'express' ? t.subtitleExpress : t.subtitleFull}
         </p>
 
         {/* Domain pills */}
@@ -90,7 +112,7 @@ export default function VectorTestIntro() {
                 background: domainColors[d] + '12',
               }}
             >
-              {domainNames[d]}
+              {getDomainLabel(d)}
             </span>
           ))}
         </div>
@@ -98,13 +120,35 @@ export default function VectorTestIntro() {
         {/* Divider */}
         <div className="w-12 h-px bg-gold/20 mb-10" />
 
+        {/* Mode tabs */}
+        <div className="flex w-full max-w-sm mb-4 rounded-xl overflow-hidden border border-white/10 animate-fade-in delay-350">
+          {(['express', 'full'] as TestMode[]).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setTestMode(mode)}
+              className="flex-1 py-3 text-xs font-semibold tracking-widest uppercase transition-all duration-200"
+              style={testMode === mode ? {
+                background: 'rgba(212,168,67,0.15)',
+                color: '#d4a843',
+                borderBottom: '2px solid #d4a843',
+              } : {
+                color: 'rgba(148,163,184,0.5)',
+                borderBottom: '2px solid transparent',
+              }}
+            >
+              {mode === 'express' ? t.modeExpress : t.modeFull}
+            </button>
+          ))}
+        </div>
+
         {/* Registration Form */}
         <form
           onSubmit={handleSubmit}
           className="w-full max-w-sm bg-white/3 border border-white/8 backdrop-blur rounded-2xl p-6 space-y-4 animate-fade-in delay-400"
         >
           <p className="text-slate-400 text-sm text-center mb-2">
-            Заполни форму, чтобы начать тест
+            {t.formTitle}
           </p>
 
           {/* Full Name */}
@@ -113,7 +157,7 @@ export default function VectorTestIntro() {
               type="text"
               value={fullName}
               onChange={e => { setFullName(e.target.value); setErrors(prev => ({ ...prev, fullName: '' })) }}
-              placeholder="Имя и Фамилия"
+              placeholder={t.namePlaceholder}
               className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-gold/40 transition-all"
               style={errors.fullName ? { borderColor: 'rgba(239,68,68,0.4)' } : {}}
             />
@@ -126,7 +170,7 @@ export default function VectorTestIntro() {
               type="tel"
               value={phone}
               onChange={e => { setPhone(e.target.value); setErrors(prev => ({ ...prev, phone: '' })) }}
-              placeholder="Телефон"
+              placeholder={t.phonePlaceholder}
               className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-gold/40 transition-all"
               style={errors.phone ? { borderColor: 'rgba(239,68,68,0.4)' } : {}}
             />
@@ -139,7 +183,7 @@ export default function VectorTestIntro() {
               type="email"
               value={email}
               onChange={e => { setEmail(e.target.value); setErrors(prev => ({ ...prev, email: '' })) }}
-              placeholder="Email"
+              placeholder={t.emailPlaceholder}
               className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-gold/40 transition-all"
               style={errors.email ? { borderColor: 'rgba(239,68,68,0.4)' } : {}}
             />
@@ -156,7 +200,7 @@ export default function VectorTestIntro() {
               boxShadow: '0 0 40px rgba(212,168,67,0.25), 0 0 80px rgba(212,168,67,0.1)',
             }}
           >
-            Начать тест
+            {t.startBtn}
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
             </svg>
@@ -165,7 +209,7 @@ export default function VectorTestIntro() {
 
         {/* Note */}
         <p className="text-slate-600 text-xs mt-6 italic border-l-2 border-gold/20 pl-3 max-w-xs text-left animate-fade-in delay-500">
-          Отвечай быстро — первый импульс точнее размышления
+          {t.noteText}
         </p>
       </div>
     </div>

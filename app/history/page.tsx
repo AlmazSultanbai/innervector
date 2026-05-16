@@ -16,6 +16,9 @@ interface VectorTestRecord {
   phone: string | null;
   top5: Array<{ name: string; pct: number; d: Domain }> | null;
   completed_at: string | null;
+  share_token: string | null;
+  test_mode: string | null;
+  lang: string | null;
 }
 
 
@@ -458,8 +461,7 @@ export default function HistoryPage() {
         .order('created_at', { ascending: false }),
       supabase
         .from('vector_test_results')
-        .select('id, full_name, email, phone, top5, completed_at')
-        .not('full_name', 'is', null)
+        .select('id, full_name, email, phone, top5, completed_at, share_token, test_mode, lang')
         .order('completed_at', { ascending: false }),
     ]).then(([analysesRes, vectorRes]) => {
       setAnalyses(analysesRes.data ?? []);
@@ -514,6 +516,11 @@ export default function HistoryPage() {
             </h1>
             <p className="text-slate-500 text-sm mt-1">
               {activeTab === 'gallup' ? filtered.length : vectorResults.length} {lang === 'ru' ? 'записей' : lang === 'ky' ? 'жазуу' : 'records'}
+              {activeTab === 'vector' && vectorResults.length > 0 && (
+                <span className="text-slate-600 ml-2">
+                  · {vectorResults.filter(r => r.test_mode === 'full').length} full · {vectorResults.filter(r => r.test_mode === 'express').length} express
+                </span>
+              )}
             </p>
           </div>
 
@@ -696,7 +703,7 @@ export default function HistoryPage() {
                     key={r.id ?? idx}
                     className="flex flex-col gap-3 p-4 rounded-2xl border border-white/8 bg-white/3 hover:bg-white/5 hover:border-white/12 transition-all duration-200"
                   >
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start sm:items-center gap-3">
                       {/* Index */}
                       <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 text-xs font-bold">
                         {idx + 1}
@@ -704,10 +711,13 @@ export default function HistoryPage() {
 
                       {/* Info */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
+                        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                           <span className="text-white font-semibold text-sm truncate">
                             {r.full_name?.trim() || <span className="text-slate-600 italic">—</span>}
                           </span>
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+                            r.test_mode === 'full' ? 'bg-gold/15 text-gold' : 'bg-blue-400/15 text-blue-400'
+                          }`}>{r.test_mode ?? 'full'}</span>
                           <span className="text-slate-600 text-xs flex-shrink-0">
                             {r.completed_at ? formatDate(r.completed_at) : ''}
                           </span>
@@ -717,6 +727,20 @@ export default function HistoryPage() {
                           {r.phone && <span className="text-slate-500 text-xs">{r.phone}</span>}
                         </div>
                       </div>
+
+                      {/* Open button */}
+                      {r.share_token && (
+                        <button
+                          onClick={() => router.push(`/vector-profile/${r.share_token}`)}
+                          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-xs font-medium hover:bg-white/10 hover:text-white transition-all duration-200"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          {lang === 'ru' ? 'Профиль' : lang === 'ky' ? 'Профил' : 'Profile'}
+                        </button>
+                      )}
                     </div>
 
                     {/* Top 5 trait pills */}
@@ -728,11 +752,7 @@ export default function HistoryPage() {
                             <span
                               key={t.name}
                               className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs border font-medium"
-                              style={{
-                                color,
-                                borderColor: color + '55',
-                                background: color + '12',
-                              }}
+                              style={{ color, borderColor: color + '55', background: color + '12' }}
                             >
                               <span className="opacity-50 text-[10px] font-bold">{i + 1}</span>
                               {t.name}

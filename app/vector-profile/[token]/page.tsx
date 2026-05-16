@@ -1,21 +1,33 @@
 'use client'
 
-import { useMemo, useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { useVectorTestStore } from '@/store/vectorTestStore'
+import { getVectorResultByToken } from '@/lib/supabase'
 import { traitData, domainColors } from '@/data/vectorTraits'
-import { saveVectorTestResult } from '@/lib/supabase'
-import { useLocaleStore } from '@/store/localeStore'
 import { ui } from '@/locales/ui'
 import { traitNamesI18n } from '@/locales/traitNames'
 import { domainNamesI18n } from '@/locales/domainNames'
 import { traitDataEn } from '@/locales/traitData.en'
 import { traitDataKy } from '@/locales/traitData.ky'
 import { traitBizEn, traitLoveEn, traitBizKy, traitLoveKy } from '@/locales/traitInsights'
-import LangSwitcher from '@/components/LangSwitcher'
 import type { Domain } from '@/data/vectorTraits'
+import type { Locale } from '@/store/localeStore'
 
-const DOMAINS: Domain[] = ['vliyanie', 'realizacia', 'otnosenia', 'myshlenie', 'energia', 'rost']
+type VectorResult = {
+  id: string
+  share_token: string
+  completed_at: string
+  test_mode: string
+  session_id: string
+  scores: Record<string, { a: number; b: number }>
+  top5: Array<{ name: string; pct: number; d: string }>
+  domain_averages: Record<string, number>
+  lang?: string
+  full_name?: string
+  email?: string
+  phone?: string
+}
 
 const RU_DOMAIN_NAMES: Record<Domain, string> = {
   vliyanie:   'ВЛИЯНИЕ',
@@ -26,7 +38,6 @@ const RU_DOMAIN_NAMES: Record<Domain, string> = {
   rost:       'РОСТ',
 }
 
-// Russian business insights (from original report page)
 const traitBizRu: Record<string, string> = {
   'Убеждение':         'Закрывает сделки и сдвигает людей с мёртвой точки. В деле незаменим там где нужно договориться.',
   'Вдохновение':       'Задаёт вектор и создаёт культуру. Команда идёт за тобой потому что верит в то куда ты ведёшь.',
@@ -105,7 +116,6 @@ const traitLoveRu: Record<string, string> = {
   'Долгосрочный след': 'Смотрит на отношения с горизонтом всей жизни. Строит не на эмоции момента — на фундаменте. Партнёру важно разделять длинный горизонт.',
 }
 
-// ── Complementary traits map ──────────────────────────────────────────────────
 const complementaryTraits: Record<string, string[]> = {
   'Убеждение':         ['Честность', 'Завершение', 'Системность'],
   'Вдохновение':       ['Завершение', 'Анализ', 'Системность'],
@@ -147,67 +157,76 @@ const complementaryTraits: Record<string, string[]> = {
 
 interface TraitScore { name: string; pct: number; d: Domain }
 
-export default function VectorTestReport() {
-  const { scores, userInfo, testMode, shareToken, setShareToken } = useVectorTestStore()
-  const locale = useLocaleStore(s => s.locale)
+function formatDate(iso: string, locale: Locale) {
+  return new Date(iso).toLocaleDateString(
+    locale === 'ru' ? 'ru-RU' : locale === 'ky' ? 'ky-KG' : 'en-US',
+    { day: '2-digit', month: 'long', year: 'numeric' }
+  )
+}
+
+export default function VectorProfilePage() {
+  const { token } = useParams<{ token: string }>()
+  const [result, setResult] = useState<VectorResult | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    if (!token) return
+    getVectorResultByToken(token).then(data => {
+      if (!data) { setNotFound(true); setLoading(false); return }
+      setResult(data as VectorResult)
+      setLoading(false)
+    })
+  }, [token])
+
+  const locale: Locale = (result?.lang as Locale) ?? 'ru'
   const t = ui[locale]
 
-  const hasResults = Object.keys(scores).length > 0 &&
-    Object.values(scores).some(s => s.a > 0 || s.b > 0)
-
-  const traitScores: TraitScore[] = useMemo(() =>
-    Object.keys(scores)
+  const traitScores: TraitScore[] = useMemo(() => {
+    if (!result?.scores) return []
+    return Object.keys(result.scores)
       .map(name => ({
         name,
-        pct: Math.round((scores[name].a / 10) * 100),
+        pct: Math.round((result.scores[name].a / 10) * 100),
         d: (traitData[name]?.d ?? 'rost') as Domain,
       }))
-      .sort((a, b) => b.pct - a.pct),
-    [scores]
-  )
+      .sort((a, b) => b.pct - a.pct)
+  }, [result])
 
   const maxPct = traitScores[0]?.pct || 1
   const normPct = (p: number) => Math.round((p / maxPct) * 100)
 
   const top5 = traitScores.slice(0, 5)
   const next5 = traitScores.slice(5, 10)
+  const testMode = result?.test_mode ?? 'full'
 
-  // Helper: get localized trait name
   const getTraitName = (ruKey: string) => {
     if (locale === 'en') return traitNamesI18n[ruKey]?.en ?? ruKey
     if (locale === 'ky') return traitNamesI18n[ruKey]?.ky ?? ruKey
     return ruKey
   }
-
-  // Helper: get localized domain name
   const getDomainName = (d: Domain) => {
     if (locale === 'en') return domainNamesI18n[d]?.en ?? d
     if (locale === 'ky') return domainNamesI18n[d]?.ky ?? d
     return RU_DOMAIN_NAMES[d]
   }
-
-  // Helper: get localized trait data fields
   const getTraitFields = (ruKey: string) => {
     if (locale === 'en') return traitDataEn[ruKey] ?? traitData[ruKey]
     if (locale === 'ky') return traitDataKy[ruKey] ?? traitData[ruKey]
     return traitData[ruKey]
   }
-
-  // Helper: get localized biz insight
   const getBizInsight = (ruKey: string) => {
     if (locale === 'en') return traitBizEn[ruKey] ?? traitBizRu[ruKey] ?? ''
     if (locale === 'ky') return traitBizKy[ruKey] ?? traitBizRu[ruKey] ?? ''
     return traitBizRu[ruKey] ?? ''
   }
-
-  // Helper: get localized love insight
   const getLoveInsight = (ruKey: string) => {
     if (locale === 'en') return traitLoveEn[ruKey] ?? traitLoveRu[ruKey] ?? ''
     if (locale === 'ky') return traitLoveKy[ruKey] ?? traitLoveRu[ruKey] ?? ''
     return traitLoveRu[ruKey] ?? ''
   }
 
-  // Aggregate application areas from top 5
   const applications = useMemo(() => {
     const raw = top5
       .flatMap(trait => {
@@ -222,10 +241,9 @@ export default function VectorTestReport() {
       seen.add(key)
       return true
     }).slice(0, 14)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [top5, locale])
 
-  // Complementary traits needed
   const neededTraits = useMemo(() => {
     const pool = top5.flatMap(t => complementaryTraits[t.name] ?? [])
     const topNames = new Set(top5.map(t => t.name))
@@ -237,61 +255,43 @@ export default function VectorTestReport() {
     }).slice(0, 5)
   }, [top5])
 
-  const [copied, setCopied] = useState(false)
-  const profileUrl = shareToken ? `${typeof window !== 'undefined' ? window.location.origin : 'https://innervector.co'}/vector-profile/${shareToken}` : null
-
+  const profileUrl = typeof window !== 'undefined' ? window.location.href : ''
   const copyLink = () => {
-    if (!profileUrl) return
     navigator.clipboard.writeText(profileUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
-  // Save to Supabase once per completed test
-  const savedRef = useRef(false)
-  const domainAverages = useMemo(() => {
-    const totals = Object.fromEntries(DOMAINS.map(d => [d, { sum: 0, count: 0 }])) as Record<Domain, { sum: number; count: number }>
-    traitScores.forEach(t => { totals[t.d].sum += t.pct; totals[t.d].count += 1 })
-    return Object.fromEntries(DOMAINS.map(d => [d, totals[d].count > 0 ? Math.round(totals[d].sum / totals[d].count) : 0])) as Record<Domain, number>
-  }, [traitScores])
+  // ── Loading state ─────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-radial flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-gold/30 border-t-gold animate-spin" />
+      </div>
+    )
+  }
 
-  useEffect(() => {
-    if (!hasResults || savedRef.current) return
-    savedRef.current = true
-    let sessionId = localStorage.getItem('vector-session-id')
-    if (!sessionId) {
-      sessionId = crypto.randomUUID()
-      localStorage.setItem('vector-session-id', sessionId)
-    }
-    saveVectorTestResult({
-      session_id: sessionId,
-      scores,
-      top5,
-      domain_averages: domainAverages,
-      lang: locale,
-      full_name: userInfo?.fullName,
-      email: userInfo?.email,
-      phone: userInfo?.phone,
-      test_mode: testMode,
-    }).then(result => {
-      if (result?.share_token) setShareToken(result.share_token)
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasResults, scores, top5, domainAverages])
-
-  if (!hasResults) {
+  // ── Not found ─────────────────────────────────────────────────────────────
+  if (notFound || !result) {
     return (
       <div className="min-h-screen bg-radial flex flex-col items-center justify-center gap-6 text-center px-6">
-        <p className="font-serif text-3xl text-slate-400">{t.takeTestFirst}</p>
-        <Link href="/vector-test" className="px-8 py-3 rounded-xl border border-gold/30 text-gold text-xs tracking-widest uppercase hover:bg-gold/10 transition-all duration-200">
-          {t.toStart}
+        <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-2xl">🔍</div>
+        <p className="font-serif text-3xl text-slate-400">
+          {locale === 'en' ? 'Profile not found' : locale === 'ky' ? 'Профиль табылган жок' : 'Профиль не найден'}
+        </p>
+        <p className="text-slate-600 text-sm max-w-xs">
+          {locale === 'en' ? 'This link may be invalid or expired.' : locale === 'ky' ? 'Бул шилтеме жараксыз болушу мүмкүн.' : 'Эта ссылка недействительна или устарела.'}
+        </p>
+        <Link href="/vector-test"
+          className="px-8 py-3 rounded-xl border border-gold/30 text-gold text-xs tracking-widest uppercase hover:bg-gold/10 transition-all duration-200">
+          {locale === 'en' ? 'Take the test' : locale === 'ky' ? 'Тестти тапшыр' : 'Пройти тест'}
         </Link>
       </div>
     )
   }
 
   const topTrait = top5[0]
-  const topColor = domainColors[topTrait.d]
+  const topColor = topTrait ? domainColors[topTrait.d] : '#d4a843'
 
   return (
     <div className="min-h-screen bg-radial">
@@ -299,11 +299,12 @@ export default function VectorTestReport() {
 
         {/* Nav */}
         <div className="flex items-center justify-between mb-12">
-          <Link href="/vector-test" className="flex items-center gap-2 text-slate-500 hover:text-gold text-xs font-medium tracking-wide transition-colors">
+          <Link href="/vector-test"
+            className="flex items-center gap-2 text-slate-500 hover:text-gold text-xs font-medium tracking-wide transition-colors">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
             </svg>
-            {t.retake}
+            {locale === 'en' ? 'Take the test' : locale === 'ky' ? 'Тест' : 'Пройти тест'}
           </Link>
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center text-gold text-xs font-bold">IV</div>
@@ -313,11 +314,28 @@ export default function VectorTestReport() {
               <span className="text-gold/60">{t.result}</span>
             </span>
           </div>
-          <div className="flex items-center gap-3">
-            <LangSwitcher />
-            <Link href="/" className="text-slate-500 hover:text-gold text-xs tracking-wide transition-colors">{t.home}</Link>
-          </div>
+          <Link href="/" className="text-slate-500 hover:text-gold text-xs tracking-wide transition-colors">{t.home}</Link>
         </div>
+
+        {/* Person header */}
+        {result.full_name && (
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/3 border border-white/8">
+              <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white"
+                style={{ background: topColor + '33', border: `1px solid ${topColor}44` }}>
+                {result.full_name.charAt(0).toUpperCase()}
+              </div>
+              <div className="text-left">
+                <div className="font-serif text-base text-white font-semibold">{result.full_name}</div>
+                <div className="text-slate-600 text-xs">
+                  {formatDate(result.completed_at, locale)}
+                  {' · '}
+                  {testMode === 'express' ? t.expressResultBadge : t.fullResultBadge}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Hero */}
         <div className="text-center mb-16 animate-slide-in">
@@ -328,15 +346,15 @@ export default function VectorTestReport() {
           <p className="font-serif text-2xl md:text-3xl text-slate-400 font-normal mb-2">{t.dominantForce}</p>
           <h1 className="font-serif text-5xl md:text-6xl font-bold leading-tight mb-6"
             style={{ color: topColor, textShadow: `0 0 60px ${topColor}33` }}>
-            {getTraitName(topTrait.name)}
+            {topTrait ? getTraitName(topTrait.name) : ''}
           </h1>
           <div className="w-12 h-px bg-gold/20 mx-auto mb-6" />
           <p className="text-slate-400 text-base max-w-lg mx-auto leading-relaxed">
-            {getTraitFields(topTrait.name)?.short}
+            {topTrait ? getTraitFields(topTrait.name)?.short : ''}
           </p>
         </div>
 
-        {/* ── Top 5 Strengths ─────────────────────────────────────────────── */}
+        {/* ── Top 5 ──────────────────────────────────────────────────────── */}
         <Section label={t.top5Label}>
           <div className="space-y-3">
             {top5.map((trait, i) => {
@@ -346,12 +364,10 @@ export default function VectorTestReport() {
                 <div key={trait.name}
                   className="rounded-2xl overflow-hidden border backdrop-blur-sm"
                   style={{ borderColor: i === 0 ? color + '50' : 'rgba(255,255,255,0.07)', background: i === 0 ? color + '08' : 'rgba(255,255,255,0.02)' }}>
-                  {/* progress bar */}
                   <div className="h-0.5 bg-white/5">
                     <div className="h-full transition-all duration-1000" style={{ width: `${normPct(trait.pct)}%`, background: color, boxShadow: `0 0 8px ${color}55` }} />
                   </div>
                   <div className="px-5 py-4">
-                    {/* header row */}
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <span className="font-serif text-2xl text-white/12 font-light leading-none w-7">{i + 1}</span>
@@ -384,12 +400,10 @@ export default function VectorTestReport() {
           </div>
         </Section>
 
-        {/* ── Where you shine ─────────────────────────────────────────────── */}
+        {/* ── Where you shine ────────────────────────────────────────────── */}
         <Section label={t.whereYouShine}>
           <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
-            <p className="text-slate-400 text-sm leading-relaxed mb-5">
-              {t.whereYouShineDesc}
-            </p>
+            <p className="text-slate-400 text-sm leading-relaxed mb-5">{t.whereYouShineDesc}</p>
             <div className="flex flex-wrap gap-2">
               {applications.map((app, i) => {
                 const trait = top5[Math.floor(i * top5.length / applications.length)]
@@ -406,10 +420,9 @@ export default function VectorTestReport() {
           </div>
         </Section>
 
-        {/* ── Business Partnership ─────────────────────────────────────────── */}
+        {/* ── Business Partnership ─────────────────────────────────────── */}
         <Section label={t.bizLabel}>
           <div className="space-y-4">
-            {/* What you bring */}
             <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
               <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-4">{t.bizWhatYouBring}</div>
               <div className="space-y-3">
@@ -428,13 +441,9 @@ export default function VectorTestReport() {
                 })}
               </div>
             </div>
-
-            {/* Who you need */}
             <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
               <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-2">{t.bizWhoYouNeed}</div>
-              <p className="text-slate-500 text-xs mb-4 leading-relaxed">
-                {t.bizWhoDesc}
-              </p>
+              <p className="text-slate-500 text-xs mb-4 leading-relaxed">{t.bizWhoDesc}</p>
               <div className="flex flex-wrap gap-2">
                 {neededTraits.map(ruKey => {
                   const d = traitData[ruKey]?.d ?? 'rost'
@@ -453,7 +462,7 @@ export default function VectorTestReport() {
           </div>
         </Section>
 
-        {/* ── Love & Relationships ─────────────────────────────────────────── */}
+        {/* ── Love & Relationships ─────────────────────────────────────── */}
         <Section label={t.loveLabel}>
           <div className="space-y-3">
             {top5.slice(0, 3).map((trait, i) => {
@@ -478,7 +487,7 @@ export default function VectorTestReport() {
           </div>
         </Section>
 
-        {/* ── Next 5 (Full only) ───────────────────────────────────────────── */}
+        {/* ── Next 5 (Full only) ───────────────────────────────────────── */}
         {testMode === 'full' && next5.length > 0 && (
           <Section label={t.next5Label}>
             <p className="text-slate-500 text-xs mb-5 leading-relaxed">{t.next5Desc}</p>
@@ -515,8 +524,8 @@ export default function VectorTestReport() {
           </Section>
         )}
 
-        {/* ── All 36 (Full only) ───────────────────────────────────────────── */}
-        {testMode === 'full' && (
+        {/* ── All 36 (Full only) ───────────────────────────────────────── */}
+        {testMode === 'full' && traitScores.length > 0 && (
           <Section label={t.all36Label}>
             <p className="text-slate-500 text-xs mb-5 leading-relaxed">{t.all36Desc}</p>
             <div className="space-y-1.5">
@@ -529,30 +538,24 @@ export default function VectorTestReport() {
                   <div key={trait.name}
                     className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all"
                     style={{ background: isTop5 ? color + '08' : 'transparent' }}>
-                    {/* rank */}
                     <span className="text-xs font-mono w-6 flex-shrink-0 text-right"
                       style={{ color: isTop5 ? color : 'rgba(100,116,139,0.5)' }}>
                       {i + 1}
                     </span>
-                    {/* bar */}
                     <div className="w-16 flex-shrink-0">
                       <div className="h-1 bg-white/5 rounded-full overflow-hidden">
                         <div className="h-full rounded-full transition-all duration-700"
                           style={{ width: `${barPct}%`, background: color, opacity: isTop5 ? 1 : 0.4 }} />
                       </div>
                     </div>
-                    {/* name */}
                     <span className="font-serif text-sm flex-shrink-0 font-medium"
                       style={{ color: isTop5 ? 'white' : 'rgba(148,163,184,0.7)' }}>
                       {getTraitName(trait.name)}
                     </span>
-                    {/* domain dot */}
                     <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color, opacity: isTop5 ? 1 : 0.4 }} />
-                    {/* short desc */}
                     <span className="text-slate-600 text-xs leading-snug hidden sm:block truncate flex-1">
                       {fields?.short}
                     </span>
-                    {/* score */}
                     <span className="text-xs flex-shrink-0 ml-auto"
                       style={{ color: isTop5 ? color : 'rgba(100,116,139,0.5)' }}>
                       {barPct}%
@@ -564,34 +567,32 @@ export default function VectorTestReport() {
           </Section>
         )}
 
-        {/* Share profile */}
-        {profileUrl && (
-          <div className="mb-8 bg-white/2 border border-gold/15 rounded-2xl p-5">
-            <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-3">
-              {locale === 'en' ? 'Your profile link' : locale === 'ky' ? 'Профилиңдин шилтемеси' : 'Ссылка на твой профиль'}
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="flex-1 text-slate-500 text-xs truncate font-mono bg-white/3 px-3 py-2 rounded-lg border border-white/8">
-                {profileUrl}
-              </span>
-              <button
-                onClick={copyLink}
-                className="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200"
-                style={copied
-                  ? { background: 'rgba(109,222,138,0.15)', color: '#6dde8a', border: '1px solid rgba(109,222,138,0.3)' }
-                  : { background: 'rgba(212,168,67,0.15)', color: '#d4a843', border: '1px solid rgba(212,168,67,0.3)' }
-                }
-              >
-                {copied
-                  ? (locale === 'en' ? 'Copied!' : locale === 'ky' ? 'Көчүрүлдү!' : 'Скопировано!')
-                  : (locale === 'en' ? 'Copy' : locale === 'ky' ? 'Көчүрүү' : 'Скопировать')}
-              </button>
-            </div>
+        {/* Share this profile */}
+        <div className="mb-8 bg-white/2 border border-gold/15 rounded-2xl p-5">
+          <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-3">
+            {locale === 'en' ? 'Share this profile' : locale === 'ky' ? 'Профилди бөлүшүү' : 'Поделиться профилем'}
           </div>
-        )}
+          <div className="flex items-center gap-3">
+            <span className="flex-1 text-slate-500 text-xs truncate font-mono bg-white/3 px-3 py-2 rounded-lg border border-white/8">
+              {profileUrl}
+            </span>
+            <button
+              onClick={copyLink}
+              className="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200"
+              style={copied
+                ? { background: 'rgba(109,222,138,0.15)', color: '#6dde8a', border: '1px solid rgba(109,222,138,0.3)' }
+                : { background: 'rgba(212,168,67,0.15)', color: '#d4a843', border: '1px solid rgba(212,168,67,0.3)' }
+              }
+            >
+              {copied
+                ? (locale === 'en' ? 'Copied!' : locale === 'ky' ? 'Көчүрүлдү!' : 'Скопировано!')
+                : (locale === 'en' ? 'Copy' : locale === 'ky' ? 'Көчүрүү' : 'Скопировать')}
+            </button>
+          </div>
+        </div>
 
         {/* CTA */}
-        <div className="flex justify-center gap-4 flex-wrap mt-4">
+        <div className="flex justify-center gap-4 flex-wrap">
           <Link href="/vector-test"
             className="px-8 py-3 rounded-xl border border-white/10 text-slate-400 text-xs tracking-widest uppercase hover:border-white/20 hover:text-slate-300 transition-all duration-200">
             {t.retake}

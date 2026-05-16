@@ -193,11 +193,11 @@ export interface VectorTestResult {
   full_name?: string
   email?: string
   phone?: string
+  test_mode?: string
 }
 
-/** Save vector test result to Supabase. Returns the new record id or null on error. */
-export async function saveVectorTestResult(data: VectorTestResult): Promise<string | null> {
-  // Count how many times this session has taken the test before
+/** Save vector test result to Supabase. Returns { id, share_token } or null on error. */
+export async function saveVectorTestResult(data: VectorTestResult): Promise<{ id: string; share_token: string } | null> {
   const { count } = await supabase
     .from('vector_test_results')
     .select('id', { count: 'exact', head: true })
@@ -216,13 +216,25 @@ export async function saveVectorTestResult(data: VectorTestResult): Promise<stri
       full_name: data.full_name ?? null,
       email: data.email ?? null,
       phone: data.phone ?? null,
+      test_mode: data.test_mode ?? 'full',
     })
-    .select('id')
+    .select('id, share_token')
     .single()
 
   if (error) {
     console.error('saveVectorTestResult error:', error.message)
     return null
   }
-  return row?.id ?? null
+  return row ? { id: row.id, share_token: row.share_token } : null
+}
+
+/** Fetch a vector test result by share_token (public profile page) */
+export async function getVectorResultByToken(token: string): Promise<(VectorTestResult & { id: string; share_token: string; completed_at: string; test_mode: string }) | null> {
+  const { data, error } = await supabase
+    .from('vector_test_results')
+    .select('*')
+    .eq('share_token', token)
+    .maybeSingle()
+  if (error) { console.error('getVectorResultByToken error:', error.message); return null }
+  return data ?? null
 }

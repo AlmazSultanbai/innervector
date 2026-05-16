@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { questions } from '@/data/vectorQuestions'
+import { questions, fullQuestions, expressQuestions } from '@/data/vectorQuestions'
+
+export type TestMode = 'full' | 'express'
 
 interface TraitScore {
   a: number
@@ -12,11 +14,15 @@ interface TestStore {
   answers: Record<number, number>
   scores: Record<string, TraitScore>
   isComplete: boolean
+  testMode: TestMode
   userInfo: { fullName: string; phone: string; email: string } | null
+  shareToken: string | null
   answer: (value: number) => void
   skip: () => void
   reset: () => void
   setUserInfo: (info: { fullName: string; phone: string; email: string }) => void
+  setTestMode: (mode: TestMode) => void
+  setShareToken: (token: string) => void
 }
 
 function initScores(): Record<string, TraitScore> {
@@ -34,13 +40,16 @@ export const useVectorTestStore = create<TestStore>()(
       answers: {},
       scores: initScores(),
       isComplete: false,
+      testMode: 'full',
       userInfo: null,
+      shareToken: null,
 
       answer: (value: number) => {
-        const { current, answers, scores } = get()
-        if (current >= questions.length) return
+        const { current, answers, scores, testMode } = get()
+        const activeQs = testMode === 'express' ? expressQuestions : fullQuestions
+        if (current >= activeQs.length) return
 
-        const q = questions[current]
+        const q = activeQs[current]
         const newScores = { ...scores }
         const traitScore = { ...newScores[q.t] }
 
@@ -57,18 +66,29 @@ export const useVectorTestStore = create<TestStore>()(
           current: newCurrent,
           answers: { ...answers, [current]: value },
           scores: newScores,
-          isComplete: newCurrent >= questions.length,
+          isComplete: newCurrent >= activeQs.length,
         })
       },
 
       skip: () => get().answer(3),
 
-      reset: () => set({ current: 0, answers: {}, scores: initScores(), isComplete: false, userInfo: null }),
+      reset: () => set({ current: 0, answers: {}, scores: initScores(), isComplete: false }),
 
       setUserInfo: (info) => set({ userInfo: info }),
+
+      setTestMode: (mode: TestMode) => set({
+        testMode: mode,
+        current: 0,
+        answers: {},
+        scores: initScores(),
+        isComplete: false,
+        shareToken: null,
+      }),
+
+      setShareToken: (token: string) => set({ shareToken: token }),
     }),
     {
-      name: 'vector-test-results', // localStorage key
+      name: 'vector-test-results',
     }
   )
 )

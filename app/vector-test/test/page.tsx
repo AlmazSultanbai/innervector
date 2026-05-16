@@ -3,22 +3,55 @@
 import { useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useVectorTestStore } from '@/store/vectorTestStore'
-import { questions } from '@/data/vectorQuestions'
-import { domainColors, domainNames } from '@/data/vectorTraits'
+import { fullQuestions, expressQuestions } from '@/data/vectorQuestions'
+import { domainColors } from '@/data/vectorTraits'
+import { useLocaleStore } from '@/store/localeStore'
+import { ui } from '@/locales/ui'
+import { domainNamesI18n } from '@/locales/domainNames'
+import { questionsEn } from '@/locales/questions.en'
+import { questionsKy } from '@/locales/questions.ky'
+import type { Domain } from '@/data/vectorTraits'
 
 const TIMER_DURATION = 20
 const CIRCUMFERENCE = 2 * Math.PI * 13
 
+const RU_DOMAIN_NAMES: Record<Domain, string> = {
+  vliyanie:   'ВЛИЯНИЕ',
+  realizacia: 'РЕАЛИЗАЦИЯ',
+  otnosenia:  'ОТНОШЕНИЯ',
+  myshlenie:  'МЫШЛЕНИЕ',
+  energia:    'ЭНЕРГИЯ',
+  rost:       'РОСТ',
+}
+
 export default function VectorTestPage() {
   const router = useRouter()
-  const { current, isComplete, answer, skip } = useVectorTestStore()
+  const { current, isComplete, answer, skip, testMode } = useVectorTestStore()
+  const locale = useLocaleStore(s => s.locale)
+  const t = ui[locale]
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const timeLeftRef = useRef(TIMER_DURATION)
   const circleRef = useRef<SVGCircleElement>(null)
 
-  const currentQuestion = questions[Math.min(current, questions.length - 1)]
-  const progress = (current / questions.length) * 100
+  const activeQuestions = testMode === 'express' ? expressQuestions : fullQuestions
+  const safeIdx = Math.min(current, activeQuestions.length - 1)
+  const currentQuestion = activeQuestions[safeIdx]
+  const progress = (current / activeQuestions.length) * 100
   const domainColor = domainColors[currentQuestion.d]
+
+  // Get question text in current locale using full-array index for translations
+  const fullIdx = currentQuestion._fullIdx ?? safeIdx
+  const qLocale = locale === 'en'
+    ? questionsEn[fullIdx]
+    : locale === 'ky'
+      ? questionsKy[fullIdx]
+      : { a: currentQuestion.a, b: currentQuestion.b }
+
+  const getDomainLabel = (d: Domain) => {
+    if (locale === 'en') return domainNamesI18n[d]?.en ?? d
+    if (locale === 'ky') return domainNamesI18n[d]?.ky ?? d
+    return RU_DOMAIN_NAMES[d]
+  }
 
   const startTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current)
@@ -77,13 +110,13 @@ export default function VectorTestPage() {
             background: domainColor + '12',
           }}
         >
-          {domainNames[currentQuestion.d]}
+          {getDomainLabel(currentQuestion.d)}
         </span>
 
         {/* Counter + timer */}
         <div className="flex items-center gap-3">
           <span className="text-slate-500 text-xs tracking-widest">
-            {String(current + 1).padStart(2, '0')} / 180
+            {t.questionOf(current + 1, activeQuestions.length)}
           </span>
           <svg width="28" height="28" viewBox="0 0 30 30" style={{ transform: 'rotate(-90deg)', opacity: 0.8 }}>
             <circle cx="15" cy="15" r="13" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="2.5" />
@@ -112,15 +145,15 @@ export default function VectorTestPage() {
 
               {/* Statement A */}
               <p className="font-serif text-lg md:text-xl text-white text-right leading-relaxed">
-                {currentQuestion.a}
+                {qLocale.a}
               </p>
 
               {/* Scale */}
-              <ScaleRadio onAnswer={handleAnswer} color={domainColor} />
+              <ScaleRadio onAnswer={handleAnswer} color={domainColor} optionA={t.optionA} optionB={t.optionB} neutral={t.neutral} />
 
               {/* Statement B */}
               <p className="font-serif text-lg md:text-xl text-white leading-relaxed">
-                {currentQuestion.b}
+                {qLocale.b}
               </p>
             </div>
           </div>
@@ -131,7 +164,7 @@ export default function VectorTestPage() {
               onClick={() => handleAnswer(3)}
               className="px-8 py-2.5 rounded-lg border border-white/8 text-slate-600 text-xs tracking-widest uppercase hover:border-white/15 hover:text-slate-400 transition-all duration-200"
             >
-              Пропустить
+              {t.neutral}
             </button>
           </div>
         </div>
@@ -140,12 +173,24 @@ export default function VectorTestPage() {
   )
 }
 
-function ScaleRadio({ onAnswer, color }: { onAnswer: (v: number) => void; color: string }) {
+function ScaleRadio({
+  onAnswer,
+  color,
+  optionA,
+  optionB,
+  neutral,
+}: {
+  onAnswer: (v: number) => void
+  color: string
+  optionA: string
+  optionB: string
+  neutral: string
+}) {
   const sizes = [40, 30, 22, 30, 40]
 
   return (
     <div className="flex flex-col items-center gap-2 flex-shrink-0">
-      <span className="text-slate-600 text-[9px] tracking-widest uppercase">нейтрально</span>
+      <span className="text-slate-600 text-[9px] tracking-widest uppercase">{neutral}</span>
       <div className="flex items-center gap-2">
         {[1, 2, 3, 4, 5].map((value, i) => (
           <button
@@ -173,8 +218,8 @@ function ScaleRadio({ onAnswer, color }: { onAnswer: (v: number) => void; color:
         ))}
       </div>
       <div className="flex justify-between w-full">
-        <span className="text-slate-600 text-[9px] tracking-wide">A</span>
-        <span className="text-slate-600 text-[9px] tracking-wide">B</span>
+        <span className="text-slate-600 text-[9px] tracking-wide">{optionA}</span>
+        <span className="text-slate-600 text-[9px] tracking-wide">{optionB}</span>
       </div>
     </div>
   )
