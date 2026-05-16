@@ -197,7 +197,16 @@ export default function VectorProfilePage() {
   const maxPct = traitScores[0]?.pct || 1
   const normPct = (p: number) => Math.round((p / maxPct) * 100)
 
-  const top5 = traitScores.slice(0, 5)
+  // Use stored top5 from DB (preserves order from test time, avoids re-sort ties)
+  const top5: TraitScore[] = useMemo(() => {
+    if (!result?.top5?.length) return traitScores.slice(0, 5)
+    return result.top5.map(t => ({
+      name: t.name,
+      pct: t.pct,
+      d: (t.d as Domain) ?? (traitData[t.name]?.d ?? 'rost') as Domain,
+    }))
+  }, [result, traitScores])
+
   const next5 = traitScores.slice(5, 10)
   const testMode = result?.test_mode ?? 'full'
 
