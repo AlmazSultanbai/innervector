@@ -496,8 +496,8 @@ export default function VectorProfilePage() {
           </div>
         </Section>
 
-        {/* ── 36 Vectors Grid ─────────────────────────────────────────── */}
-        {traitScores.length > 0 && (
+        {/* ── 36 Vectors Grid (Full only) ─────────────────────────────── */}
+        {testMode === 'full' && traitScores.length > 0 && (
           <Section label={t.all36Label}>
             <p className="text-slate-500 text-xs mb-6 leading-relaxed">{t.all36Desc}</p>
 
