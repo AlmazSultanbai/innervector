@@ -496,82 +496,95 @@ export default function VectorProfilePage() {
           </div>
         </Section>
 
-        {/* ── Next 5 (Full only) ───────────────────────────────────────── */}
-        {testMode === 'full' && next5.length > 0 && (
-          <Section label={t.next5Label}>
-            <p className="text-slate-500 text-xs mb-5 leading-relaxed">{t.next5Desc}</p>
-            <div className="space-y-2">
-              {next5.map((trait, i) => {
+        {/* ── 36 Vectors Grid ─────────────────────────────────────────── */}
+        {traitScores.length > 0 && (
+          <Section label={t.all36Label}>
+            <p className="text-slate-500 text-xs mb-6 leading-relaxed">{t.all36Desc}</p>
+
+            {/* Domain legend */}
+            <div className="flex flex-wrap gap-3 mb-6">
+              {(['vliyanie','realizacia','otnosenia','myshlenie','energia','rost'] as Domain[]).map(d => (
+                <div key={d} className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full" style={{ background: domainColors[d] }} />
+                  <span className="text-[10px] tracking-wide" style={{ color: domainColors[d] + 'cc' }}>
+                    {getDomainName(d)}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Grid */}
+            <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+              {traitScores.map((trait, i) => {
                 const color = domainColors[trait.d]
-                const fields = getTraitFields(trait.name)
-                const biz = getBizInsight(trait.name)
+                const rank = i + 1
+                const isTop10 = rank <= 10
+                const isTop5 = rank <= 5
+
                 return (
-                  <div key={trait.name}
-                    className="rounded-xl overflow-hidden border border-white/7 bg-white/2 backdrop-blur-sm">
-                    <div className="h-px bg-white/5">
-                      <div className="h-full transition-all duration-1000" style={{ width: `${normPct(trait.pct)}%`, background: color }} />
-                    </div>
-                    <div className="px-4 py-3.5 flex gap-4 items-start">
-                      <span className="font-serif text-xl text-white/10 font-light w-7 flex-shrink-0 pt-0.5">{i + 6}</span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <span className="font-serif text-base text-white font-semibold">{getTraitName(trait.name)}</span>
-                          <span className="text-[9px] tracking-widest font-medium px-2 py-0.5 rounded-full border"
-                            style={{ color, borderColor: color + '40', background: color + '10' }}>
-                            {getDomainName(trait.d)}
-                          </span>
-                        </div>
-                        {fields && <p className="text-slate-500 text-xs leading-relaxed mb-1">{fields.short}</p>}
-                        {biz && <p className="text-slate-600 text-xs leading-relaxed italic">{biz}</p>}
+                  <div
+                    key={trait.name}
+                    className="relative flex flex-col items-center justify-center text-center rounded-xl p-2.5 transition-all duration-300"
+                    style={isTop10 ? {
+                      background: color + (isTop5 ? '18' : '0d'),
+                      border: `1px solid ${color}${isTop5 ? '55' : '30'}`,
+                      boxShadow: isTop5 ? `0 0 16px ${color}20` : 'none',
+                    } : {
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                    }}
+                  >
+                    {/* Rank badge — top 10 only */}
+                    {isTop10 && (
+                      <div
+                        className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shadow-lg"
+                        style={{
+                          background: isTop5 ? color : color + '99',
+                          color: '#0e1120',
+                        }}
+                      >
+                        {rank}
                       </div>
-                      <span className="font-serif text-base font-light flex-shrink-0 mt-0.5" style={{ color }}>{normPct(trait.pct)}%</span>
-                    </div>
+                    )}
+
+                    {/* Domain dot */}
+                    <span
+                      className="w-1.5 h-1.5 rounded-full mb-1.5 flex-shrink-0"
+                      style={{ background: isTop10 ? color : color + '44' }}
+                    />
+
+                    {/* Name */}
+                    <span
+                      className="font-serif text-[11px] leading-tight font-medium"
+                      style={{ color: isTop10 ? (isTop5 ? 'white' : 'rgba(226,232,240,0.85)') : 'rgba(100,116,139,0.5)' }}
+                    >
+                      {getTraitName(trait.name)}
+                    </span>
                   </div>
                 )
               })}
             </div>
-          </Section>
-        )}
 
-        {/* ── All 36 (Full only) ───────────────────────────────────────── */}
-        {testMode === 'full' && traitScores.length > 0 && (
-          <Section label={t.all36Label}>
-            <p className="text-slate-500 text-xs mb-5 leading-relaxed">{t.all36Desc}</p>
-            <div className="space-y-1.5">
-              {traitScores.map((trait, i) => {
-                const color = domainColors[trait.d]
-                const fields = getTraitFields(trait.name)
-                const barPct = normPct(trait.pct)
-                const isTop5 = i < 5
-                return (
-                  <div key={trait.name}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all"
-                    style={{ background: isTop5 ? color + '08' : 'transparent' }}>
-                    <span className="text-xs font-mono w-6 flex-shrink-0 text-right"
-                      style={{ color: isTop5 ? color : 'rgba(100,116,139,0.5)' }}>
-                      {i + 1}
-                    </span>
-                    <div className="w-16 flex-shrink-0">
-                      <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full rounded-full transition-all duration-700"
-                          style={{ width: `${barPct}%`, background: color, opacity: isTop5 ? 1 : 0.4 }} />
-                      </div>
-                    </div>
-                    <span className="font-serif text-sm flex-shrink-0 font-medium"
-                      style={{ color: isTop5 ? 'white' : 'rgba(148,163,184,0.7)' }}>
-                      {getTraitName(trait.name)}
-                    </span>
-                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color, opacity: isTop5 ? 1 : 0.4 }} />
-                    <span className="text-slate-600 text-xs leading-snug hidden sm:block truncate flex-1">
-                      {fields?.short}
-                    </span>
-                    <span className="text-xs flex-shrink-0 ml-auto"
-                      style={{ color: isTop5 ? color : 'rgba(100,116,139,0.5)' }}>
-                      {barPct}%
-                    </span>
-                  </div>
-                )
-              })}
+            {/* Legend: top5 / top10 / rest */}
+            <div className="flex items-center gap-5 mt-5 flex-wrap">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-gold/20 border border-gold/50" />
+                <span className="text-[10px] text-slate-500">
+                  {locale === 'en' ? 'Top 5 strengths' : locale === 'ky' ? 'Топ 5 күч' : 'Топ 5 сил'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-white/5 border border-white/15" />
+                <span className="text-[10px] text-slate-500">
+                  {locale === 'en' ? 'Ranks 6–10' : locale === 'ky' ? '6–10 орун' : 'Позиции 6–10'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-white/2 border border-white/6" />
+                <span className="text-[10px] text-slate-500">
+                  {locale === 'en' ? 'Background traits' : locale === 'ky' ? 'Фондук' : 'Фоновые'}
+                </span>
+              </div>
             </div>
           </Section>
         )}
