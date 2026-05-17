@@ -140,7 +140,6 @@ export default function VectorProfilePage() {
     }))
   }, [result, traitScores])
 
-  const next5 = traitScores.slice(5, 10)
   const testMode = result?.test_mode ?? 'full'
 
   const getTraitName = (ruKey: string) => {

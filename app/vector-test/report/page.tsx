@@ -170,7 +170,7 @@ export default function VectorTestReport() {
   const normPct = (p: number) => Math.round((p / maxPct) * 100)
 
   const top5 = traitScores.slice(0, 5)
-  const next5 = traitScores.slice(5, 10)
+
 
   // Helper: get localized trait name
   const getTraitName = (ruKey: string) => {

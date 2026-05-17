@@ -57,7 +57,8 @@ export async function POST(req: NextRequest) {
       ? 'МААНИЛҮҮ: Бардык жооптор кыргызча болуш керек. JSON ичиндеги бардык текст кыргыз тилинде. Векторлорду кыргызча жаз.'
       : 'Respond entirely in English. Be direct, concrete, non-generic. Reference vector names in English.'
 
-    const firstName = full_name.trim().split(' ')[0] || (lang === 'ru' ? 'тебя' : lang === 'ky' ? 'сени' : 'you')
+    // firstName reserved for future personalization
+    // const firstName = full_name.trim().split(' ')[0] || ...
 
     const prompt = `You are a master Inner Vector coach with deep expertise in the proprietary 36-vector methodology. Inner Vector is a personality system based on 6 domains: Influence, Execution, Relationships, Thinking, Energy, Growth — each with 6 vectors. You give profound, specific, non-generic insights about a person's nature based on their vector profile.
 
