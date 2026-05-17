@@ -184,6 +184,25 @@ export async function updatePlanProgress(
 
 // ─── Vector Test Results ──────────────────────────────────────────────────────
 
+export interface VectorAnalysis {
+  essence: string
+  dominantTheme: string
+  whereYouShine: { summary: string; contexts: string[] }
+  business: {
+    whatYouBring: string
+    contributions: Array<{ vector: string; insight: string }>
+    whoYouNeed: string
+    partners: Array<{ type: string; vectors: string[]; why: string; dynamic: string }>
+  }
+  love: {
+    summary: string
+    dynamics: Array<{ vector: string; strength: string; shadow: string }>
+    partnerNeeds: string
+  }
+  blindSpots: string[]
+  combinations: Array<{ name: string; vectors: string[]; how: string; atBest: string; risk: string }>
+}
+
 export interface VectorTestResult {
   session_id: string
   scores: Record<string, { a: number; b: number }>
@@ -194,6 +213,7 @@ export interface VectorTestResult {
   email?: string
   phone?: string
   test_mode?: string
+  analysis?: VectorAnalysis | null
 }
 
 /** Save vector test result to Supabase. Returns { id, share_token } or null on error. */

@@ -5,13 +5,13 @@ import Link from 'next/link'
 import { useVectorTestStore } from '@/store/vectorTestStore'
 import { traitData, domainColors } from '@/data/vectorTraits'
 import { saveVectorTestResult } from '@/lib/supabase'
+import type { VectorAnalysis } from '@/lib/supabase'
 import { useLocaleStore } from '@/store/localeStore'
 import { ui } from '@/locales/ui'
 import { traitNamesI18n } from '@/locales/traitNames'
 import { domainNamesI18n } from '@/locales/domainNames'
 import { traitDataEn } from '@/locales/traitData.en'
 import { traitDataKy } from '@/locales/traitData.ky'
-import { traitBizEn, traitLoveEn, traitBizKy, traitLoveKy } from '@/locales/traitInsights'
 import LangSwitcher from '@/components/LangSwitcher'
 import type { Domain } from '@/data/vectorTraits'
 
@@ -193,19 +193,11 @@ export default function VectorTestReport() {
     return traitData[ruKey]
   }
 
-  // Helper: get localized biz insight
-  const getBizInsight = (ruKey: string) => {
-    if (locale === 'en') return traitBizEn[ruKey] ?? traitBizRu[ruKey] ?? ''
-    if (locale === 'ky') return traitBizKy[ruKey] ?? traitBizRu[ruKey] ?? ''
-    return traitBizRu[ruKey] ?? ''
-  }
+  // Helper: get biz insight (RU fallback template)
+  const getBizInsight = (ruKey: string) => traitBizRu[ruKey] ?? ''
 
-  // Helper: get localized love insight
-  const getLoveInsight = (ruKey: string) => {
-    if (locale === 'en') return traitLoveEn[ruKey] ?? traitLoveRu[ruKey] ?? ''
-    if (locale === 'ky') return traitLoveKy[ruKey] ?? traitLoveRu[ruKey] ?? ''
-    return traitLoveRu[ruKey] ?? ''
-  }
+  // Helper: get love insight (RU fallback template)
+  const getLoveInsight = (ruKey: string) => traitLoveRu[ruKey] ?? ''
 
   // Aggregate application areas from top 5
   const applications = useMemo(() => {
@@ -238,6 +230,8 @@ export default function VectorTestReport() {
   }, [top5])
 
   const [copied, setCopied] = useState(false)
+  const [analysis, setAnalysis] = useState<VectorAnalysis | null>(null)
+  const [analysisLoading, setAnalysisLoading] = useState(false)
   const profileUrl = shareToken ? `${typeof window !== 'undefined' ? window.location.origin : 'https://innervector.co'}/vector-profile/${shareToken}` : null
 
   const copyLink = () => {
@@ -275,6 +269,23 @@ export default function VectorTestReport() {
       test_mode: testMode,
     }).then(result => {
       if (result?.share_token) setShareToken(result.share_token)
+      // Generate AI analysis
+      setAnalysisLoading(true)
+      const top10 = traitScores.slice(0, 10)
+      fetch('/api/vector-analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          top5,
+          top10,
+          lang: locale,
+          full_name: userInfo?.fullName ?? '',
+          result_id: result?.id,
+        }),
+      })
+        .then(r => r.json())
+        .then(data => { if (!data.error) setAnalysis(data) })
+        .finally(() => setAnalysisLoading(false))
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasResults, scores, top5, domainAverages])
@@ -384,99 +395,245 @@ export default function VectorTestReport() {
           </div>
         </Section>
 
+        {/* ── AI Analysis loading state ───────────────────────────────────── */}
+        {analysisLoading && (
+          <div className="mb-10 flex items-center gap-3 px-5 py-4 rounded-2xl bg-gold/5 border border-gold/15">
+            <div className="w-4 h-4 rounded-full border-2 border-gold/30 border-t-gold animate-spin flex-shrink-0" />
+            <p className="text-slate-400 text-sm">
+              {locale === 'en' ? 'Generating your personal analysis…' : locale === 'ky' ? 'Жеке анализ жаратылууда…' : 'Генерируем твой личный анализ…'}
+            </p>
+          </div>
+        )}
+
         {/* ── Where you shine ─────────────────────────────────────────────── */}
         <Section label={t.whereYouShine}>
-          <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
-            <p className="text-slate-400 text-sm leading-relaxed mb-5">
-              {t.whereYouShineDesc}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {applications.map((app, i) => {
-                const trait = top5[Math.floor(i * top5.length / applications.length)]
-                const color = domainColors[trait?.d ?? 'rost']
-                return (
-                  <span key={i}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium border"
-                    style={{ color, borderColor: color + '35', background: color + '0d' }}>
-                    {app}
-                  </span>
-                )
-              })}
+          {analysis ? (
+            <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
+              <p className="text-slate-300 text-sm leading-relaxed mb-5">{analysis.whereYouShine.summary}</p>
+              <div className="flex flex-wrap gap-2">
+                {analysis.whereYouShine.contexts.map((ctx, i) => {
+                  const color = domainColors[top5[i % top5.length]?.d ?? 'rost']
+                  return (
+                    <span key={i} className="px-3 py-1.5 rounded-lg text-xs font-medium border"
+                      style={{ color, borderColor: color + '35', background: color + '0d' }}>
+                      {ctx}
+                    </span>
+                  )
+                })}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
+              <p className="text-slate-400 text-sm leading-relaxed mb-5">{t.whereYouShineDesc}</p>
+              <div className="flex flex-wrap gap-2">
+                {applications.map((app, i) => {
+                  const trait = top5[Math.floor(i * top5.length / applications.length)]
+                  const color = domainColors[trait?.d ?? 'rost']
+                  return (
+                    <span key={i} className="px-3 py-1.5 rounded-lg text-xs font-medium border"
+                      style={{ color, borderColor: color + '35', background: color + '0d' }}>
+                      {app}
+                    </span>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </Section>
 
         {/* ── Business Partnership ─────────────────────────────────────────── */}
         <Section label={t.bizLabel}>
-          <div className="space-y-4">
-            {/* What you bring */}
-            <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
-              <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-4">{t.bizWhatYouBring}</div>
+          {analysis ? (
+            <div className="space-y-4">
+              <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
+                <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-4">{t.bizWhatYouBring}</div>
+                <p className="text-slate-300 text-sm leading-relaxed mb-5">{analysis.business.whatYouBring}</p>
+                <div className="space-y-3">
+                  {analysis.business.contributions.map((c, i) => {
+                    const color = domainColors[top5[i]?.d ?? 'rost']
+                    return (
+                      <div key={i} className="flex gap-3">
+                        <div className="w-1 rounded-full flex-shrink-0 mt-1" style={{ background: color, minHeight: 40 }} />
+                        <div>
+                          <span className="font-serif text-sm text-white font-medium">{c.vector} </span>
+                          <span className="text-slate-400 text-sm leading-relaxed">— {c.insight}</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
+                <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-3">{t.bizWhoYouNeed}</div>
+                <p className="text-slate-300 text-sm leading-relaxed mb-5">{analysis.business.whoYouNeed}</p>
+                <div className="space-y-3">
+                  {analysis.business.partners.map((p, i) => {
+                    const color = domainColors[top5[i % top5.length]?.d ?? 'rost']
+                    return (
+                      <div key={i} className="rounded-xl border p-4"
+                        style={{ borderColor: color + '30', background: color + '06' }}>
+                        <div className="font-serif text-sm text-white font-semibold mb-1">{p.type}</div>
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {p.vectors.map(v => (
+                            <span key={v} className="text-[10px] px-2 py-0.5 rounded-full border"
+                              style={{ color, borderColor: color + '40', background: color + '10' }}>{v}</span>
+                          ))}
+                        </div>
+                        <p className="text-slate-400 text-xs leading-relaxed mb-1">{p.why}</p>
+                        <p className="text-slate-500 text-xs leading-relaxed italic">{p.dynamic}</p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
+                <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-4">{t.bizWhatYouBring}</div>
+                <div className="space-y-3">
+                  {top5.slice(0, 3).map(trait => {
+                    const color = domainColors[trait.d]
+                    const insight = getBizInsight(trait.name)
+                    return (
+                      <div key={trait.name} className="flex gap-3">
+                        <div className="w-1 rounded-full flex-shrink-0 mt-1" style={{ background: color, minHeight: '100%' }} />
+                        <div>
+                          <span className="font-serif text-sm text-white font-medium">{getTraitName(trait.name)} </span>
+                          <span className="text-slate-400 text-sm leading-relaxed">— {insight}</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
+                <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-2">{t.bizWhoYouNeed}</div>
+                <p className="text-slate-500 text-xs mb-4 leading-relaxed">{t.bizWhoDesc}</p>
+                <div className="flex flex-wrap gap-2">
+                  {neededTraits.map(ruKey => {
+                    const d = traitData[ruKey]?.d ?? 'rost'
+                    const color = domainColors[d]
+                    return (
+                      <div key={ruKey} className="flex items-center gap-2 px-3 py-2 rounded-xl border"
+                        style={{ borderColor: color + '35', background: color + '0d' }}>
+                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
+                        <span className="text-xs font-medium" style={{ color }}>{getTraitName(ruKey)}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+        </Section>
+
+        {/* ── Love & Relationships ─────────────────────────────────────────── */}
+        <Section label={t.loveLabel}>
+          {analysis ? (
+            <div className="space-y-4">
+              <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
+                <p className="text-slate-300 text-sm leading-relaxed">{analysis.love.summary}</p>
+              </div>
               <div className="space-y-3">
-                {top5.slice(0, 3).map(trait => {
-                  const color = domainColors[trait.d]
-                  const insight = getBizInsight(trait.name)
+                {analysis.love.dynamics.map((d, i) => {
+                  const color = domainColors[top5[i]?.d ?? 'rost']
+                  const icons = t.loveIcons
                   return (
-                    <div key={trait.name} className="flex gap-3">
-                      <div className="w-1 rounded-full flex-shrink-0 mt-1" style={{ background: color, minHeight: '100%' }} />
+                    <div key={i} className="rounded-2xl border p-5"
+                      style={{ borderColor: color + '30', background: color + '06' }}>
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="text-lg">{icons[i]}</span>
+                        <div className="font-serif text-base text-white font-semibold">{d.vector}</div>
+                      </div>
+                      <p className="text-slate-300 text-sm leading-relaxed mb-2">{d.strength}</p>
+                      <p className="text-slate-500 text-xs leading-relaxed italic border-l-2 pl-3"
+                        style={{ borderColor: color + '40' }}>{d.shadow}</p>
+                    </div>
+                  )
+                })}
+              </div>
+              <div className="bg-white/2 border border-white/7 rounded-2xl p-5">
+                <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-2">
+                  {locale === 'en' ? 'Ideal partner' : locale === 'ky' ? 'Идеалдуу өнөк' : 'Идеальный партнёр'}
+                </div>
+                <p className="text-slate-400 text-sm leading-relaxed">{analysis.love.partnerNeeds}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {top5.slice(0, 3).map((trait, i) => {
+                const color = domainColors[trait.d]
+                const insight = getLoveInsight(trait.name)
+                const icons = t.loveIcons
+                return (
+                  <div key={trait.name} className="rounded-2xl border p-5"
+                    style={{ borderColor: color + '30', background: color + '06' }}>
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-lg">{icons[i]}</span>
                       <div>
-                        <span className="font-serif text-sm text-white font-medium">{getTraitName(trait.name)} </span>
-                        <span className="text-slate-400 text-sm leading-relaxed">— {insight}</span>
+                        <div className="font-serif text-base text-white font-semibold">{getTraitName(trait.name)}</div>
+                        <div className="text-[10px] tracking-widest font-medium" style={{ color }}>{getDomainName(trait.d)}</div>
+                      </div>
+                    </div>
+                    <p className="text-slate-400 text-sm leading-relaxed">{insight}</p>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </Section>
+
+        {/* ── Blind spots & Combinations (AI only) ───────────────────────── */}
+        {analysis && (
+          <>
+            <Section label={locale === 'en' ? 'BLIND SPOTS' : locale === 'ky' ? 'КӨР ЖАКТАР' : 'СЛЕПЫЕ ЗОНЫ'}>
+              <div className="space-y-3">
+                {analysis.blindSpots.map((spot, i) => (
+                  <div key={i} className="flex gap-3 p-4 rounded-xl bg-red-500/4 border border-red-500/12">
+                    <span className="w-5 h-5 rounded-full bg-red-500/20 text-red-400 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
+                    <p className="text-slate-400 text-sm leading-relaxed">{spot}</p>
+                  </div>
+                ))}
+              </div>
+            </Section>
+
+            <Section label={locale === 'en' ? 'VECTOR COMBINATIONS' : locale === 'ky' ? 'ВЕКТОР АЙКАЛЫШТАРЫ' : 'КАК ВЕКТОРЫ ВЗАИМОДЕЙСТВУЮТ'}>
+              <div className="space-y-4">
+                {analysis.combinations.map((combo, i) => {
+                  const color = domainColors[top5[i % top5.length]?.d ?? 'rost']
+                  return (
+                    <div key={i} className="rounded-2xl border p-5"
+                      style={{ borderColor: color + '30', background: color + '06' }}>
+                      <div className="font-serif text-base text-white font-semibold mb-1">{combo.name}</div>
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {combo.vectors.map(v => (
+                          <span key={v} className="text-[10px] px-2 py-0.5 rounded-full border"
+                            style={{ color, borderColor: color + '40', background: color + '10' }}>{v}</span>
+                        ))}
+                      </div>
+                      <p className="text-slate-400 text-sm leading-relaxed mb-3">{combo.how}</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-emerald-500/6 border border-emerald-500/15 rounded-lg p-2.5">
+                          <div className="text-[9px] text-emerald-500/70 tracking-widest uppercase mb-1">
+                            {locale === 'en' ? 'At best' : locale === 'ky' ? 'Эң мыктысы' : 'В лучшем виде'}
+                          </div>
+                          <p className="text-slate-300 text-xs leading-relaxed">{combo.atBest}</p>
+                        </div>
+                        <div className="bg-red-500/5 border border-red-500/12 rounded-lg p-2.5">
+                          <div className="text-[9px] text-red-500/60 tracking-widest uppercase mb-1">
+                            {locale === 'en' ? 'Risk' : locale === 'ky' ? 'Коркунуч' : 'Риск'}
+                          </div>
+                          <p className="text-slate-400 text-xs leading-relaxed">{combo.risk}</p>
+                        </div>
                       </div>
                     </div>
                   )
                 })}
               </div>
-            </div>
-
-            {/* Who you need */}
-            <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
-              <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-2">{t.bizWhoYouNeed}</div>
-              <p className="text-slate-500 text-xs mb-4 leading-relaxed">
-                {t.bizWhoDesc}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {neededTraits.map(ruKey => {
-                  const d = traitData[ruKey]?.d ?? 'rost'
-                  const color = domainColors[d]
-                  return (
-                    <div key={ruKey}
-                      className="flex items-center gap-2 px-3 py-2 rounded-xl border"
-                      style={{ borderColor: color + '35', background: color + '0d' }}>
-                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
-                      <span className="text-xs font-medium" style={{ color }}>{getTraitName(ruKey)}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-        </Section>
-
-        {/* ── Love & Relationships ─────────────────────────────────────────── */}
-        <Section label={t.loveLabel}>
-          <div className="space-y-3">
-            {top5.slice(0, 3).map((trait, i) => {
-              const color = domainColors[trait.d]
-              const insight = getLoveInsight(trait.name)
-              const icons = t.loveIcons
-              return (
-                <div key={trait.name}
-                  className="rounded-2xl border p-5"
-                  style={{ borderColor: color + '30', background: color + '06' }}>
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-lg">{icons[i]}</span>
-                    <div>
-                      <div className="font-serif text-base text-white font-semibold">{getTraitName(trait.name)}</div>
-                      <div className="text-[10px] tracking-widest font-medium" style={{ color }}>{getDomainName(trait.d)}</div>
-                    </div>
-                  </div>
-                  <p className="text-slate-400 text-sm leading-relaxed">{insight}</p>
-                </div>
-              )
-            })}
-          </div>
-        </Section>
+            </Section>
+          </>
+        )}
 
         {/* ── Next 5 (Full only) ───────────────────────────────────────────── */}
         {testMode === 'full' && next5.length > 0 && (
