@@ -9,14 +9,23 @@ export async function GET() {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
     );
-    const { count, error } = await sb
+
+    // Count Gallup analyses (with a name)
+    const { count: analysesCount, error: e1 } = await sb
       .from('analyses')
       .select('*', { count: 'exact', head: true })
       .not('full_name', 'is', null)
       .neq('full_name', '');
 
-    if (error) throw error;
-    return NextResponse.json({ count: count ?? 0 });
+    // Count completed vector tests
+    const { count: vectorCount, error: e2 } = await sb
+      .from('vector_test_results')
+      .select('*', { count: 'exact', head: true });
+
+    if (e1 || e2) throw e1 ?? e2;
+
+    const total = (analysesCount ?? 0) + (vectorCount ?? 0);
+    return NextResponse.json({ count: total });
   } catch {
     return NextResponse.json({ count: 0 });
   }
