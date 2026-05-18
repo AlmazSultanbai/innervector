@@ -10,15 +10,15 @@ const config: Config = {
     extend: {
       colors: {
         navy: {
-          900: '#13111c',
-          800: '#1c1a28',
-          700: '#252235',
-          600: '#2e2b40',
+          900: '#161614',
+          800: '#1f1f1c',
+          700: '#272724',
+          600: '#2e2e2a',
         },
         gold: {
-          DEFAULT: '#8299ff',
-          light: '#a3b4ff',
-          dark: '#5e6ad2',
+          DEFAULT: '#7eb89a',
+          light: '#a2ccb5',
+          dark: '#5a9478',
         },
         // Emerald brand accent — growth, progress, action
         brand: {
@@ -34,7 +34,7 @@ const config: Config = {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       backgroundImage: {
-        'radial-dark': 'radial-gradient(ellipse at 50% 0%, #201e35 0%, #1c1a28 50%, #13111c 100%)',
+        'radial-dark': 'radial-gradient(ellipse at 50% 0%, #1e2420 0%, #1a1f1c 50%, #161614 100%)',
       },
     },
   },
