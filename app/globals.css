@@ -14,8 +14,8 @@
 }
 
 body {
-  background-color: #111628;
-  color: #e2e8f0;
+  background-color: #0d0b14;
+  color: #e8edf5;
   font-family: var(--font-sans);
   min-height: 100vh;
 }
@@ -26,7 +26,7 @@ body {
 
 /* Radial gradient background */
 .bg-radial {
-  background: radial-gradient(ellipse at top, #202845 0%, #111628 65%);
+  background: radial-gradient(ellipse at 50% 0%, #1e1530 0%, #110f1c 50%, #0d0b14 100%);
 }
 
 /* Gold accent text */
@@ -88,16 +88,16 @@ body {
 
 /* Card base */
 .card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.10);
   backdrop-filter: blur(10px);
   border-radius: 16px;
   transition: all 0.3s ease;
 }
 
 .card:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Slide-in animation for results */
@@ -159,12 +159,24 @@ body {
   to   { transform: translateX(var(--tx, 0)) translateY(-100%); }
 }
 
+/* ── Readability lift ──────────────────────────────────────────────────────── */
+/* Boost default paragraph text brightness globally */
+p, li, span:not([class*="text-"]) {
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Section dividers feel lighter on warm dark */
+.section-divider {
+  background: rgba(255,255,255,0.06);
+}
+
+/* ── Custom scrollbar ─────────────────────────────────────────────────────── */
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #111628;
+  background: #0d0b14;
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(212, 168, 67, 0.3);
