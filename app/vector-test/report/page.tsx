@@ -407,22 +407,26 @@ export default function VectorTestReport() {
 
         {/* ── Where you shine ─────────────────────────────────────────────── */}
         <Section label={t.whereYouShine}>
-          {analysis ? (
-            <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
-              <p className="text-slate-300 text-sm leading-relaxed mb-5">{analysis.whereYouShine.summary}</p>
-              <div className="flex flex-wrap gap-2">
-                {analysis.whereYouShine.contexts.map((ctx, i) => {
-                  const color = domainColors[top5[i % top5.length]?.d ?? 'rost']
-                  return (
-                    <span key={i} className="px-3 py-1.5 rounded-lg text-xs font-medium border"
-                      style={{ color, borderColor: color + '35', background: color + '0d' }}>
-                      {ctx}
-                    </span>
-                  )
-                })}
+          <div className="space-y-4">
+            {/* Detailed AI block */}
+            {analysis ? (
+              <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
+                <p className="text-slate-300 text-sm leading-relaxed mb-5">{analysis.whereYouShine.summary}</p>
+                <div className="flex flex-col gap-2">
+                  {analysis.whereYouShine.contexts.map((ctx, i) => {
+                    const color = domainColors[top5[i % top5.length]?.d ?? 'rost']
+                    return (
+                      <div key={i} className="px-4 py-3 rounded-xl border text-xs leading-relaxed font-medium"
+                        style={{ color, borderColor: color + '30', background: color + '08' }}>
+                        {ctx}
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
-            </div>
-          ) : (
+            ) : null}
+
+            {/* Compact applications pills */}
             <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
               <p className="text-slate-400 text-sm leading-relaxed mb-5">{t.whereYouShineDesc}</p>
               <div className="flex flex-wrap gap-2">
@@ -438,7 +442,7 @@ export default function VectorTestReport() {
                 })}
               </div>
             </div>
-          )}
+          </div>
         </Section>
 
         {/* ── Business Partnership ─────────────────────────────────────────── */}
