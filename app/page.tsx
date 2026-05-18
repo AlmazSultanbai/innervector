@@ -287,6 +287,27 @@ export default function HomePage() {
 
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 pb-20">
 
+        {/* Scientific foundation */}
+        <div className="mb-8 animate-fade-in">
+          <p className="text-center text-slate-500 text-xs uppercase tracking-widest mb-3 font-medium">
+            {lang === 'ru' ? 'Методология основана на' : lang === 'ky' ? 'Методология негизделген' : 'Methodology based on'}
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {[
+              { name: 'Big Five', desc: lang === 'ru' ? 'Большая пятёрка' : lang === 'ky' ? 'Беш фактор' : 'Five Factor Model' },
+              { name: 'HEXACO', desc: lang === 'ru' ? 'Честность · Смирение' : lang === 'ky' ? 'Чынчылдык · Кичипейилдик' : 'Honesty · Humility' },
+              { name: 'SDT', desc: lang === 'ru' ? 'Теория самодетерминации' : lang === 'ky' ? 'Өз аныктоо теориясы' : 'Self-Determination Theory' },
+              { name: 'RIASEC', desc: lang === 'ru' ? 'Типы Холланда' : lang === 'ky' ? 'Холланд коддору' : 'Holland Codes' },
+              { name: 'IPIP', desc: lang === 'ru' ? 'Психометрические шкалы' : lang === 'ky' ? 'Психометрикалык шкалалар' : 'Psychometric Scales' },
+            ].map((m) => (
+              <div key={m.name} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/4 border border-white/8 group">
+                <span className="text-gold text-xs font-bold">{m.name}</span>
+                <span className="text-slate-500 text-xs">{m.desc}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Profile counter */}
         {profileCount !== null && profileCount > 0 && (
           <div className="flex items-center justify-center gap-2 mb-6">
