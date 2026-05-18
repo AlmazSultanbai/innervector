@@ -178,6 +178,13 @@ function TaskCard({
         {/* Title */}
         <h3 className="font-serif text-white text-lg leading-snug mb-2">{task.title}</h3>
 
+        {/* Hook — narrative opening */}
+        {task.hook && (
+          <p className={`text-sm leading-relaxed italic mb-3 ${cfg.textClass} opacity-90`}>
+            &ldquo;{task.hook}&rdquo;
+          </p>
+        )}
+
         {/* Description */}
         <p className="text-slate-400 text-sm leading-relaxed mb-4">{task.description}</p>
 

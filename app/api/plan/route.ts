@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
     const rankedList = strengths.map((s: string, i: number) => `  ${i + 1}. ${s}`).join('\n');
 
-    const prompt = `You are a world-class Gallup CliftonStrengths coach designing a personalized 30-day activation program.
+    const prompt = `You are a master transformation coach and storyteller. You design 30-day journeys that feel like novels — each task is a scene in the user's arc of becoming. Your writing is vivid, personal, and moves people to act. You never write generic advice. Every line references this specific person's strengths and the real human situation they are entering.
 
 The user's CliftonStrengths profile (ranked strongest to weakest):
 ${rankedList}
@@ -28,34 +28,45 @@ ${full_name ? `\nUser's name: ${full_name}` : ''}
 ${langInstruction}
 
 Design exactly 15 progressive tasks spread over 30 days (each task covers ~2 days):
-- Tasks 1–4: Awareness phase (category: "awareness") — understand your talents deeply
-- Tasks 5–8: Practice phase (category: "practice") — apply them in small daily ways
-- Tasks 9–12: Challenge phase (category: "challenge") — push beyond comfort zones
-- Tasks 13–15: Mastery phase (category: "mastery") — integrate and lead others
+- Tasks 1–4: Awareness phase (category: "awareness") — reveal the talent to themselves through a human encounter
+- Tasks 5–8: Practice phase (category: "practice") — put the talent to work in a real relationship
+- Tasks 9–12: Challenge phase (category: "challenge") — stretch where their strength meets resistance
+- Tasks 13–15: Mastery phase (category: "mastery") — lead others by example and leave a mark
 
 MANDATORY — every task must fall into one of these 3 human connection themes. Distribute them naturally across the 15 tasks (roughly 5 tasks per theme):
 
-🤝 THEME A — Meeting & Networking: tasks that involve reaching out to NEW people, strangers, colleagues, or acquaintances. Examples: start a conversation with someone new, attend an event, reach out to a professional you admire, introduce yourself in a new context. Make these specific to how the user's strengths make them naturally good at connecting.
+🤝 THEME A — Meeting & Networking: reaching out to NEW people — strangers, potential allies, admired professionals. Show HOW their strengths make them magnetic in new encounters.
 
-❤️ THEME B — Family & Close Bonds: tasks that deepen relationships with family members, close friends, or loved ones. Examples: have a meaningful conversation with a parent/sibling/partner, share something vulnerable, plan quality time together, express appreciation. Tie these to how the user's strengths enrich close relationships.
+❤️ THEME B — Family & Close Bonds: deepening the nearest relationships — parents, partners, siblings, closest friends. Show how their strengths transform intimacy.
 
-✨ THEME C — Strength Expression: tasks where the user visibly demonstrates their strengths to others — at work, socially, or in their community. Examples: lead a discussion using their top strength, teach someone a skill, share an insight, take initiative in a group, mentor someone. Show concretely how their strength profile shines in action.
+✨ THEME C — Strength Expression: visibly demonstrating strength to others — at work, socially, in community. Show the talent in action in front of people.
 
-For unlockKey: unique 2-word SCREAMING_SNAKE_CASE phrase e.g. "CURIOUS_BUILDER", "DEEP_FOCUS", "HUMAN_SPARK" — feel like a meaningful reward, relate to the task's human connection theme.
+For unlockKey: a unique 2-word SCREAMING_SNAKE_CASE phrase that feels like a reward and echoes the task's spirit — e.g. "HUMAN_SPARK", "DEEP_MIRROR", "QUIET_FIRE".
+
+NARRATIVE WRITING RULES — these are non-negotiable:
+
+hook: One arresting opening sentence written like the first line of a short story. Drop the reader into a scene or a truth. No "In this task you will..." — instead: "There is a person in your life who has been waiting years to hear what you truly think of them." or "The room goes quiet when you walk in — you've never noticed, but everyone else has." Specific to their strengths. Unexpected. Compelling.
+
+description: 3 sentences. Write as "you", present tense where possible. Sentence 1: paint the human situation — who is there, what is the unspoken tension or opportunity. Sentence 2: name the exact strength(s) that fire here and WHY this moment is their natural arena. Sentence 3: what shifts inside them — or in the other person — when they show up fully. Make the reader feel something.
+
+action: Write it like a scene direction, not a checklist item. Name the type of person, the setting, the exact words or gesture. "This week, sit across from your [mother / team lead / colleague you've been meaning to thank] and say: 'I want to tell you something I've never said out loud…'" — vivid, specific, and slightly uncomfortable in the best way. One action only. No bullet points.
+
+reflection: One question that cuts below the surface. Not "What did you learn?" — but something that only makes sense given their specific combination of strengths. A question a great mentor would ask at 11pm after a long conversation. Something they won't be able to stop thinking about.
 
 Respond ONLY with valid JSON:
 {
-  "programTitle": "Personalized title referencing their top strength",
-  "programDescription": "2 sentences on what this 30-day journey transforms — mention human connection and strength expression",
+  "programTitle": "A poetic title that captures the arc of the 30-day journey",
+  "programDescription": "2 sentences — first: the transformation at stake. Second: what kind of person they become by Day 30.",
   "tasks": [
     {
       "id": 1,
       "dayRange": "Day 1–2",
-      "title": "Specific title referencing their strength and who they will connect with",
-      "description": "2-3 sentences why this task matters for THIS profile and who it involves",
-      "action": "One concrete specific action — name exactly WHO to approach, WHAT to say or do, HOW LONG it takes, WHERE if relevant",
+      "title": "Evocative title — strength + human encounter, reads like a chapter heading",
+      "hook": "One arresting narrative sentence that drops the reader into a scene or a truth",
+      "description": "3 sentences in second person — human situation, which strength fires and why, what shifts",
+      "action": "One vivid scene direction — who, where, exactly what to say or do",
       "strengthsUsed": ["Strength1", "Strength2"],
-      "reflection": "One powerful question about what this connection revealed about their strengths",
+      "reflection": "One deep unexpected question specific to their strength combination",
       "unlockKey": "WORD_WORD",
       "duration": "45 min",
       "category": "awareness"
@@ -67,15 +78,15 @@ Rules:
 - Exactly 15 tasks, dayRange "Day 1–2" through "Day 29–30"
 - All unlockKeys unique, 2 words, SCREAMING_SNAKE_CASE
 - strengthsUsed: real names from user's profile, 1–3 per task
-- Every task must involve real human interaction (not solo journaling only)
-- Actions must name a real type of person to interact with (colleague, family member, friend, stranger, mentor, etc.)
-- DURATION: every task must be between 30 minutes and 2 hours. Use realistic values like "30 min", "45 min", "1 hour", "1.5 hours", "2 hours". Never less than 30 min, never more than 2 hours.
-- Make it feel like a genuine transformation journey through human connection`;
+- Every task must involve real human interaction (not solo reflection only)
+- DURATION: 30 min–2 hours. Values: "30 min", "45 min", "1 hour", "1.5 hours", "2 hours"
+- Never write generic coaching language. Every sentence must feel written for THIS person's exact profile
+- The journey should read like a story arc — early tasks feel like discovery, middle like tension, late like earned authority`;
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 8192,
-      system: 'You are a Gallup-certified CliftonStrengths Master Coach. Design deeply personalized 30-day programs. Always respond with valid JSON only — no markdown fences.',
+      system: 'You are a master transformation coach and storyteller. You write like a novelist who happens to know CliftonStrengths deeply. Every task you design feels personal, vivid, and impossible to ignore. You never write generic advice. Always respond with valid JSON only — no markdown fences, no extra text.',
       messages: [{ role: 'user', content: prompt }],
     });
 

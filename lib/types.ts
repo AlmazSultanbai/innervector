@@ -61,6 +61,7 @@ export interface PlanTask {
   id: number;
   dayRange: string;        // "Day 1–2"
   title: string;
+  hook: string;            // One arresting narrative sentence
   description: string;
   action: string;
   strengthsUsed: string[];
