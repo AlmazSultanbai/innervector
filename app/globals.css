@@ -14,8 +14,8 @@
 }
 
 body {
-  background-color: #0d0b14;
-  color: #e8edf5;
+  background-color: #111628;
+  color: #e2e8f0;
   font-family: var(--font-sans);
   min-height: 100vh;
 }
@@ -26,7 +26,7 @@ body {
 
 /* Radial gradient background */
 .bg-radial {
-  background: radial-gradient(ellipse at 50% 0%, #1e1530 0%, #110f1c 50%, #0d0b14 100%);
+  background: radial-gradient(ellipse at top, #202845 0%, #111628 65%);
 }
 
 /* Gold accent text */
@@ -88,16 +88,16 @@ body {
 
 /* Card base */
 .card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(10px);
   border-radius: 16px;
   transition: all 0.3s ease;
 }
 
 .card:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 /* Slide-in animation for results */
@@ -176,7 +176,7 @@ p, li, span:not([class*="text-"]) {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0d0b14;
+  background: #111628;
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(212, 168, 67, 0.3);
