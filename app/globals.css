@@ -14,8 +14,8 @@
 }
 
 body {
-  background-color: #161d35;
-  color: #e4e9f5;
+  background-color: #1a2340;
+  color: #e6ebf7;
   font-family: var(--font-sans);
   min-height: 100vh;
 }
@@ -26,7 +26,7 @@ body {
 
 /* Radial gradient background */
 .bg-radial {
-  background: radial-gradient(ellipse at top, #253050 0%, #161d35 65%);
+  background: radial-gradient(ellipse at top, #2a3a5c 0%, #1a2340 65%);
 }
 
 /* Gold accent text */
@@ -176,7 +176,7 @@ p, li, span:not([class*="text-"]) {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #161d35;
+  background: #1a2340;
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(212, 168, 67, 0.3);
