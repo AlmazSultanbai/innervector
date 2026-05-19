@@ -322,7 +322,7 @@ export default function HomePage() {
                 <div key={i} className={`w-6 h-6 rounded-full border-2 border-white/10 ${c}`} />
               ))}
             </div>
-            <p className="text-slate-400 text-base">
+            <p className="text-slate-400 text-lg">
               <span className="text-white font-semibold">
                 {(profileCount + 36).toLocaleString()}+
               </span>
