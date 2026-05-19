@@ -324,7 +324,7 @@ export default function HomePage() {
             </div>
             <p className="text-slate-400 text-base">
               <span className="text-white font-semibold">
-                {(profileCount + 30).toLocaleString()}+
+                {(profileCount + 36).toLocaleString()}+
               </span>
               {' '}
               {lang === 'ru'
