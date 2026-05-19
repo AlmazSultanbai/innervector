@@ -197,12 +197,6 @@ export default function HomePage() {
 
         {/* Center: Logo */}
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center text-gold text-sm font-bold flex-shrink-0">
-            IV
-          </div>
-          <svg className="w-3 h-3 text-gold/30 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
           <span className="text-xs font-semibold tracking-widest uppercase">
             <span className="text-white">Inner Vector</span>
             <span className="text-gold/40 mx-1.5">·</span>
