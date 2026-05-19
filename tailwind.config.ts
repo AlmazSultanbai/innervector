@@ -10,10 +10,10 @@ const config: Config = {
     extend: {
       colors: {
         navy: {
-          900: '#1a2340',
-          800: '#20294c',
-          700: '#2a3a5c',
-          600: '#33466e',
+          900: '#171f3a',
+          800: '#1e2848',
+          700: '#223058',
+          600: '#2c3c68',
         },
         gold: {
           DEFAULT: '#d4a843',
@@ -34,7 +34,7 @@ const config: Config = {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       backgroundImage: {
-        'radial-dark': 'radial-gradient(ellipse at top, #2a3a5c 0%, #1a2340 65%)',
+        'radial-dark': 'radial-gradient(ellipse at top, #223058 0%, #171f3a 65%)',
       },
     },
   },
