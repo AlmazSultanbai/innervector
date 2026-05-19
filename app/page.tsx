@@ -256,7 +256,7 @@ export default function HomePage() {
 
           {/* Text */}
           <div className="flex-1 text-center lg:text-left animate-slide-in delay-100">
-            <h1 className="font-serif text-5xl md:text-6xl font-bold text-white mb-4 leading-tight">
+            <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
               {t.heroTitle1}<br />
               <span className="text-gold-light italic">{t.heroTitle2}</span>
             </h1>
