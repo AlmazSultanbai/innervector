@@ -49,6 +49,7 @@ export default function HomePage() {
   const [lastName, setLastName] = useState('');
   // Index of currently glowing chip (-1 = none)
   const [glowIndex, setGlowIndex] = useState(-1);
+  const [openMethod, setOpenMethod] = useState<string | null>(null);
   const [profileCount, setProfileCount] = useState<number | null>(null);
   const glowIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
@@ -287,14 +288,58 @@ export default function HomePage() {
           </p>
           <div className="flex flex-wrap justify-center gap-2">
             {[
-              { name: 'Big Five', desc: lang === 'ru' ? 'Большая пятёрка' : lang === 'ky' ? 'Беш фактор' : 'Five Factor Model' },
-              { name: 'HEXACO', desc: lang === 'ru' ? 'Честность · Смирение' : lang === 'ky' ? 'Чынчылдык · Кичипейилдик' : 'Honesty · Humility' },
-              { name: 'SDT', desc: lang === 'ru' ? 'Теория самодетерминации' : lang === 'ky' ? 'Өз аныктоо теориясы' : 'Self-Determination Theory' },
-              { name: 'RIASEC', desc: lang === 'ru' ? 'Типы Холланда' : lang === 'ky' ? 'Холланд коддору' : 'Holland Codes' },
+              {
+                name: 'Big Five',
+                desc: lang === 'ru' ? 'Большая пятёрка' : lang === 'ky' ? 'Беш фактор' : 'Five Factor Model',
+                title: lang === 'ru' ? 'Big Five — личностный профиль' : 'Big Five — Personality Profile',
+                info: lang === 'ru'
+                  ? 'Показывает базовые черты характера: открытость, дисциплину, общительность, мягкость и эмоциональную устойчивость.'
+                  : 'Shows core personality traits: openness, conscientiousness, extraversion, agreeableness, and emotional stability.',
+              },
+              {
+                name: 'HEXACO',
+                desc: lang === 'ru' ? 'Честность · Смирение' : lang === 'ky' ? 'Чынчылдык · Кичипейилдик' : 'Honesty · Humility',
+                title: lang === 'ru' ? 'HEXACO — этичность и социальное поведение' : 'HEXACO — Ethics & Social Behaviour',
+                info: lang === 'ru'
+                  ? 'Дополняет личностный анализ: показывает честность, скромность, эмоциональность, терпимость и стиль взаимодействия с людьми.'
+                  : 'Adds honesty, humility, emotionality, and social interaction style to the personality picture.',
+              },
+              {
+                name: 'SDT',
+                desc: lang === 'ru' ? 'Теория самодетерминации' : lang === 'ky' ? 'Өз аныктоо теориясы' : 'Self-Determination Theory',
+                title: lang === 'ru' ? 'SDT — мотивация' : 'SDT — Motivation',
+                info: lang === 'ru'
+                  ? 'Показывает, что даёт человеку внутреннюю энергию: свобода выбора, ощущение роста и связь с людьми.'
+                  : 'Reveals what drives inner energy: autonomy, competence, and meaningful connection with others.',
+              },
+              {
+                name: 'RIASEC',
+                desc: lang === 'ru' ? 'Типы Холланда' : lang === 'ky' ? 'Холланд коддору' : 'Holland Codes',
+                title: lang === 'ru' ? 'RIASEC — карьерные интересы' : 'RIASEC — Career Interests',
+                info: lang === 'ru'
+                  ? 'Показывает, к каким видам деятельности человек тянется: практическим, аналитическим, творческим, социальным, предпринимательским или системным.'
+                  : 'Maps natural interests to activity types: realistic, investigative, artistic, social, enterprising, or conventional.',
+              },
             ].map((m) => (
-              <div key={m.name} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/4 border border-white/8 group">
-                <span className="text-gold text-xs font-bold">{m.name}</span>
-                <span className="text-slate-500 text-xs">{m.desc}</span>
+              <div key={m.name} className="relative">
+                <button
+                  onClick={() => setOpenMethod(openMethod === m.name ? null : m.name)}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-200 active:scale-95 ${
+                    openMethod === m.name
+                      ? 'bg-gold/10 border-gold/30 shadow-md'
+                      : 'bg-white/4 border-white/8 hover:border-white/15'
+                  }`}
+                >
+                  <span className="text-gold text-xs font-bold">{m.name}</span>
+                  <span className="text-slate-500 text-xs">{m.desc}</span>
+                  <span className={`text-gold/50 text-xs transition-transform duration-200 ${openMethod === m.name ? 'rotate-180' : ''}`}>▾</span>
+                </button>
+                {openMethod === m.name && (
+                  <div className="absolute z-20 top-full mt-2 left-1/2 -translate-x-1/2 w-64 bg-navy-800 border border-gold/20 rounded-xl p-4 shadow-xl animate-fade-in">
+                    <p className="text-gold text-xs font-semibold mb-1.5">{m.title}</p>
+                    <p className="text-slate-300 text-xs leading-relaxed">{m.info}</p>
+                  </div>
+                )}
               </div>
             ))}
           </div>
