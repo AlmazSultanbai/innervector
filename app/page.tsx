@@ -253,7 +253,10 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
 
           {/* DNA Animation */}
-          <div className="flex-shrink-0 animate-fade-in">
+          <div className="flex-shrink-0 animate-fade-in relative">
+            {/* Ambient glow behind helix */}
+            <div className="absolute inset-0 -z-10 rounded-full blur-3xl opacity-20"
+              style={{ background: 'radial-gradient(circle, #3b82f6 0%, #8b5cf6 40%, transparent 70%)' }} />
             <DNAAnimation />
           </div>
 
@@ -267,11 +270,11 @@ export default function HomePage() {
               {t.heroTitle1}<br />
               <span className="text-gold-light italic">{t.heroTitle2}</span>
             </h1>
-            <p className="text-slate-400 text-lg max-w-lg lg:max-w-none leading-relaxed mb-6">
+            <p className="text-slate-300 text-lg max-w-lg lg:max-w-none leading-relaxed mb-6">
               {t.heroSubtitle}
             </p>
             {/* Navigator quote */}
-            <p className="text-slate-600 text-sm italic border-l-2 border-gold/30 pl-3 max-w-md">
+            <p className="text-slate-400 text-sm italic border-l-2 border-gold/30 pl-3 max-w-md">
               {lang === 'ru'
                 ? <>&ldquo;Navigator — это не очередной личностный тест. Это система, превращающая самопознание в измеримые действия.&rdquo;</>
                 : lang === 'ky'
