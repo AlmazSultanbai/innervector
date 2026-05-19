@@ -301,7 +301,6 @@ export default function HomePage() {
               { name: 'HEXACO', desc: lang === 'ru' ? 'Честность · Смирение' : lang === 'ky' ? 'Чынчылдык · Кичипейилдик' : 'Honesty · Humility' },
               { name: 'SDT', desc: lang === 'ru' ? 'Теория самодетерминации' : lang === 'ky' ? 'Өз аныктоо теориясы' : 'Self-Determination Theory' },
               { name: 'RIASEC', desc: lang === 'ru' ? 'Типы Холланда' : lang === 'ky' ? 'Холланд коддору' : 'Holland Codes' },
-              { name: 'IPIP', desc: lang === 'ru' ? 'Психометрические шкалы' : lang === 'ky' ? 'Психометрикалык шкалалар' : 'Psychometric Scales' },
             ].map((m) => (
               <div key={m.name} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/4 border border-white/8 group">
                 <span className="text-gold text-xs font-bold">{m.name}</span>
