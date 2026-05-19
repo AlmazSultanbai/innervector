@@ -335,15 +335,6 @@ export default function HomePage() {
 
         {/* Mode tabs */}
         <div ref={tabsRef} className="flex gap-2 mb-6 p-1 rounded-xl bg-white/4 border border-white/8 w-fit mx-auto">
-          <a
-            href="/vector-test"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 bg-gold/15 text-gold border border-gold/25 shadow-sm"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-            </svg>
-            Try Inner Vector Test
-          </a>
           <button
             onClick={() => switchMode('upload')}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
@@ -357,6 +348,15 @@ export default function HomePage() {
             </svg>
             Upload Your Gallup Report
           </button>
+          <a
+            href="/vector-test"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 bg-gold/15 text-gold border border-gold/25 shadow-sm"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+            Try Inner Vector Test
+          </a>
         </div>
 
         {/* Upload mode */}
