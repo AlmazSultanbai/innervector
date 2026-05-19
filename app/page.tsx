@@ -167,7 +167,7 @@ export default function HomePage() {
         />
       )}
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 sm:px-6 pt-5">
+      <div className="flex items-center justify-between px-4 sm:px-6 pt-3">
 
         {/* Left: Admin + History (when authed) */}
         <div className="flex items-center gap-3 flex-1">
@@ -243,7 +243,7 @@ export default function HomePage() {
       </div>
 
       {/* Hero: DNA left + text right */}
-      <header className="pt-0 pb-8 px-4 -mt-3">
+      <header className="pt-0 pb-8 px-4 -mt-1">
         <div className="max-w-4xl mx-auto flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
 
           {/* DNA Animation */}

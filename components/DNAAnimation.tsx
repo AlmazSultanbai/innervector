@@ -116,8 +116,8 @@ export default function DNAAnimation() {
   return (
     <div className="relative flex flex-col items-center select-none">
       {/* Logo */}
-      <div className="mb-4 flex items-center justify-center">
-        <Image src="/logo.png" alt="Inner Vector" width={200} height={200} className="opacity-95" />
+      <div className="mb-2 flex items-center justify-center">
+        <Image src="/logo.png" alt="Inner Vector" width={160} height={160} className="opacity-95" />
       </div>
 
       {/* Outer wrapper — wide enough for names + helix */}
