@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo } from 'react';
-import Image from 'next/image';
 
 const PERIOD = 9;          // rungs per full rotation
 const RUNG_COUNT = 32;     // rungs per segment (doubled for seamless loop)
@@ -115,11 +114,6 @@ export default function DNAAnimation() {
 
   return (
     <div className="relative flex flex-col items-center select-none">
-      {/* Logo */}
-      <div className="mb-4 flex items-center justify-center">
-        <Image src="/logo.png" alt="Inner Vector" width={234} height={234} className="opacity-95" />
-      </div>
-
       {/* Outer wrapper — wide enough for names + helix */}
       <div className="relative" style={{ width: WRAPPER_W, height: 238 }}>
 
