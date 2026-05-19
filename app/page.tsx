@@ -321,19 +321,20 @@ export default function HomePage() {
                   : 'Maps natural interests to activity types: realistic, investigative, artistic, social, enterprising, or conventional.',
               },
             ].map((m) => (
-              <div key={m.name} className="relative">
-                <button
-                  onClick={() => setOpenMethod(openMethod === m.name ? null : m.name)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-200 active:scale-95 ${
-                    openMethod === m.name
-                      ? 'bg-gold/10 border-gold/30 shadow-md'
-                      : 'bg-white/4 border-white/8 hover:border-white/15'
-                  }`}
-                >
+              <div
+                key={m.name}
+                className="relative"
+                onMouseEnter={() => setOpenMethod(m.name)}
+                onMouseLeave={() => setOpenMethod(null)}
+              >
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border cursor-default transition-all duration-200 ${
+                  openMethod === m.name
+                    ? 'bg-gold/10 border-gold/30 shadow-md'
+                    : 'bg-white/4 border-white/8 hover:border-white/15'
+                }`}>
                   <span className="text-gold text-xs font-bold">{m.name}</span>
                   <span className="text-slate-500 text-xs">{m.desc}</span>
-                  <span className={`text-gold/50 text-xs transition-transform duration-200 ${openMethod === m.name ? 'rotate-180' : ''}`}>▾</span>
-                </button>
+                </div>
                 {openMethod === m.name && (
                   <div className="absolute z-20 top-full mt-2 left-1/2 -translate-x-1/2 w-64 bg-navy-800 border border-gold/20 rounded-xl p-4 shadow-xl animate-fade-in">
                     <p className="text-gold text-xs font-semibold mb-1.5">{m.title}</p>
