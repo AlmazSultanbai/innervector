@@ -189,8 +189,8 @@ export default function DNAAnimation() {
 
       </div>
 
-      {/* Domain legend */}
-      <div className="mt-4 flex flex-col gap-1.5">
+      {/* Domain legend — 2x2 grid */}
+      <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-1.5">
         {[
           { label: 'Executing', color: '#60a5fa' },
           { label: 'Influencing', color: '#fb923c' },
