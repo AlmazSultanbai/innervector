@@ -262,10 +262,6 @@ export default function HomePage() {
 
           {/* Text */}
           <div className="flex-1 text-center lg:text-left animate-slide-in delay-100">
-            <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-xs font-medium tracking-widest uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse-gold" />
-              {t.badge}
-            </div>
             <h1 className="font-serif text-5xl md:text-6xl font-bold text-white mb-4 leading-tight">
               {t.heroTitle1}<br />
               <span className="text-gold-light italic">{t.heroTitle2}</span>
