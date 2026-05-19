@@ -384,7 +384,7 @@ export default function HomePage() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
             </svg>
-            Upload Your Gallup Report
+            {t.uploadGallupBtn}
           </button>
           <a
             href="/vector-test"
@@ -393,7 +393,7 @@ export default function HomePage() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
             </svg>
-            Try Inner Vector Test
+            {t.tryVectorBtn}
           </a>
         </div>
 
