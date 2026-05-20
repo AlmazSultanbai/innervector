@@ -156,7 +156,7 @@ function ScaleRadio({
   optionA: string
   optionB: string
 }) {
-  const sizes = [40, 30, 22, 30, 40]
+  const sizes = [36, 36, 36, 36, 36]
 
   const GOLD = '#d4a843'
   const labels = [2, 1, 0, 1, 2]
