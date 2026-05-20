@@ -2,6 +2,7 @@
 
 import { useMemo, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useVectorTestStore } from '@/store/vectorTestStore'
 import { traitData, domainColors } from '@/data/vectorTraits'
 import { saveVectorTestResult } from '@/lib/supabase'
@@ -317,7 +318,7 @@ export default function VectorTestReport() {
             {t.retake}
           </Link>
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center text-gold text-xs font-bold">IV</div>
+            <Image src="/logo.png" alt="Inner Vector" width={32} height={32} className="opacity-90" />
             <span className="text-xs font-semibold tracking-widest uppercase">
               <span className="text-white">Inner Vector</span>
               <span className="text-gold/40 mx-1.5">·</span>

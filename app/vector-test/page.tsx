@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { domainColors } from '@/data/vectorTraits'
 import { useVectorTestStore } from '@/store/vectorTestStore'
 import { useLocaleStore } from '@/store/localeStore'
@@ -70,9 +71,7 @@ export default function VectorTestIntro() {
           {t.back}
         </a>
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center text-gold text-xs font-bold flex-shrink-0">
-            IV
-          </div>
+          <Image src="/logo.png" alt="Inner Vector" width={32} height={32} className="opacity-90 flex-shrink-0" />
           <span className="text-xs font-semibold tracking-widest uppercase">
             <span className="text-white">Inner Vector</span>
           </span>

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { getVectorResultByToken } from '@/lib/supabase'
 import type { VectorAnalysis } from '@/lib/supabase'
 import { traitData, domainColors } from '@/data/vectorTraits'
@@ -242,7 +243,7 @@ export default function VectorProfilePage() {
             {locale === 'en' ? 'Take the test' : locale === 'ky' ? 'Тест' : 'Пройти тест'}
           </Link>
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center text-gold text-xs font-bold">IV</div>
+            <Image src="/logo.png" alt="Inner Vector" width={32} height={32} className="opacity-90" />
             <span className="text-xs font-semibold tracking-widest uppercase">
               <span className="text-white">Inner Vector</span>
               <span className="text-gold/40 mx-1.5">·</span>

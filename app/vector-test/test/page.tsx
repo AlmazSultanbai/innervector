@@ -101,17 +101,7 @@ export default function VectorTestPage() {
 
       {/* Header bar */}
       <div className="flex items-center justify-between px-4 sm:px-6 py-3 max-w-4xl mx-auto w-full">
-        {/* Domain pill */}
-        <span
-          className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium tracking-wide border"
-          style={{
-            color: domainColor,
-            borderColor: domainColor + '55',
-            background: domainColor + '12',
-          }}
-        >
-          {getDomainLabel(currentQuestion.d)}
-        </span>
+        <div />
 
         {/* Counter + timer */}
         <div className="flex items-center gap-3">
@@ -149,7 +139,7 @@ export default function VectorTestPage() {
               </p>
 
               {/* Scale */}
-              <ScaleRadio onAnswer={handleAnswer} color={domainColor} optionA={t.optionA} optionB={t.optionB} neutral={t.neutral} />
+              <ScaleRadio onAnswer={handleAnswer} optionA={t.optionA} optionB={t.optionB} />
 
               {/* Statement B */}
               <p className="font-serif text-lg md:text-xl text-white leading-relaxed">
@@ -175,45 +165,49 @@ export default function VectorTestPage() {
 
 function ScaleRadio({
   onAnswer,
-  color,
   optionA,
   optionB,
-  neutral,
 }: {
   onAnswer: (v: number) => void
-  color: string
   optionA: string
   optionB: string
-  neutral: string
 }) {
   const sizes = [40, 30, 22, 30, 40]
 
+  const GOLD = '#d4a843'
+  const labels = [2, 1, 0, 1, 2]
+
   return (
     <div className="flex flex-col items-center gap-2 flex-shrink-0">
-      <span className="text-slate-600 text-[9px] tracking-widest uppercase">{neutral}</span>
       <div className="flex items-center gap-2">
         {[1, 2, 3, 4, 5].map((value, i) => (
           <button
             key={value}
             onClick={() => onAnswer(value)}
-            className="rounded-full border border-white/10 bg-white/3 text-slate-600 text-[10px] flex items-center justify-center transition-all duration-150 hover:scale-105"
-            style={{ width: sizes[i], height: sizes[i] }}
+            className="rounded-full border text-[10px] font-medium flex items-center justify-center transition-all duration-150 hover:scale-105"
+            style={{
+              width: sizes[i],
+              height: sizes[i],
+              borderColor: GOLD + '40',
+              background: GOLD + '0a',
+              color: GOLD + '80',
+            }}
             onMouseEnter={e => {
               const el = e.currentTarget
-              el.style.borderColor = color
-              el.style.background = color + '22'
-              el.style.boxShadow = `0 0 16px ${color}44`
-              el.style.color = color
+              el.style.borderColor = GOLD
+              el.style.background = GOLD + '22'
+              el.style.boxShadow = `0 0 16px ${GOLD}55`
+              el.style.color = GOLD
             }}
             onMouseLeave={e => {
               const el = e.currentTarget
-              el.style.borderColor = ''
-              el.style.background = ''
+              el.style.borderColor = GOLD + '40'
+              el.style.background = GOLD + '0a'
               el.style.boxShadow = ''
-              el.style.color = ''
+              el.style.color = GOLD + '80'
             }}
           >
-            {value}
+            {labels[i]}
           </button>
         ))}
       </div>
