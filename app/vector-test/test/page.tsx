@@ -47,12 +47,6 @@ export default function VectorTestPage() {
       ? questionsKy[fullIdx]
       : { a: currentQuestion.a, b: currentQuestion.b }
 
-  const getDomainLabel = (d: Domain) => {
-    if (locale === 'en') return domainNamesI18n[d]?.en ?? d
-    if (locale === 'ky') return domainNamesI18n[d]?.ky ?? d
-    return RU_DOMAIN_NAMES[d]
-  }
-
   const startTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current)
     timeLeftRef.current = TIMER_DURATION
