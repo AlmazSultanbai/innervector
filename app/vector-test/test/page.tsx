@@ -9,7 +9,6 @@ import { useLocaleStore } from '@/store/localeStore'
 import { ui } from '@/locales/ui'
 import { questionsEn } from '@/locales/questions.en'
 import { questionsKy } from '@/locales/questions.ky'
-import type { Domain } from '@/data/vectorTraits'
 
 const TIMER_DURATION = 20
 const CIRCUMFERENCE = 2 * Math.PI * 13
