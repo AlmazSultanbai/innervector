@@ -7,7 +7,6 @@ import { fullQuestions, expressQuestions } from '@/data/vectorQuestions'
 import { domainColors } from '@/data/vectorTraits'
 import { useLocaleStore } from '@/store/localeStore'
 import { ui } from '@/locales/ui'
-import { domainNamesI18n } from '@/locales/domainNames'
 import { questionsEn } from '@/locales/questions.en'
 import { questionsKy } from '@/locales/questions.ky'
 import type { Domain } from '@/data/vectorTraits'
@@ -15,14 +14,6 @@ import type { Domain } from '@/data/vectorTraits'
 const TIMER_DURATION = 20
 const CIRCUMFERENCE = 2 * Math.PI * 13
 
-const RU_DOMAIN_NAMES: Record<Domain, string> = {
-  vliyanie:   'ВЛИЯНИЕ',
-  realizacia: 'РЕАЛИЗАЦИЯ',
-  otnosenia:  'ОТНОШЕНИЯ',
-  myshlenie:  'МЫШЛЕНИЕ',
-  energia:    'ЭНЕРГИЯ',
-  rost:       'РОСТ',
-}
 
 export default function VectorTestPage() {
   const router = useRouter()
