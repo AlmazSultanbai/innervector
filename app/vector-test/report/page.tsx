@@ -234,6 +234,9 @@ export default function VectorTestReport() {
   const [analysis, setAnalysis] = useState<VectorAnalysis | null>(null)
   const [analysisLoading, setAnalysisLoading] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const progressRef = useRef(0)
+  const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const profileUrl = shareToken ? `${typeof window !== 'undefined' ? window.location.origin : 'https://innervector.co'}/vector-profile/${shareToken}` : null
 
   const copyLink = () => {
@@ -303,6 +306,25 @@ export default function VectorTestReport() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasResults, scores, top5, domainAverages])
 
+  // Simulated progress: eases toward 92%, snaps to 100 when analysis arrives
+  useEffect(() => {
+    if (!analysisLoading) return
+    progressRef.current = 0
+    setProgress(0)
+    progressTimerRef.current = setInterval(() => {
+      progressRef.current = progressRef.current + (92 - progressRef.current) * 0.013
+      setProgress(Math.min(92, Math.round(progressRef.current)))
+    }, 120)
+    return () => { if (progressTimerRef.current) clearInterval(progressTimerRef.current) }
+  }, [analysisLoading])
+
+  useEffect(() => {
+    if (analysis) {
+      if (progressTimerRef.current) clearInterval(progressTimerRef.current)
+      setProgress(100)
+    }
+  }, [analysis])
+
   if (!hasResults) {
     return (
       <div className="min-h-screen bg-radial flex flex-col items-center justify-center gap-6 text-center px-6">
@@ -316,63 +338,163 @@ export default function VectorTestReport() {
 
   // Show full-screen loader while AI analysis is being generated
   if (analysisLoading || !analysis) {
-    const topName = top5[0]?.name ?? ''
     const topColor = domainColors[top5[0]?.d ?? 'vliyanie']
+    const firstName = userInfo?.fullName?.trim().split(' ')[0] ?? ''
+
+    // Steps with progress thresholds
     const steps = locale === 'ru'
-      ? ['Обрабатываем твои ответы…', 'Строим профиль векторов…', 'Составляем карьерный анализ…', 'Генерируем личный портрет…', 'Почти готово…']
+      ? [
+          { label: 'Обрабатываем твои ответы', threshold: 5 },
+          { label: 'Строим профиль из 36 векторов', threshold: 22 },
+          { label: 'Анализируем карьерные траектории', threshold: 42 },
+          { label: 'Составляем личный портрет', threshold: 65 },
+          { label: 'Подбираем знаменитых двойников', threshold: 82 },
+        ]
       : locale === 'ky'
-      ? ['Жоопторуңду иштетүүдөбүз…', 'Вектор профилиңди түзүүдөбүз…', 'Анализди даярдоодобуз…', 'Аяктоодобуз…', 'Дээрлик бүттү…']
-      : ['Processing your answers…', 'Building your vector profile…', 'Generating career insights…', 'Crafting your personal portrait…', 'Almost ready…']
+      ? [
+          { label: 'Жоопторуңду иштетүүдөбүз', threshold: 5 },
+          { label: '36 вектор профилин түзүүдөбүз', threshold: 22 },
+          { label: 'Карьера жолдорун талдоодобуз', threshold: 42 },
+          { label: 'Жеке портретиңди даярдоодобуз', threshold: 65 },
+          { label: 'Окшош адамдарды издөөдөбүз', threshold: 82 },
+        ]
+      : [
+          { label: 'Processing your answers', threshold: 5 },
+          { label: 'Building your 36-vector profile', threshold: 22 },
+          { label: 'Analysing career trajectories', threshold: 42 },
+          { label: 'Crafting your personal portrait', threshold: 65 },
+          { label: 'Finding your famous matches', threshold: 82 },
+        ]
+
+    const activeStep = steps.reduce((acc, s, i) => progress >= s.threshold ? i : acc, -1)
+
+    // SVG circular progress ring
+    const R = 72
+    const circ = 2 * Math.PI * R
+    const offset = circ * (1 - progress / 100)
+
     return (
-      <div className="min-h-screen bg-radial flex flex-col items-center justify-center px-6">
-        {/* Animated orb */}
-        <div className="relative mb-10">
-          <div className="w-28 h-28 rounded-full border-2 border-white/5 flex items-center justify-center"
-            style={{ boxShadow: `0 0 60px ${topColor}30` }}>
-            <div className="w-20 h-20 rounded-full border border-white/8 flex items-center justify-center animate-pulse"
-              style={{ background: `radial-gradient(circle, ${topColor}20 0%, transparent 70%)` }}>
-              <span className="font-serif text-2xl font-bold" style={{ color: topColor }}>
-                {topName.slice(0, 2)}
+      <div className="min-h-screen bg-radial flex flex-col items-center justify-center px-6 relative overflow-hidden">
+
+        {/* Background glow blobs */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full opacity-10 blur-3xl"
+            style={{ background: topColor }} />
+          <div className="absolute bottom-1/4 left-1/3 w-64 h-64 rounded-full opacity-5 blur-3xl"
+            style={{ background: topColor }} />
+        </div>
+
+        {/* IV wordmark */}
+        <p className="text-slate-600 text-[11px] tracking-[0.25em] uppercase font-medium mb-12">
+          INNER VECTOR
+        </p>
+
+        {/* Circular progress ring */}
+        <div className="relative flex items-center justify-center mb-8">
+          <svg width="180" height="180" viewBox="0 0 180 180" className="-rotate-90">
+            {/* Track */}
+            <circle cx="90" cy="90" r={R} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="6" />
+            {/* Glow circle (blurred duplicate) */}
+            <circle cx="90" cy="90" r={R} fill="none" stroke={topColor} strokeWidth="6"
+              strokeDasharray={circ} strokeDashoffset={offset}
+              strokeLinecap="round" opacity="0.25"
+              style={{ filter: 'blur(6px)', transition: 'stroke-dashoffset 0.4s ease' }} />
+            {/* Progress arc */}
+            <circle cx="90" cy="90" r={R} fill="none" stroke={topColor} strokeWidth="3"
+              strokeDasharray={circ} strokeDashoffset={offset}
+              strokeLinecap="round"
+              style={{ transition: 'stroke-dashoffset 0.4s ease' }} />
+          </svg>
+
+          {/* Center content */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mb-0.5"
+              style={{ background: `radial-gradient(circle, ${topColor}18 0%, transparent 70%)`,
+                       border: `1px solid ${topColor}20` }}>
+              <span className="font-serif font-bold text-3xl tabular-nums" style={{ color: topColor }}>
+                {progress}
               </span>
             </div>
+            <span className="text-slate-600 text-[10px] tracking-widest uppercase">%</span>
           </div>
-          {/* Spinning ring */}
-          <svg className="absolute inset-0 w-28 h-28 animate-spin" style={{ animationDuration: '3s' }} viewBox="0 0 112 112">
-            <circle cx="56" cy="56" r="54" fill="none" stroke={topColor} strokeWidth="1.5"
-              strokeDasharray="60 280" strokeLinecap="round" opacity="0.5" />
-          </svg>
         </div>
 
-        {/* Title */}
-        <p className="text-slate-500 text-xs tracking-[0.2em] uppercase mb-3">
-          {locale === 'ru' ? 'Inner Vector · Анализируем' : locale === 'ky' ? 'Талдоодобуз' : 'Analysing'}
-        </p>
-        <h1 className="font-serif text-3xl text-white mb-2 text-center">
-          {locale === 'ru' ? 'Готовим твой профиль' : locale === 'ky' ? 'Профилиңди даярдоодобуз' : 'Preparing your profile'}
-        </h1>
-        <p className="text-slate-500 text-sm text-center max-w-xs mb-10">
+        {/* Headline */}
+        <h1 className="font-serif text-2xl sm:text-3xl text-white text-center mb-1">
           {locale === 'ru'
-            ? 'Это занимает около минуты. Не закрывай страницу.'
+            ? (firstName ? `Анализируем тебя, ${firstName}` : 'Анализируем твой профиль')
             : locale === 'ky'
-            ? 'Бул бир мүнөткө созулат. Барактан чыкпаңыз.'
-            : 'This takes about a minute. Please keep this page open.'}
+            ? (firstName ? `${firstName}, профилиңди талдоодобуз` : 'Профилиңди талдоодобуз')
+            : (firstName ? `Analysing you, ${firstName}` : 'Analysing your profile')}
+        </h1>
+        <p className="text-slate-500 text-sm text-center mb-8">
+          {locale === 'ru' ? 'Не закрывай страницу — это займёт около минуты'
+            : locale === 'ky' ? 'Барактан чыкпаңыз — бир мүнөт созулат'
+            : 'Keep this page open — takes about a minute'}
         </p>
+
+        {/* Thin progress bar */}
+        <div className="w-full max-w-sm h-px bg-white/8 rounded-full mb-8 relative overflow-hidden">
+          <div className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
+            style={{ width: `${progress}%`, background: `linear-gradient(90deg, ${topColor}80, ${topColor})`,
+                     boxShadow: `0 0 8px ${topColor}60` }} />
+        </div>
 
         {/* Steps */}
-        <div className="flex flex-col gap-2 w-full max-w-xs">
-          {steps.map((step, i) => (
-            <div key={i} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/3 border border-white/6">
-              <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{ background: `${topColor}18`, border: `1px solid ${topColor}30` }}>
-                <svg className="w-2.5 h-2.5 animate-spin" style={{ animationDuration: `${1.5 + i * 0.3}s`, color: topColor }}
-                  fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
+        <div className="flex flex-col gap-2 w-full max-w-sm">
+          {steps.map((step, i) => {
+            const done = i < activeStep
+            const active = i === activeStep
+            return (
+              <div key={i}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500"
+                style={{
+                  background: active ? `${topColor}0d` : done ? 'rgba(255,255,255,0.02)' : 'transparent',
+                  border: `1px solid ${active ? topColor + '25' : done ? 'rgba(255,255,255,0.05)' : 'transparent'}`,
+                }}>
+                {/* Icon */}
+                <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500"
+                  style={{
+                    background: done ? `${topColor}25` : active ? `${topColor}18` : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${done ? topColor + '50' : active ? topColor + '30' : 'rgba(255,255,255,0.08)'}`,
+                  }}>
+                  {done ? (
+                    <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      strokeWidth={2.5} style={{ color: topColor }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : active ? (
+                    <svg className="w-2.5 h-2.5 animate-spin" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor" strokeWidth={2} style={{ color: topColor, animationDuration: '1.2s' }}>
+                      <path strokeLinecap="round" strokeLinejoin="round"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  ) : (
+                    <div className="w-1.5 h-1.5 rounded-full bg-white/15" />
+                  )}
+                </div>
+
+                {/* Label */}
+                <span className="text-xs transition-all duration-500"
+                  style={{
+                    color: done ? 'rgba(148,163,184,0.7)' : active ? '#e2e8f0' : 'rgba(100,116,139,0.5)',
+                    fontWeight: active ? 500 : 400,
+                  }}>
+                  {step.label}
+                  {done && <span className="ml-2 opacity-50">✓</span>}
+                </span>
+
+                {/* Active pulse dot */}
+                {active && (
+                  <div className="ml-auto flex-shrink-0">
+                    <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: topColor }} />
+                  </div>
+                )}
               </div>
-              <span className="text-slate-400 text-xs">{step}</span>
-            </div>
-          ))}
+            )
+          })}
         </div>
+
       </div>
     )
   }
