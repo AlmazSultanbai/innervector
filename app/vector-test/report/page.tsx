@@ -302,6 +302,69 @@ export default function VectorTestReport() {
     )
   }
 
+  // Show full-screen loader while AI analysis is being generated
+  if (analysisLoading || !analysis) {
+    const topName = top5[0]?.name ?? ''
+    const topColor = domainColors[top5[0]?.d ?? 'vliyanie']
+    const steps = locale === 'ru'
+      ? ['Обрабатываем твои ответы…', 'Строим профиль векторов…', 'Составляем карьерный анализ…', 'Генерируем личный портрет…', 'Почти готово…']
+      : locale === 'ky'
+      ? ['Жоопторуңду иштетүүдөбүз…', 'Вектор профилиңди түзүүдөбүз…', 'Анализди даярдоодобуз…', 'Аяктоодобуз…', 'Дээрлик бүттү…']
+      : ['Processing your answers…', 'Building your vector profile…', 'Generating career insights…', 'Crafting your personal portrait…', 'Almost ready…']
+    return (
+      <div className="min-h-screen bg-radial flex flex-col items-center justify-center px-6">
+        {/* Animated orb */}
+        <div className="relative mb-10">
+          <div className="w-28 h-28 rounded-full border-2 border-white/5 flex items-center justify-center"
+            style={{ boxShadow: `0 0 60px ${topColor}30` }}>
+            <div className="w-20 h-20 rounded-full border border-white/8 flex items-center justify-center animate-pulse"
+              style={{ background: `radial-gradient(circle, ${topColor}20 0%, transparent 70%)` }}>
+              <span className="font-serif text-2xl font-bold" style={{ color: topColor }}>
+                {topName.slice(0, 2)}
+              </span>
+            </div>
+          </div>
+          {/* Spinning ring */}
+          <svg className="absolute inset-0 w-28 h-28 animate-spin" style={{ animationDuration: '3s' }} viewBox="0 0 112 112">
+            <circle cx="56" cy="56" r="54" fill="none" stroke={topColor} strokeWidth="1.5"
+              strokeDasharray="60 280" strokeLinecap="round" opacity="0.5" />
+          </svg>
+        </div>
+
+        {/* Title */}
+        <p className="text-slate-500 text-xs tracking-[0.2em] uppercase mb-3">
+          {locale === 'ru' ? 'Inner Vector · Анализируем' : locale === 'ky' ? 'Талдоодобуз' : 'Analysing'}
+        </p>
+        <h1 className="font-serif text-3xl text-white mb-2 text-center">
+          {locale === 'ru' ? 'Готовим твой профиль' : locale === 'ky' ? 'Профилиңди даярдоодобуз' : 'Preparing your profile'}
+        </h1>
+        <p className="text-slate-500 text-sm text-center max-w-xs mb-10">
+          {locale === 'ru'
+            ? 'Это занимает около минуты. Не закрывай страницу.'
+            : locale === 'ky'
+            ? 'Бул бир мүнөткө созулат. Барактан чыкпаңыз.'
+            : 'This takes about a minute. Please keep this page open.'}
+        </p>
+
+        {/* Steps */}
+        <div className="flex flex-col gap-2 w-full max-w-xs">
+          {steps.map((step, i) => (
+            <div key={i} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/3 border border-white/6">
+              <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ background: `${topColor}18`, border: `1px solid ${topColor}30` }}>
+                <svg className="w-2.5 h-2.5 animate-spin" style={{ animationDuration: `${1.5 + i * 0.3}s`, color: topColor }}
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
+              <span className="text-slate-400 text-xs">{step}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   const topTrait = top5[0]
   const topColor = domainColors[topTrait.d]
 
