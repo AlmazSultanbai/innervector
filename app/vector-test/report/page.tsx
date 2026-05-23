@@ -776,22 +776,21 @@ export default function VectorTestReport() {
               traitScores.forEach((t, i) => rankMap.set(t.name, i + 1))
 
               return (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
                   {DOMAINS.map(domain => {
                     const color = domainColors[domain]
-                    // All traits in this domain, sorted by rank
                     const domainTraits = traitScores
                       .filter(t => t.d === domain)
                       .sort((a, b) => (rankMap.get(a.name) ?? 99) - (rankMap.get(b.name) ?? 99))
 
                     return (
-                      <div key={domain} className="flex flex-col gap-1.5">
+                      <div key={domain} className="flex flex-col gap-1">
                         {/* Domain header */}
-                        <div className="flex items-center gap-1.5 px-2 py-2 rounded-xl mb-1"
+                        <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg mb-1 min-w-0"
                           style={{ background: color + '12', border: `1px solid ${color}30` }}>
-                          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
-                          <span className="text-[10px] font-semibold tracking-widest uppercase truncate"
-                            style={{ color }}>
+                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
+                          <span className="text-[9px] font-bold tracking-wider uppercase leading-tight min-w-0"
+                            style={{ color, wordBreak: 'break-word' }}>
                             {getDomainName(domain)}
                           </span>
                         </div>
@@ -804,11 +803,10 @@ export default function VectorTestReport() {
 
                           return (
                             <div key={trait.name}
-                              className="relative flex items-center gap-2 px-2.5 py-2 rounded-xl transition-all duration-200"
+                              className="flex items-start gap-1.5 px-2 py-1.5 rounded-lg min-w-0"
                               style={isTop5 ? {
                                 background: color + '18',
                                 border: `1px solid ${color}55`,
-                                boxShadow: `0 0 12px ${color}15`,
                               } : isTop10 ? {
                                 background: color + '0c',
                                 border: `1px solid ${color}30`,
@@ -817,27 +815,21 @@ export default function VectorTestReport() {
                                 border: '1px solid rgba(255,255,255,0.05)',
                               }}
                             >
-                              {isTop10 && (
-                                <div className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0"
-                                  style={{
-                                    background: isTop5 ? color : color + '55',
-                                    color: isTop5 ? '#0e1120' : color,
-                                  }}>
+                              {isTop10 ? (
+                                <div className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-0.5"
+                                  style={{ background: isTop5 ? color : color + '55', color: isTop5 ? '#0e1120' : color }}>
                                   {rank}
                                 </div>
-                              )}
-                              {!isTop10 && (
-                                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                              ) : (
+                                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1"
                                   style={{ background: color + '33' }} />
                               )}
-                              <span className="font-serif text-[11px] leading-tight"
+                              <span className="font-serif text-[10px] leading-snug break-words min-w-0"
                                 style={{
-                                  color: isTop5
-                                    ? 'white'
-                                    : isTop10
-                                    ? 'rgba(226,232,240,0.8)'
-                                    : 'rgba(100,116,139,0.45)',
+                                  color: isTop5 ? 'white' : isTop10 ? 'rgba(226,232,240,0.8)' : 'rgba(100,116,139,0.45)',
                                   fontWeight: isTop5 ? 600 : 400,
+                                  wordBreak: 'break-word',
+                                  overflowWrap: 'anywhere',
                                 }}>
                                 {getTraitName(trait.name)}
                               </span>
