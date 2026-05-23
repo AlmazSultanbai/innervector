@@ -233,6 +233,7 @@ export default function VectorTestReport() {
   const [copied, setCopied] = useState(false)
   const [analysis, setAnalysis] = useState<VectorAnalysis | null>(null)
   const [analysisLoading, setAnalysisLoading] = useState(false)
+  const [showConfetti, setShowConfetti] = useState(false)
   const profileUrl = shareToken ? `${typeof window !== 'undefined' ? window.location.origin : 'https://innervector.co'}/vector-profile/${shareToken}` : null
 
   const copyLink = () => {
@@ -285,7 +286,18 @@ export default function VectorTestReport() {
         }),
       })
         .then(r => r.json())
-        .then(data => { if (!data.error) setAnalysis(data) })
+        .then(data => {
+          if (!data.error) {
+            setAnalysis(data)
+            // Fire confetti only once per test session
+            const confettiKey = `iv_vector_confetti_${sessionId}`
+            if (!sessionStorage.getItem(confettiKey)) {
+              sessionStorage.setItem(confettiKey, '1')
+              setShowConfetti(true)
+              setTimeout(() => setShowConfetti(false), 5000)
+            }
+          }
+        })
         .finally(() => setAnalysisLoading(false))
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -370,6 +382,57 @@ export default function VectorTestReport() {
 
   return (
     <div className="min-h-screen bg-radial">
+
+      {/* Confetti — fires once when analysis is first ready */}
+      {showConfetti && (
+        <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+          {Array.from({ length: 140 }).map((_, i) => {
+            const colors = ['#d4a843','#e8c96a','#f5d878','#b8922a','#ffd700','#c9a227','#ffe066','#a07820','#fff9c4','#ffec6e']
+            const color = colors[i % colors.length]
+            const x = Math.random() * 100
+            const delay = Math.random() * 1.2
+            const duration = 2.5 + Math.random() * 1.8
+            const size = 5 + Math.random() * 10
+            const rotate = Math.random() * 900
+            const shape = i % 4 === 0 ? '50%' : i % 4 === 1 ? '2px' : i % 4 === 2 ? '0%' : '30%'
+            const drift = (Math.random() - 0.5) * 120
+            return (
+              <div key={i} style={{
+                position: 'absolute',
+                left: `${x}%`,
+                top: '-24px',
+                width: `${size}px`,
+                height: `${size * (i % 3 === 0 ? 1 : i % 3 === 1 ? 0.35 : 0.65)}px`,
+                background: color,
+                borderRadius: shape,
+                animation: `confetti-fall-${i % 3} ${duration}s ${delay}s ease-in forwards`,
+                transform: `rotate(${rotate}deg)`,
+                opacity: 0.95,
+                filter: 'drop-shadow(0 0 2px rgba(212,168,67,0.4))',
+                '--drift': `${drift}px`,
+              } as React.CSSProperties} />
+            )
+          })}
+          <style>{`
+            @keyframes confetti-fall-0 {
+              0%   { transform: translateY(0) translateX(0) rotate(0deg) scale(1); opacity: 1; }
+              70%  { opacity: 1; }
+              100% { transform: translateY(105vh) translateX(var(--drift)) rotate(800deg) scale(0.4); opacity: 0; }
+            }
+            @keyframes confetti-fall-1 {
+              0%   { transform: translateY(0) translateX(0) rotate(0deg) scale(1); opacity: 1; }
+              60%  { opacity: 0.9; }
+              100% { transform: translateY(105vh) translateX(calc(var(--drift) * -1)) rotate(600deg) scale(0.3); opacity: 0; }
+            }
+            @keyframes confetti-fall-2 {
+              0%   { transform: translateY(0) translateX(0) rotate(0deg) scale(1.2); opacity: 1; }
+              75%  { opacity: 1; }
+              100% { transform: translateY(105vh) translateX(var(--drift)) rotate(1000deg) scale(0.5); opacity: 0; }
+            }
+          `}</style>
+        </div>
+      )}
+
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 pb-24">
 
         {/* Nav */}
