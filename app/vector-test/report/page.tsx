@@ -713,77 +713,110 @@ export default function VectorTestReport() {
           </>
         )}
 
-        {/* ── All 36 checkerboard (Full only) ─────────────────────────────── */}
+        {/* ── All 36 by domain columns (Full only) ────────────────────────── */}
         {testMode === 'full' && traitScores.length > 0 && (
           <Section label={t.all36Label}>
             <p className="text-slate-500 text-xs mb-6 leading-relaxed">{t.all36Desc}</p>
 
-            {/* Domain legend */}
-            <div className="flex flex-wrap gap-3 mb-6">
-              {DOMAINS.map(d => (
-                <div key={d} className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full" style={{ background: domainColors[d] }} />
-                  <span className="text-[10px] tracking-wide" style={{ color: domainColors[d] + 'cc' }}>
-                    {getDomainName(d)}
-                  </span>
-                </div>
-              ))}
-            </div>
+            {/* Build rank map for quick lookup */}
+            {(() => {
+              const rankMap = new Map<string, number>()
+              traitScores.forEach((t, i) => rankMap.set(t.name, i + 1))
 
-            {/* Grid */}
-            <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-              {traitScores.map((trait, i) => {
-                const color = domainColors[trait.d]
-                const rank = i + 1
-                const isTop10 = rank <= 10
-                const isTop5 = rank <= 5
-                return (
-                  <div key={trait.name}
-                    className="relative flex flex-col items-center justify-center text-center rounded-xl p-2.5 transition-all duration-300"
-                    style={isTop10 ? {
-                      background: color + (isTop5 ? '18' : '0d'),
-                      border: `1px solid ${color}${isTop5 ? '55' : '30'}`,
-                      boxShadow: isTop5 ? `0 0 16px ${color}20` : 'none',
-                    } : {
-                      background: 'rgba(255,255,255,0.02)',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                    }}
-                  >
-                    {isTop10 && (
-                      <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shadow-lg"
-                        style={{ background: isTop5 ? color : color + '99', color: '#0e1120' }}>
-                        {rank}
+              return (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                  {DOMAINS.map(domain => {
+                    const color = domainColors[domain]
+                    // All traits in this domain, sorted by rank
+                    const domainTraits = traitScores
+                      .filter(t => t.d === domain)
+                      .sort((a, b) => (rankMap.get(a.name) ?? 99) - (rankMap.get(b.name) ?? 99))
+
+                    return (
+                      <div key={domain} className="flex flex-col gap-1.5">
+                        {/* Domain header */}
+                        <div className="flex items-center gap-1.5 px-2 py-2 rounded-xl mb-1"
+                          style={{ background: color + '12', border: `1px solid ${color}30` }}>
+                          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
+                          <span className="text-[10px] font-semibold tracking-widest uppercase truncate"
+                            style={{ color }}>
+                            {getDomainName(domain)}
+                          </span>
+                        </div>
+
+                        {/* Traits in this domain */}
+                        {domainTraits.map(trait => {
+                          const rank = rankMap.get(trait.name) ?? 99
+                          const isTop5 = rank <= 5
+                          const isTop10 = rank <= 10
+
+                          return (
+                            <div key={trait.name}
+                              className="relative flex items-center gap-2 px-2.5 py-2 rounded-xl transition-all duration-200"
+                              style={isTop5 ? {
+                                background: color + '18',
+                                border: `1px solid ${color}55`,
+                                boxShadow: `0 0 12px ${color}15`,
+                              } : isTop10 ? {
+                                background: color + '0c',
+                                border: `1px solid ${color}30`,
+                              } : {
+                                background: 'rgba(255,255,255,0.02)',
+                                border: '1px solid rgba(255,255,255,0.05)',
+                              }}
+                            >
+                              {isTop10 && (
+                                <div className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0"
+                                  style={{
+                                    background: isTop5 ? color : color + '55',
+                                    color: isTop5 ? '#0e1120' : color,
+                                  }}>
+                                  {rank}
+                                </div>
+                              )}
+                              {!isTop10 && (
+                                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                                  style={{ background: color + '33' }} />
+                              )}
+                              <span className="font-serif text-[11px] leading-tight"
+                                style={{
+                                  color: isTop5
+                                    ? 'white'
+                                    : isTop10
+                                    ? 'rgba(226,232,240,0.8)'
+                                    : 'rgba(100,116,139,0.45)',
+                                  fontWeight: isTop5 ? 600 : 400,
+                                }}>
+                                {getTraitName(trait.name)}
+                              </span>
+                            </div>
+                          )
+                        })}
                       </div>
-                    )}
-                    <span className="w-1.5 h-1.5 rounded-full mb-1.5 flex-shrink-0"
-                      style={{ background: isTop10 ? color : color + '44' }} />
-                    <span className="font-serif text-[11px] leading-tight font-medium"
-                      style={{ color: isTop10 ? (isTop5 ? 'white' : 'rgba(226,232,240,0.85)') : 'rgba(100,116,139,0.5)' }}>
-                      {getTraitName(trait.name)}
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
+                    )
+                  })}
+                </div>
+              )
+            })()}
 
             {/* Legend */}
             <div className="flex items-center gap-5 mt-5 flex-wrap">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-gold/20 border border-gold/50" />
+                <div className="w-4 h-4 rounded-lg bg-gold/20 border border-gold/50" />
                 <span className="text-[10px] text-slate-500">
-                  {locale === 'en' ? 'Top 5 strengths' : locale === 'ky' ? 'Топ 5 күч' : 'Топ 5 сил'}
+                  {locale === 'en' ? 'Top 5' : locale === 'ky' ? 'Топ 5' : 'Топ 5'}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-white/5 border border-white/15" />
+                <div className="w-4 h-4 rounded-lg bg-white/5 border border-white/15" />
                 <span className="text-[10px] text-slate-500">
-                  {locale === 'en' ? 'Ranks 6–10' : locale === 'ky' ? '6–10 орун' : 'Позиции 6–10'}
+                  {locale === 'en' ? '6–10' : '6–10'}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-white/2 border border-white/6" />
+                <div className="w-4 h-4 rounded-lg bg-white/2 border border-white/5" />
                 <span className="text-[10px] text-slate-500">
-                  {locale === 'en' ? 'Background traits' : locale === 'ky' ? 'Фондук' : 'Фоновые'}
+                  {locale === 'en' ? 'Background' : locale === 'ky' ? 'Фондук' : 'Фоновые'}
                 </span>
               </div>
             </div>
