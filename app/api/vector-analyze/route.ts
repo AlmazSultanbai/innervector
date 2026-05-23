@@ -75,8 +75,8 @@ Analyze this specific combination deeply. Be personal, concrete, and rich — av
 
 Respond ONLY with a valid JSON object (no markdown, no code fences):
 {
-  "essence": "A vivid, specific 2-sentence description of this person's unique vector fingerprint — what makes them distinctly them",
-  "dominantTheme": "A short evocative label for their overall character (e.g. 'The Trusted Architect', 'The Quiet Catalyst')",
+  "essence": "A vivid, literary 3–4 sentence portrait of this person. Write it as if you've known them for years — describe WHAT they are, HOW their mind works, WHAT people feel around them, and what makes them unmistakably themselves. Reference specific vectors by name. Make it so accurate it gives them chills.",
+  "dominantTheme": "A short evocative label for their overall character (e.g. 'The Trusted Architect', 'The Quiet Catalyst'). 3-5 words max.",
   "whereYouShine": {
     "summary": "3-4 rich sentences describing the environments and contexts where this combination of vectors fires on all cylinders. Be specific about WHY these vectors create advantage in these contexts.",
     "contexts": [
@@ -87,6 +87,23 @@ Respond ONLY with a valid JSON object (no markdown, no code fences):
       "Context 5",
       "Context 6"
     ]
+  },
+  "career": {
+    "summary": "3–4 sentences painting the picture of where this person will feel most alive professionally. Reference their specific vectors. Explain WHY certain environments suit them and why others will drain them.",
+    "roles": [
+      { "title": "Specific job title or role archetype", "why": "2 sentences: exactly why this person's vector combination creates a natural fit for this role" },
+      { "title": "Specific job title or role archetype", "why": "2 sentences" },
+      { "title": "Specific job title or role archetype", "why": "2 sentences" },
+      { "title": "Specific job title or role archetype", "why": "2 sentences" },
+      { "title": "Specific job title or role archetype", "why": "2 sentences" }
+    ],
+    "environments": [
+      "Environment type 1 where they thrive (e.g. 'Early-stage startups where structure is yet to be built')",
+      "Environment type 2",
+      "Environment type 3",
+      "Environment type 4"
+    ],
+    "avoid": "2 sentences: the specific work environment or role type that will systematically drain and frustrate this profile — and why."
   },
   "business": {
     "whatYouBring": "3-4 concrete sentences about what this person brings to any team or business. Reference specific vectors and how they create measurable value.",
@@ -158,7 +175,10 @@ Respond ONLY with a valid JSON object (no markdown, no code fences):
 Rules:
 - All text values must be in ${lang === 'ru' ? 'Russian' : lang === 'ky' ? 'Kyrgyz' : 'English'}
 - Be specific — mention actual vector names from the profile throughout
+- "essence" must be written like a masterful character study — literary, warm, precise. No generic phrases.
 - "whereYouShine.contexts" must have exactly 6 items
+- "career.roles" must have exactly 5 items — real specific roles (e.g. "Стратегический консультант", "Product Manager", "Исследователь UX", "Коуч руководителей", "Сценарист / редактор")
+- "career.environments" must have exactly 4 items
 - "business.contributions" must have exactly 3 items (use top 3 vectors)
 - "love.dynamics" must have exactly 3 items (use top 3 vectors)
 - "blindSpots" must have exactly 3 items

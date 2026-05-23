@@ -5,10 +5,20 @@ import { signValue } from '@/lib/session';
 
 export const maxDuration = 30;
 
-const ADMIN_CREDENTIALS = [
-  { login: process.env.ADMIN_LOGIN ?? 'vector', password: process.env.ADMIN_PASSWORD ?? 'vector123', role: 'admin' },
-  { login: process.env.ADMIN_LOGIN ?? 'vector', password: process.env.SUPERADMIN_PASSWORD ?? 'vector88', role: 'superadmin' },
-];
+const adminLogin = process.env.ADMIN_LOGIN;
+const adminPassword = process.env.ADMIN_PASSWORD;
+const superadminPassword = process.env.SUPERADMIN_PASSWORD;
+
+if (!adminLogin || !adminPassword || !superadminPassword) {
+  console.error('CRITICAL: ADMIN_LOGIN, ADMIN_PASSWORD, or SUPERADMIN_PASSWORD env vars are not set. Admin login is disabled.');
+}
+
+const ADMIN_CREDENTIALS = (adminLogin && adminPassword && superadminPassword)
+  ? [
+      { login: adminLogin, password: adminPassword, role: 'admin' },
+      { login: adminLogin, password: superadminPassword, role: 'superadmin' },
+    ]
+  : [];
 
 export async function POST(req: NextRequest) {
   const { login, password } = await req.json();

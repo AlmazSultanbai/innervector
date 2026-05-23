@@ -188,6 +188,12 @@ export interface VectorAnalysis {
   essence: string
   dominantTheme: string
   whereYouShine: { summary: string; contexts: string[] }
+  career: {
+    summary: string
+    roles: Array<{ title: string; why: string }>
+    environments: string[]
+    avoid: string
+  }
   business: {
     whatYouBring: string
     contributions: Array<{ vector: string; insight: string }>

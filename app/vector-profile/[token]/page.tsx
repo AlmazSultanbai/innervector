@@ -274,24 +274,42 @@ export default function VectorProfilePage() {
         )}
 
         {/* Hero */}
-        <div className="text-center mb-16 animate-slide-in">
+        <div className="text-center mb-12 animate-slide-in">
           <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-xs font-medium tracking-widest uppercase">
             <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse-gold" />
             {testMode === 'express' ? t.expressResultBadge : t.fullResultBadge}
           </div>
-          {analysis?.dominantTheme && (
-            <p className="text-gold/70 text-xs tracking-widest uppercase font-medium mb-3 italic">{analysis.dominantTheme}</p>
-          )}
           <p className="font-serif text-2xl md:text-3xl text-slate-400 font-normal mb-2">{t.dominantForce}</p>
           <h1 className="font-serif text-5xl md:text-6xl font-bold leading-tight mb-6"
             style={{ color: topColor, textShadow: `0 0 60px ${topColor}33` }}>
             {topTrait ? getTraitName(topTrait.name) : ''}
           </h1>
           <div className="w-12 h-px bg-gold/20 mx-auto mb-6" />
-          <p className="text-slate-400 text-base max-w-lg mx-auto leading-relaxed">
-            {analysis?.essence ?? (topTrait ? getTraitFields(topTrait.name)?.short : '')}
-          </p>
+          {!analysis && (
+            <p className="text-slate-400 text-base max-w-lg mx-auto leading-relaxed">
+              {topTrait ? getTraitFields(topTrait.name)?.short : ''}
+            </p>
+          )}
         </div>
+
+        {/* ── AI Essence Hero Quote ─────────────────────────────────────── */}
+        {analysis?.essence && (
+          <div className="mb-16 text-center">
+            <p className="font-serif text-xl md:text-2xl text-white leading-relaxed max-w-2xl mx-auto mb-4"
+              style={{ textShadow: '0 0 40px rgba(255,255,255,0.05)' }}>
+              <span className="text-gold/50 font-serif text-3xl leading-none mr-1">"</span>
+              {analysis.essence}
+              <span className="text-gold/50 font-serif text-3xl leading-none ml-1">"</span>
+            </p>
+            {analysis.dominantTheme && (
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/20 bg-gold/5">
+                <span className="w-1 h-1 rounded-full bg-gold/60" />
+                <span className="text-gold/70 text-xs font-medium tracking-widest uppercase">{analysis.dominantTheme}</span>
+                <span className="w-1 h-1 rounded-full bg-gold/60" />
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ── Top 5 ──────────────────────────────────────────────────────── */}
         <Section label={t.top5Label}>
@@ -378,6 +396,57 @@ export default function VectorProfilePage() {
             </div>
           </div>
         </Section>
+
+        {/* ── Career ───────────────────────────────────────────────────── */}
+        {analysis?.career && (
+          <Section label={locale === 'en' ? 'CAREER PATH' : locale === 'ky' ? 'КАРЬЕРА ЖОЛУ' : 'КАРЬЕРНЫЙ ПУТЬ'}>
+            <div className="space-y-4">
+              <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
+                <p className="text-slate-300 text-sm leading-relaxed">{analysis.career.summary}</p>
+              </div>
+              <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
+                <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-4">
+                  {locale === 'en' ? 'Roles where you thrive' : locale === 'ky' ? 'Ийгиликтүү болгон ролдор' : 'Роли, где ты в своей стихии'}
+                </div>
+                <div className="space-y-3">
+                  {analysis.career.roles.map((role, i) => {
+                    const color = domainColors[top5[i % top5.length]?.d ?? 'rost']
+                    return (
+                      <div key={i} className="flex gap-3">
+                        <div className="w-1 rounded-full flex-shrink-0 mt-1" style={{ background: color, minHeight: 40 }} />
+                        <div>
+                          <span className="font-serif text-sm text-white font-semibold">{role.title}</span>
+                          <p className="text-slate-400 text-sm leading-relaxed mt-0.5">{role.why}</p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="bg-emerald-500/4 border border-emerald-500/15 rounded-2xl p-5">
+                  <div className="text-[10px] tracking-widest text-emerald-400/60 uppercase font-medium mb-3">
+                    {locale === 'en' ? 'Ideal environments' : locale === 'ky' ? 'Идеалдуу чөйрөлөр' : 'Идеальная среда'}
+                  </div>
+                  <div className="space-y-2">
+                    {analysis.career.environments.map((env, i) => (
+                      <div key={i} className="flex gap-2 items-start">
+                        <span className="text-emerald-400/60 text-xs mt-0.5 flex-shrink-0">✓</span>
+                        <p className="text-slate-300 text-xs leading-relaxed">{env}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="bg-red-500/4 border border-red-500/12 rounded-2xl p-5">
+                  <div className="text-[10px] tracking-widest text-red-400/60 uppercase font-medium mb-3">
+                    {locale === 'en' ? 'Avoid' : locale === 'ky' ? 'Качуу керек' : 'Чего избегать'}
+                  </div>
+                  <p className="text-slate-400 text-xs leading-relaxed">{analysis.career.avoid}</p>
+                </div>
+              </div>
+            </div>
+          </Section>
+        )}
 
         {/* ── Business Partnership ─────────────────────────────────────── */}
         <Section label={t.bizLabel}>
