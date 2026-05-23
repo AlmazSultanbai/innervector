@@ -156,18 +156,60 @@ Respond ONLY with a valid JSON object (no markdown, no code fences):
   ],
   "combinations": [
     {
-      "name": "A memorable label for this vector interaction",
+      "type": "signature",
+      "name": "A memorable label for this person's defining vector interaction",
       "vectors": ["Vector1", "Vector2", "Vector3"],
-      "how": "2 sentences: exactly how these vectors amplify each other",
+      "how": "2 sentences: exactly how these vectors amplify each other into something unique",
       "atBest": "One sharp sentence: what this looks like at peak performance",
-      "risk": "One sharp sentence: the failure mode"
+      "risk": "One sharp sentence: the failure mode when these vectors misfire",
+      "rarity": "1 in 50 people"
     },
     {
-      "name": "A label for a surprising synergy in the profile",
+      "type": "hidden",
+      "name": "A label for a surprising hidden power in the profile",
       "vectors": ["Vector1", "Vector2"],
-      "how": "2 sentences",
+      "how": "2 sentences: why this combination is more powerful than it appears",
       "atBest": "One sharp sentence",
-      "risk": "One sharp sentence"
+      "risk": "One sharp sentence",
+      "rarity": "1 in 100 people"
+    },
+    {
+      "type": "tension",
+      "name": "A label for two vectors that create productive tension",
+      "vectors": ["Vector1", "Vector2"],
+      "how": "2 sentences: how these vectors pull in opposite directions yet create something valuable",
+      "atBest": "One sharp sentence",
+      "risk": "One sharp sentence",
+      "rarity": "1 in 30 people"
+    },
+    {
+      "type": "sleeper",
+      "name": "A label for a combination that is dormant but powerful when activated",
+      "vectors": ["Vector1", "Vector2"],
+      "how": "2 sentences: why this combination is underused and what unlocks it",
+      "atBest": "One sharp sentence",
+      "risk": "One sharp sentence",
+      "rarity": "1 in 200 people"
+    }
+  ],
+  "famousPeople": [
+    {
+      "name": "Full name of a real well-known person",
+      "field": "Their profession / domain (2–4 words)",
+      "whyMatch": "3 sentences: explain specifically which of this person's vectors show up in this famous person's work and life — be concrete, reference real things they did or said",
+      "achievement": "One sentence: their most iconic specific achievement that reflects this vector profile"
+    },
+    {
+      "name": "Full name of a real well-known person",
+      "field": "Their profession / domain",
+      "whyMatch": "3 sentences",
+      "achievement": "One sentence"
+    },
+    {
+      "name": "Full name of a real well-known person",
+      "field": "Their profession / domain",
+      "whyMatch": "3 sentences",
+      "achievement": "One sentence"
     }
   ]
 }
@@ -182,7 +224,9 @@ Rules:
 - "business.contributions" must have exactly 3 items (use top 3 vectors)
 - "love.dynamics" must have exactly 3 items (use top 3 vectors)
 - "blindSpots" must have exactly 3 items
-- "combinations" must have exactly 2 items
+- "combinations" must have exactly 4 items with types: signature, hidden, tension, sleeper (in that order)
+- "famousPeople" must have exactly 3 real well-known people — use people the user will likely recognise
+- rarity values must be one of: "1 in 10 people", "1 in 30 people", "1 in 50 people", "1 in 100 people", "1 in 200 people"
 - Every insight must feel personal and non-generic`
 
     const message = await client.messages.create({

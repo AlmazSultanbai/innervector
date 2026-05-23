@@ -591,7 +591,7 @@ export default function VectorProfilePage() {
           )}
         </Section>
 
-        {/* ── Blind spots & Combinations (AI only) ────────────────────── */}
+        {/* ── Blind spots & Combinations & Famous (AI only) ─────────── */}
         {analysis && (
           <>
             <Section label={locale === 'en' ? 'BLIND SPOTS' : locale === 'ky' ? 'КӨР ЖАКТАР' : 'СЛЕПЫЕ ЗОНЫ'}>
@@ -605,33 +605,53 @@ export default function VectorProfilePage() {
               </div>
             </Section>
 
-            <Section label={locale === 'en' ? 'VECTOR COMBINATIONS' : locale === 'ky' ? 'ВЕКТОР АЙКАЛЫШТАРЫ' : 'КАК ВЕКТОРЫ ВЗАИМОДЕЙСТВУЮТ'}>
-              <div className="space-y-4">
+            <Section label={locale === 'en' ? 'VECTOR COMBINATIONS' : locale === 'ky' ? 'ВЕКТОР АЙКАЛЫШТАРЫ' : 'СОЧЕТАНИЯ ВЕКТОРОВ'}>
+              <div className="grid sm:grid-cols-2 gap-4">
                 {analysis.combinations.map((combo, i) => {
-                  const color = domainColors[top5[i % top5.length]?.d ?? 'rost']
+                  const TYPE_CFG = {
+                    signature: { labelRu: 'Подпись', labelKy: 'Негизги', label: 'Signature', icon: '✦', border: 'border-gold/30', bg: 'bg-gold/5', badge: 'bg-gold/15 text-gold border-gold/30' },
+                    hidden:    { labelRu: 'Скрытая сила', labelKy: 'Жашыруун күч', label: 'Hidden Power', icon: '◈', border: 'border-violet-500/30', bg: 'bg-violet-500/5', badge: 'bg-violet-500/15 text-violet-300 border-violet-500/30' },
+                    tension:   { labelRu: 'Напряжение', labelKy: 'Чыңалуу', label: 'Tension', icon: '⚡', border: 'border-amber-500/30', bg: 'bg-amber-500/5', badge: 'bg-amber-500/15 text-amber-300 border-amber-500/30' },
+                    sleeper:   { labelRu: 'Спящий гигант', labelKy: 'Уктаган күч', label: 'Sleeper', icon: '◎', border: 'border-emerald-500/30', bg: 'bg-emerald-500/5', badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
+                  }
+                  const cfg = TYPE_CFG[combo.type] ?? TYPE_CFG.signature
+                  const typeLabel = locale === 'ru' ? cfg.labelRu : locale === 'ky' ? cfg.labelKy : cfg.label
                   return (
-                    <div key={i} className="rounded-2xl border p-5"
-                      style={{ borderColor: color + '30', background: color + '06' }}>
-                      <div className="font-serif text-base text-white font-semibold mb-1">{combo.name}</div>
-                      <div className="flex flex-wrap gap-1 mb-3">
+                    <div key={i} className={`rounded-2xl border p-5 flex flex-col gap-3 ${cfg.border} ${cfg.bg}`}>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg leading-none">{cfg.icon}</span>
+                          <div>
+                            <span className={`text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full border ${cfg.badge}`}>{typeLabel}</span>
+                            <div className="font-serif text-white text-base font-semibold mt-1">{combo.name}</div>
+                          </div>
+                        </div>
+                        <span className="text-slate-600 text-[10px] whitespace-nowrap flex-shrink-0 mt-1">{combo.rarity}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
                         {combo.vectors.map(v => (
-                          <span key={v} className="text-[10px] px-2 py-0.5 rounded-full border"
-                            style={{ color, borderColor: color + '40', background: color + '10' }}>{v}</span>
+                          <span key={v} className="text-xs px-2.5 py-1 rounded-full bg-white/6 border border-white/10 text-slate-300">{v}</span>
                         ))}
                       </div>
-                      <p className="text-slate-400 text-sm leading-relaxed mb-3">{combo.how}</p>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="bg-emerald-500/6 border border-emerald-500/15 rounded-lg p-2.5">
-                          <div className="text-[9px] text-emerald-500/70 tracking-widest uppercase mb-1">
-                            {locale === 'en' ? 'At best' : locale === 'ky' ? 'Эң мыктысы' : 'В лучшем виде'}
+                      <p className="text-slate-400 text-sm leading-relaxed">{combo.how}</p>
+                      <div className="grid grid-cols-2 gap-2 mt-1">
+                        <div className="rounded-lg bg-white/3 border border-white/6 p-2.5">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                            <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wide">
+                              {locale === 'en' ? 'At best' : locale === 'ky' ? 'Эң мыктысы' : 'В лучшем виде'}
+                            </span>
                           </div>
                           <p className="text-slate-300 text-xs leading-relaxed">{combo.atBest}</p>
                         </div>
-                        <div className="bg-red-500/5 border border-red-500/12 rounded-lg p-2.5">
-                          <div className="text-[9px] text-red-500/60 tracking-widest uppercase mb-1">
-                            {locale === 'en' ? 'Risk' : locale === 'ky' ? 'Коркунуч' : 'Риск'}
+                        <div className="rounded-lg bg-white/3 border border-white/6 p-2.5">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                            <span className="text-[10px] font-semibold text-red-400 uppercase tracking-wide">
+                              {locale === 'en' ? 'Risk' : locale === 'ky' ? 'Коркунуч' : 'Риск'}
+                            </span>
                           </div>
-                          <p className="text-slate-400 text-xs leading-relaxed">{combo.risk}</p>
+                          <p className="text-slate-300 text-xs leading-relaxed">{combo.risk}</p>
                         </div>
                       </div>
                     </div>
@@ -639,6 +659,36 @@ export default function VectorProfilePage() {
                 })}
               </div>
             </Section>
+
+            {analysis.famousPeople?.length > 0 && (
+              <Section label={locale === 'en' ? 'FAMOUS SIMILAR PROFILES' : locale === 'ky' ? 'ОКШОШ ПРОФИЛДЕГИ БЕЛГИЛҮҮ АДАМДАР' : 'ИЗВЕСТНЫЕ ЛЮДИ С ПОХОЖИМ ПРОФИЛЕМ'}>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {analysis.famousPeople.map((person, i) => {
+                    const AVATAR_COLORS = ['from-blue-600 to-blue-800','from-purple-600 to-purple-800','from-emerald-600 to-emerald-800','from-orange-600 to-orange-800','from-rose-600 to-rose-800']
+                    const colorClass = AVATAR_COLORS[person.name.charCodeAt(0) % AVATAR_COLORS.length]
+                    const initials = person.name.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase()
+                    return (
+                      <div key={i} className="bg-white/2 border border-white/7 rounded-2xl p-5 flex flex-col gap-3 h-full">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${colorClass} flex items-center justify-center text-white font-bold text-sm font-serif flex-shrink-0`}>
+                            {initials}
+                          </div>
+                          <div>
+                            <div className="text-white font-semibold text-sm leading-tight">{person.name}</div>
+                            <div className="text-gold text-xs mt-0.5 font-medium">{person.field}</div>
+                          </div>
+                        </div>
+                        <p className="text-slate-400 text-xs leading-relaxed flex-1">{person.whyMatch}</p>
+                        <div className="pt-3 border-t border-white/8 flex items-start gap-2">
+                          <div className="w-1 h-1 rounded-full bg-gold mt-1.5 flex-shrink-0" />
+                          <p className="text-slate-300 text-xs leading-relaxed italic">{person.achievement}</p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </Section>
+            )}
           </>
         )}
 

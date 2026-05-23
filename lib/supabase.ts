@@ -206,7 +206,21 @@ export interface VectorAnalysis {
     partnerNeeds: string
   }
   blindSpots: string[]
-  combinations: Array<{ name: string; vectors: string[]; how: string; atBest: string; risk: string }>
+  combinations: Array<{
+    type: 'signature' | 'hidden' | 'tension' | 'sleeper'
+    name: string
+    vectors: string[]
+    how: string
+    atBest: string
+    risk: string
+    rarity: string
+  }>
+  famousPeople: Array<{
+    name: string
+    field: string
+    whyMatch: string
+    achievement: string
+  }>
 }
 
 export interface VectorTestResult {
