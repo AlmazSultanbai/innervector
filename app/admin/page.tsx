@@ -19,6 +19,7 @@ interface VectorTestRow {
   completed_at: string;
   share_token: string;
   retake_count?: number;
+  analysis?: Record<string, unknown> | null;
 }
 
 function formatDate(iso: string) {
@@ -45,7 +46,7 @@ export default function AdminPage() {
     if (!authed || authed === 'client') { router.replace('/'); return; }
     Promise.all([
       supabase.from('analyses').select('*').order('created_at', { ascending: false }),
-      supabase.from('vector_test_results').select('id,session_id,full_name,email,phone,test_mode,lang,top5,completed_at,share_token,retake_count').order('completed_at', { ascending: false }),
+      supabase.from('vector_test_results').select('id,session_id,full_name,email,phone,test_mode,lang,top5,completed_at,share_token,retake_count,analysis').order('completed_at', { ascending: false }),
     ]).then(([gallupRes, vectorRes]) => {
       setAnalyses(gallupRes.data ?? []);
       setVectorResults(vectorRes.data ?? []);
@@ -58,7 +59,13 @@ export default function AdminPage() {
   const filtered = analyses.filter((a) =>
     (a.full_name ?? '').toLowerCase().includes(search.toLowerCase())
   );
-  const filteredVector = vectorResults.filter((a) =>
+  // Deduplicate by session_id — keep only the latest entry per session
+  const deduplicatedVector = vectorResults.reduce<VectorTestRow[]>((acc, row) => {
+    if (!acc.some((r) => r.session_id === row.session_id)) acc.push(row);
+    return acc;
+  }, []);
+
+  const filteredVector = deduplicatedVector.filter((a) =>
     (a.full_name ?? '').toLowerCase().includes(search.toLowerCase())
   );
 
@@ -71,13 +78,17 @@ export default function AdminPage() {
   ).length;
   const withName = analyses.filter((a) => a.full_name?.trim()).length;
 
-  // Vector stats
-  const vtTotal = vectorResults.length;
-  const vtToday = vectorResults.filter((a) =>
+  // Vector stats (use deduplicated list)
+  const deduplicatedVectorAll = vectorResults.reduce<VectorTestRow[]>((acc, row) => {
+    if (!acc.some((r) => r.session_id === row.session_id)) acc.push(row);
+    return acc;
+  }, []);
+  const vtTotal = deduplicatedVectorAll.length;
+  const vtToday = deduplicatedVectorAll.filter((a) =>
     a.completed_at && new Date(a.completed_at).toDateString() === new Date().toDateString()
   ).length;
-  const vtFull = vectorResults.filter((a) => a.test_mode === 'full').length;
-  const vtExpress = vectorResults.filter((a) => a.test_mode === 'express').length;
+  const vtFull = deduplicatedVectorAll.filter((a) => a.test_mode === 'full').length;
+  const vtExpress = deduplicatedVectorAll.filter((a) => a.test_mode === 'express').length;
 
   const copyClientLink = (token: string, id: string) => {
     const url = `${window.location.origin}/profile/${token}`;
@@ -123,7 +134,7 @@ export default function AdminPage() {
               </svg>
               Dashboard
             </button>
-            <span className="text-slate-500 text-xs">Inner Vector · {total + vtTotal} записей</span>
+            <span className="text-slate-500 text-xs">Inner Vector · {total + deduplicatedVectorAll.length} записей</span>
           </div>
         </div>
       </header>
@@ -184,6 +195,7 @@ export default function AdminPage() {
               {filteredVector.map((a, idx) => {
                 const top5 = a.top5 ?? [];
                 const isCopied = copiedId === a.id;
+                const analysisReady = !!a.analysis;
                 return (
                   <div key={a.id ?? idx}
                     className="group flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-4 rounded-2xl border border-white/8 bg-white/3 hover:bg-white/5 hover:border-white/12 transition-all">
@@ -203,7 +215,19 @@ export default function AdminPage() {
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide ${
                           a.test_mode === 'full' ? 'bg-gold/15 text-gold' : 'bg-blue-400/15 text-blue-400'
                         }`}>{a.test_mode ?? 'full'}</span>
+                        {/* Analysis status badge */}
+                        {analysisReady ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide bg-emerald-500/10 text-emerald-400">
+                            <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                            Анализ готов
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide bg-amber-500/10 text-amber-400 animate-pulse">
+                            ⏳ Готовится...
+                          </span>
+                        )}
                         {a.email && <span className="text-slate-600 text-xs">{a.email}</span>}
+                        {a.phone && <span className="text-slate-600 text-xs">{a.phone}</span>}
                         <span className="text-slate-600 text-xs">{a.completed_at ? formatDate(a.completed_at) : ''}</span>
                       </div>
                       <div className="flex flex-wrap gap-1">
@@ -234,14 +258,23 @@ export default function AdminPage() {
                           <><svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>Ссылка</>
                         )}
                       </button>
-                      <button onClick={() => router.push(`/vector-profile/${a.share_token}`)}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-xs font-medium hover:bg-white/10 hover:text-white transition-all">
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        Открыть
-                      </button>
+                      {analysisReady ? (
+                        <button onClick={() => router.push(`/vector-profile/${a.share_token}`)}
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-xs font-medium hover:bg-white/10 hover:text-white transition-all">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          Профиль
+                        </button>
+                      ) : (
+                        <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/3 border border-white/8 text-slate-600 text-xs font-medium cursor-default select-none">
+                          <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                          Анализ идёт...
+                        </div>
+                      )}
                     </div>
                   </div>
                 )

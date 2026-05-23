@@ -236,8 +236,23 @@ export interface VectorTestResult {
   analysis?: VectorAnalysis | null
 }
 
-/** Save vector test result to Supabase. Returns { id, share_token } or null on error. */
+/** Save vector test result to Supabase. Returns { id, share_token } or null on error.
+ *  If a row with the same session_id already exists, returns the existing row (no duplicate). */
 export async function saveVectorTestResult(data: VectorTestResult): Promise<{ id: string; share_token: string } | null> {
+  // Check for existing row with same session_id — return it instead of creating a duplicate
+  const { data: existing } = await supabase
+    .from('vector_test_results')
+    .select('id, share_token, retake_count')
+    .eq('session_id', data.session_id)
+    .order('completed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (existing) {
+    return { id: existing.id, share_token: existing.share_token }
+  }
+
+  // Count previous sessions to determine retake_count
   const { count } = await supabase
     .from('vector_test_results')
     .select('id', { count: 'exact', head: true })
