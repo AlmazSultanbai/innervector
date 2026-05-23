@@ -353,9 +353,9 @@ export default function VectorTestReport() {
           <div className="mb-16 text-center animate-slide-in">
             <p className="font-serif text-xl md:text-2xl text-white leading-relaxed max-w-2xl mx-auto mb-4"
               style={{ textShadow: '0 0 40px rgba(255,255,255,0.05)' }}>
-              <span className="text-gold/50 font-serif text-3xl leading-none mr-1">"</span>
+              <span className="text-gold/50 font-serif text-3xl leading-none mr-1">&ldquo;</span>
               {analysis.essence}
-              <span className="text-gold/50 font-serif text-3xl leading-none ml-1">"</span>
+              <span className="text-gold/50 font-serif text-3xl leading-none ml-1">&rdquo;</span>
             </p>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/20 bg-gold/5">
               <span className="w-1 h-1 rounded-full bg-gold/60" />
