@@ -245,14 +245,14 @@ export const questions: VectorQuestion[] = [
   {d:'otnosenia',t:'Границы',a:'Легко перестаю отвечать когда нужно пространство',b:'Сложно отключаться от людей даже когда нужно побыть одному'},
 ]
 
-// Full test: first 4 questions per trait (144 total)
+// Full test: first 3 questions per trait (108 total)
 export const fullQuestions: (VectorQuestion & { _fullIdx: number })[] = (() => {
   const seen = new Map<string, number>()
   return questions
     .map((q, i) => ({ ...q, _fullIdx: i }))
     .filter(q => {
       const c = seen.get(q.t) ?? 0
-      if (c < 4) { seen.set(q.t, c + 1); return true }
+      if (c < 3) { seen.set(q.t, c + 1); return true }
       return false
     })
 })()
