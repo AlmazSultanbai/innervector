@@ -1,4 +1,5 @@
-// English translations of 144 questions in the same order as vectorQuestions.ts
+// English translations of all questions in the same order as vectorQuestions.ts
+// Full test uses first 3 per trait (108 total); Express uses first 2 per trait (72 total)
 export const questionsEn: { a: string; b: string }[] = [
   // Influence — Persuasion (1-5)
   { a: 'It matters to me to find the right argument so the person arrives at the needed conclusion on their own', b: 'It matters to me to simply state my position and let the person decide for themselves' },

@@ -1,4 +1,5 @@
-// Kyrgyz translations of 144 questions in the same order as vectorQuestions.ts
+// Kyrgyz translations of all questions in the same order as vectorQuestions.ts
+// Full test uses first 3 per trait (108 total); Express uses first 2 per trait (72 total)
 export const questionsKy: { a: string; b: string }[] = [
   // Таасир — Ынандыруу (1-5)
   { a: 'Мен туура аргументти таап, адам өзү керектүү жыйынтыкка келсе болот деп ойлойм', b: 'Мен жөн эле өз позицияны айтып, адам өзү чечсин дегенди жактырам' },
