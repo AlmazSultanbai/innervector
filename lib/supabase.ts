@@ -234,6 +234,8 @@ export interface VectorTestResult {
   phone?: string
   test_mode?: string
   analysis?: VectorAnalysis | null
+  paid_at?: string | null
+  ls_order_id?: string | null
 }
 
 /** Save vector test result to Supabase. Returns { id, share_token } or null on error.
@@ -281,6 +283,16 @@ export async function saveVectorTestResult(data: VectorTestResult): Promise<{ id
     return null
   }
   return row ? { id: row.id, share_token: row.share_token } : null
+}
+
+/** Check if a result is paid — lightweight poll-friendly query */
+export async function checkResultPaid(result_id: string): Promise<boolean> {
+  const { data } = await supabase
+    .from('vector_test_results')
+    .select('paid_at')
+    .eq('id', result_id)
+    .maybeSingle()
+  return !!data?.paid_at
 }
 
 /** Fetch a vector test result by share_token (public profile page) */
