@@ -17,14 +17,16 @@ export async function GET() {
       .not('full_name', 'is', null)
       .neq('full_name', '');
 
-    // Count completed vector tests
-    const { count: vectorCount, error: e2 } = await sb
+    // Count unique vector test sessions (deduplicate by session_id)
+    const { data: sessions, error: e2 } = await sb
       .from('vector_test_results')
-      .select('*', { count: 'exact', head: true });
+      .select('session_id');
 
     if (e1 || e2) throw e1 ?? e2;
 
-    const total = (analysesCount ?? 0) + (vectorCount ?? 0);
+    const uniqueSessions = new Set((sessions ?? []).map((r: { session_id: string }) => r.session_id)).size;
+    const total = (analysesCount ?? 0) + uniqueSessions;
+
     return NextResponse.json({ count: total });
   } catch {
     return NextResponse.json({ count: 0 });
