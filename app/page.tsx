@@ -283,6 +283,9 @@ export default function HomePage() {
 
         {/* Scientific foundation */}
         <div className="mb-8 animate-fade-in">
+          <p className="text-center text-gold text-xs uppercase tracking-widest mb-1 font-semibold">
+            Inner Vector Test
+          </p>
           <p className="text-center text-slate-500 text-xs uppercase tracking-widest mb-3 font-medium">
             {lang === 'ru' ? 'Методология основана на' : lang === 'ky' ? 'Методология негизделген' : 'Methodology based on'}
           </p>
