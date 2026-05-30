@@ -138,7 +138,6 @@ export default function VectorTestIntro() {
             >
               {mode === 'express' ? (
                 <span className="flex items-center justify-center gap-1.5">
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M13 10h5l-6 9V14H7l6-9v5z"/></svg>
                   {t.modeExpress}
                 </span>
               ) : (
