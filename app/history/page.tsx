@@ -654,7 +654,7 @@ export default function HistoryPage() {
                       {lang === 'ru' ? 'Профиль' : lang === 'ky' ? 'Профил' : 'Profile'}
                     </button>
 
-                    {/* Gallup, Delete, PDF — только для superadmin */}
+                    {/* Gallup, PDF, Delete — только для superadmin */}
                     {isSuperAdmin && (<>
                       {a.gallup_file_url && (
                         <a
@@ -671,15 +671,6 @@ export default function HistoryPage() {
                         </a>
                       )}
                       <button
-                        onClick={() => openDelete(a)}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/8 border border-red-500/20 text-red-400 text-xs font-medium hover:bg-red-500/15 hover:border-red-500/30 transition-all duration-200"
-                        title={lang === 'ru' ? 'Удалить' : 'Delete'}
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                      <button
                         onClick={() => handleDownload(a)}
                         disabled={isDownloading}
                         className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gold/10 border border-gold/20 text-gold text-xs font-medium hover:bg-gold/20 transition-all duration-200 disabled:opacity-50"
@@ -693,6 +684,15 @@ export default function HistoryPage() {
                           </svg>
                         )}
                         PDF
+                      </button>
+                      <button
+                        onClick={() => openDelete(a)}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/8 border border-red-500/20 text-red-400 text-xs font-medium hover:bg-red-500/15 hover:border-red-500/30 transition-all duration-200"
+                        title={lang === 'ru' ? 'Удалить' : 'Delete'}
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
                       </button>
                     </>)}
                   </div>
