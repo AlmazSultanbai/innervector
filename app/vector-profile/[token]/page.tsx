@@ -197,6 +197,7 @@ export default function VectorProfilePage() {
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
+  const savePDF = () => window.print()
 
   // ── Loading state ─────────────────────────────────────────────────────────
   if (loading) {
@@ -234,7 +235,7 @@ export default function VectorProfilePage() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 pb-24">
 
         {/* Nav */}
-        <div className="flex items-center justify-between mb-12">
+        <div className="flex items-center justify-between mb-12 print:hidden">
           <Link href="/vector-test"
             className="flex items-center gap-2 text-slate-500 hover:text-gold text-xs font-medium tracking-wide transition-colors">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -788,7 +789,7 @@ export default function VectorProfilePage() {
         )}
 
         {/* Share this profile */}
-        <div className="mb-8 bg-white/2 border border-gold/15 rounded-2xl p-5">
+        <div className="mb-8 bg-white/2 border border-gold/15 rounded-2xl p-5 print:hidden">
           <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-3">
             {locale === 'en' ? 'Share this profile' : locale === 'ky' ? 'Профилди бөлүшүү' : 'Поделиться профилем'}
           </div>
@@ -812,11 +813,20 @@ export default function VectorProfilePage() {
         </div>
 
         {/* CTA */}
-        <div className="flex justify-center gap-4 flex-wrap">
+        <div className="flex justify-center gap-4 flex-wrap print:hidden">
           <Link href="/vector-test"
             className="px-8 py-3 rounded-xl border border-white/10 text-slate-400 text-xs tracking-widest uppercase hover:border-white/20 hover:text-slate-300 transition-all duration-200">
             {t.retake}
           </Link>
+          <button
+            onClick={savePDF}
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-xl border border-gold/30 text-gold text-xs font-semibold tracking-widest uppercase hover:bg-gold/10 transition-all duration-200"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            {locale === 'ru' ? 'Сохранить PDF' : locale === 'ky' ? 'PDF сактоо' : 'Save PDF'}
+          </button>
           <Link href="/"
             className="inline-flex items-center gap-2 px-8 py-3 rounded-xl text-xs font-semibold tracking-widest uppercase transition-all duration-200"
             style={{ background: 'linear-gradient(135deg, #d4a843 0%, #b8922e 100%)', color: '#0e1120', boxShadow: '0 0 30px rgba(212,168,67,0.2)' }}>
