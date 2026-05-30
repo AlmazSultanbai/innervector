@@ -422,6 +422,7 @@ export default function HistoryPage() {
 
   // Delete flow
   const [deleteTarget, setDeleteTarget] = useState<Analysis | null>(null);
+  const [vectorDeleteTarget, setVectorDeleteTarget] = useState<VectorTestRecord | null>(null);
   const [deleteStep, setDeleteStep] = useState<'confirm' | 'password'>('confirm');
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteError, setDeleteError] = useState('');
@@ -433,19 +434,35 @@ export default function HistoryPage() {
     setDeletePassword('');
     setDeleteError('');
   };
-  const closeDelete = () => { setDeleteTarget(null); setDeletePassword(''); setDeleteError(''); };
+  const openVectorDelete = (r: VectorTestRecord) => {
+    setVectorDeleteTarget(r);
+    setDeleteStep('confirm');
+    setDeletePassword('');
+    setDeleteError('');
+  };
+  const closeDelete = () => {
+    setDeleteTarget(null);
+    setVectorDeleteTarget(null);
+    setDeletePassword('');
+    setDeleteError('');
+  };
 
   const handleDeleteConfirm = () => setDeleteStep('password');
 
   const handleDeleteSubmit = async () => {
-    if (deletePassword !== 'deletepdf123') {
+    const validPasswords = ['vectorpass312', 'vectorpass88'];
+    if (!validPasswords.includes(deletePassword)) {
       setDeleteError(lang === 'ru' ? 'Неверный пароль' : lang === 'ky' ? 'Сырсөз туура эмес' : 'Wrong password');
       return;
     }
-    if (!deleteTarget?.id) return;
     setDeleting(true);
-    await supabase.from('analyses').delete().eq('id', deleteTarget.id);
-    setAnalyses(prev => prev.filter(a => a.id !== deleteTarget.id));
+    if (deleteTarget?.id) {
+      await supabase.from('analyses').delete().eq('id', deleteTarget.id);
+      setAnalyses(prev => prev.filter(a => a.id !== deleteTarget.id));
+    } else if (vectorDeleteTarget?.id) {
+      await supabase.from('vector_test_results').delete().eq('id', vectorDeleteTarget.id);
+      setVectorResults(prev => prev.filter(r => r.id !== vectorDeleteTarget.id));
+    }
     setDeleting(false);
     closeDelete();
   };
@@ -728,19 +745,46 @@ export default function HistoryPage() {
                         </div>
                       </div>
 
-                      {/* Open button */}
-                      {r.share_token && (
-                        <button
-                          onClick={() => router.push(`/vector-profile/${r.share_token}`)}
-                          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-xs font-medium hover:bg-white/10 hover:text-white transition-all duration-200"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                          {lang === 'ru' ? 'Профиль' : lang === 'ky' ? 'Профил' : 'Profile'}
-                        </button>
-                      )}
+                      {/* Actions */}
+                      <div className="flex-shrink-0 flex items-center gap-2">
+                        {r.share_token && (
+                          <button
+                            onClick={() => router.push(`/vector-profile/${r.share_token}`)}
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-xs font-medium hover:bg-white/10 hover:text-white transition-all duration-200"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            {lang === 'ru' ? 'Профиль' : lang === 'ky' ? 'Профил' : 'Profile'}
+                          </button>
+                        )}
+                        {isSuperAdmin && (<>
+                          {r.share_token && (
+                            <a
+                              href={`/vector-profile/${r.share_token}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gold/10 border border-gold/20 text-gold text-xs font-medium hover:bg-gold/20 transition-all duration-200"
+                              title="Open for print/PDF"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              PDF
+                            </a>
+                          )}
+                          <button
+                            onClick={() => openVectorDelete(r)}
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/8 border border-red-500/20 text-red-400 text-xs font-medium hover:bg-red-500/15 hover:border-red-500/30 transition-all duration-200"
+                            title={lang === 'ru' ? 'Удалить' : 'Delete'}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </>)}
+                      </div>
                     </div>
 
                     {/* Top 5 trait pills */}
@@ -774,7 +818,7 @@ export default function HistoryPage() {
       </footer>
 
       {/* ── Delete Modal ── */}
-      {deleteTarget && (
+      {(deleteTarget || vectorDeleteTarget) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closeDelete} />
@@ -793,7 +837,7 @@ export default function HistoryPage() {
                   {lang === 'ru' ? 'Удалить профиль?' : lang === 'ky' ? 'Профилди өчүрүү?' : 'Delete profile?'}
                 </h3>
                 <p className="text-slate-400 text-sm text-center mb-1">
-                  {deleteTarget.full_name?.trim() || 'Anonymous'}
+                  {(deleteTarget?.full_name ?? vectorDeleteTarget?.full_name)?.trim() || 'Anonymous'}
                 </p>
                 <p className="text-slate-600 text-xs text-center mb-6">
                   {lang === 'ru' ? 'Это действие нельзя отменить.' : lang === 'ky' ? 'Бул аракетти кайтаруу мүмкүн эмес.' : 'This action cannot be undone.'}
