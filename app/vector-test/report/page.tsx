@@ -15,6 +15,7 @@ import { domainNamesI18n } from '@/locales/domainNames'
 import { traitDataEn } from '@/locales/traitData.en'
 import { traitDataKy } from '@/locales/traitData.ky'
 import LangSwitcher from '@/components/LangSwitcher'
+import { useAuth } from '@/components/LoginModal'
 import type { Domain } from '@/data/vectorTraits'
 
 const DOMAINS: Domain[] = ['vliyanie', 'realizacia', 'otnosenia', 'myshlenie', 'energia', 'rost']
@@ -240,6 +241,7 @@ function VectorTestReport() {
   }, [top5])
 
   const searchParams = useSearchParams()
+  const { isSuperAdmin } = useAuth()
   const [copied, setCopied] = useState(false)
   const [analysis, setAnalysis] = useState<VectorAnalysis | null>(null)
   const [analysisLoading, setAnalysisLoading] = useState(false)
@@ -249,6 +251,9 @@ function VectorTestReport() {
   const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [resultId, setResultId] = useState<string | null>(null)
   const [isPaid, setIsPaid] = useState(false)
+
+  // Superadmin bypass — always unlocked
+  const isUnlocked = isPaid || isSuperAdmin
   const [paymentLoading, setPaymentLoading] = useState(false)
   const profileUrl = shareToken ? `${typeof window !== 'undefined' ? window.location.origin : 'https://innervector.co'}/vector-profile/${shareToken}` : null
 
@@ -341,7 +346,7 @@ function VectorTestReport() {
 
   // Trigger analysis once paid
   useEffect(() => {
-    if (!isPaid || !resultId || analysisLoading || analysis) return
+    if (!isUnlocked || !resultId || analysisLoading || analysis) return
     const sessionId = localStorage.getItem('vector-session-id') ?? ''
     setAnalysisLoading(true)
     const top10 = traitScores.slice(0, 10)
@@ -372,7 +377,7 @@ function VectorTestReport() {
       })
       .finally(() => setAnalysisLoading(false))
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPaid, resultId])
+  }, [isUnlocked, resultId])
 
   // Simulated progress: eases toward 92%, snaps to 100 when analysis arrives
   useEffect(() => {
@@ -405,7 +410,7 @@ function VectorTestReport() {
   }
 
   // ── PAYWALL ── show free top-5 + unlock button until paid
-  if (!isPaid) {
+  if (!isUnlocked) {
     const topTr = top5[0]
     const topCol = domainColors[topTr?.d ?? 'vliyanie']
     const includedItems = locale === 'ru'
