@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useEffect, useMemo, useState, Suspense } from 'react'
+import { useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { getVectorResultByToken } from '@/lib/supabase'
@@ -98,8 +98,9 @@ function formatDate(iso: string, locale: Locale) {
   )
 }
 
-export default function VectorProfilePage() {
+function VectorProfilePage() {
   const { token } = useParams<{ token: string }>()
+  const searchParams = useSearchParams()
   const [result, setResult] = useState<VectorResult | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
@@ -113,6 +114,13 @@ export default function VectorProfilePage() {
       setLoading(false)
     })
   }, [token])
+
+  // Auto-print when ?pdf=1
+  useEffect(() => {
+    if (!loading && result && searchParams.get('pdf') === '1') {
+      setTimeout(() => window.print(), 800)
+    }
+  }, [loading, result, searchParams])
 
   const locale: Locale = (result?.lang as Locale) ?? 'ru'
   const t = ui[locale]
@@ -839,6 +847,14 @@ export default function VectorProfilePage() {
 
       </div>
     </div>
+  )
+}
+
+export default function VectorProfilePageWrapper() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-radial" />}>
+      <VectorProfilePage />
+    </Suspense>
   )
 }
 
