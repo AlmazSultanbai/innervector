@@ -500,20 +500,34 @@ export default function HistoryPage() {
     if (authLoading) return;
     if (!isAuthed) { router.replace('/'); return; }
 
+    // Initial load
     Promise.all([
-      supabase
-        .from('analyses')
-        .select('*')
-        .order('created_at', { ascending: false }),
-      supabase
-        .from('vector_test_results')
-        .select('id, full_name, email, phone, top5, scores, completed_at, share_token, test_mode, lang, analysis')
-        .order('completed_at', { ascending: false }),
+      supabase.from('analyses').select('*').order('created_at', { ascending: false }),
+      supabase.from('vector_test_results').select('id, full_name, email, phone, top5, scores, completed_at, share_token, test_mode, lang, analysis').order('completed_at', { ascending: false }),
     ]).then(([analysesRes, vectorRes]) => {
       setAnalyses(analysesRes.data ?? []);
       setVectorResults((vectorRes.data ?? []) as VectorTestRecord[]);
       setLoading(false);
     });
+
+    // Realtime — new vector test results appear instantly
+    const channel = supabase
+      .channel('history-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'vector_test_results' }, (payload) => {
+        const row = payload.new as VectorTestRecord;
+        setVectorResults(prev => [row, ...prev]);
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'vector_test_results' }, (payload) => {
+        const row = payload.new as VectorTestRecord;
+        setVectorResults(prev => prev.map(r => r.id === row.id ? { ...r, ...row } : r));
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'analyses' }, (payload) => {
+        const row = payload.new as Analysis;
+        setAnalyses(prev => [row, ...prev]);
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, [isAuthed, authLoading, router]);
 
   if (authLoading || loading) {
