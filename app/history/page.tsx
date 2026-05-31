@@ -422,6 +422,7 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [vectorSearch, setVectorSearch] = useState('');
 
   // Delete flow
   const [deleteTarget, setDeleteTarget] = useState<Analysis | null>(null);
@@ -512,6 +513,11 @@ export default function HistoryPage() {
     (a.full_name ?? '').toLowerCase().includes(search.toLowerCase())
   );
 
+  const filteredVector = vectorResults.filter((r) =>
+    (r.full_name ?? '').toLowerCase().includes(vectorSearch.toLowerCase()) ||
+    (r.email ?? '').toLowerCase().includes(vectorSearch.toLowerCase())
+  );
+
   const handleDownload = async (a: Analysis) => {
     setDownloading(a.id ?? '');
     await downloadPDF(a);
@@ -549,16 +555,16 @@ export default function HistoryPage() {
               {lang === 'ru' ? 'Все профили' : lang === 'ky' ? 'Бардык профилдер' : 'All Profiles'}
             </h1>
             <p className="text-slate-500 text-sm mt-1">
-              {activeTab === 'gallup' ? filtered.length : vectorResults.length} {lang === 'ru' ? 'записей' : lang === 'ky' ? 'жазуу' : 'records'}
-              {activeTab === 'vector' && vectorResults.length > 0 && (
+              {activeTab === 'gallup' ? filtered.length : filteredVector.length} {lang === 'ru' ? 'записей' : lang === 'ky' ? 'жазуу' : 'records'}
+              {activeTab === 'vector' && filteredVector.length > 0 && (
                 <span className="text-slate-600 ml-2">
-                  · {vectorResults.filter(r => r.test_mode === 'full').length} full · {vectorResults.filter(r => r.test_mode === 'express').length} express
+                  · {filteredVector.filter(r => r.test_mode === 'full').length} full · {filteredVector.filter(r => r.test_mode === 'express').length} express
                 </span>
               )}
             </p>
           </div>
 
-          {/* Search (only for Gallup tab) */}
+          {/* Search */}
           {activeTab === 'gallup' && (
             <div className="relative">
               <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
@@ -570,6 +576,22 @@ export default function HistoryPage() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                placeholder={lang === 'ru' ? 'Поиск по имени...' : lang === 'ky' ? 'Аты боюнча издөө...' : 'Search by name...'}
+                className="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-gold/40 transition-all text-sm w-full sm:w-52"
+              />
+            </div>
+          )}
+          {activeTab === 'vector' && (
+            <div className="relative">
+              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                value={vectorSearch}
+                onChange={(e) => setVectorSearch(e.target.value)}
                 placeholder={lang === 'ru' ? 'Поиск по имени...' : lang === 'ky' ? 'Аты боюнча издөө...' : 'Search by name...'}
                 className="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-gold/40 transition-all text-sm w-full sm:w-52"
               />
@@ -721,7 +743,7 @@ export default function HistoryPage() {
 
         {/* Inner Vector Tab */}
         {activeTab === 'vector' && (
-          vectorResults.length === 0 ? (
+          filteredVector.length === 0 ? (
             <div className="text-center py-20 text-slate-600">
               <svg className="w-10 h-10 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -730,7 +752,7 @@ export default function HistoryPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {vectorResults.map((r, idx) => {
+              {filteredVector.map((r, idx) => {
                 const top5 = r.top5 ?? [];
                 return (
                   <div
