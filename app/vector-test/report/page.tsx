@@ -621,9 +621,9 @@ function VectorTestReport() {
             : (firstName ? `Analysing you, ${firstName}` : 'Analysing your profile')}
         </h1>
         <p className="text-slate-500 text-sm text-center mb-8">
-          {locale === 'ru' ? 'Не закрывай страницу — это займёт около минуты'
-            : locale === 'ky' ? 'Барактан чыкпаңыз — бир мүнөт созулат'
-            : 'Keep this page open — takes about a minute'}
+          {locale === 'ru' ? 'Не закрывай страницу — это займёт несколько минут'
+            : locale === 'ky' ? 'Барактан чыкпаңыз — бир нече мүнөт созулат'
+            : 'Keep this page open — takes a few minutes'}
         </p>
 
         {/* Thin progress bar */}
