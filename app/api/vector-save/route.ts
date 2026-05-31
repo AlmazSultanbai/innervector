@@ -17,20 +17,7 @@ export async function POST(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
     )
 
-    // Check existing
-    const { data: existing } = await supabase
-      .from('vector_test_results')
-      .select('id, share_token')
-      .eq('session_id', session_id)
-      .order('completed_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-
-    if (existing) {
-      return NextResponse.json({ id: existing.id, share_token: existing.share_token })
-    }
-
-    // Insert new
+    // Always insert — every test completion is a new row
     const { data: row, error } = await supabase
       .from('vector_test_results')
       .insert({
