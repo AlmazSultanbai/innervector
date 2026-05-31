@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getVectorResultByToken } from '@/lib/supabase'
 import type { VectorAnalysis } from '@/lib/supabase'
+import { useAuth } from '@/components/LoginModal'
 import { traitData, domainColors } from '@/data/vectorTraits'
 import { ui } from '@/locales/ui'
 import { traitNamesI18n } from '@/locales/traitNames'
@@ -199,6 +200,34 @@ function VectorProfilePage() {
     }).slice(0, 5)
   }, [top5])
 
+  const { isSuperAdmin } = useAuth()
+  const [generating, setGenerating] = useState(false)
+
+  const generateForAdmin = async () => {
+    if (!result || generating) return
+    setGenerating(true)
+    try {
+      const scores = (result as unknown as Record<string, unknown>).scores as Record<string, { a: number; b: number }> | undefined ?? {}
+      const allScores = Object.keys(scores)
+        .map(name => ({ name, pct: Math.round((scores[name].a / 10) * 100), d: '' }))
+        .sort((a, b) => b.pct - a.pct)
+      const top5 = result.top5 ?? allScores.slice(0, 5)
+      const top10 = allScores.slice(0, 10).length >= 10 ? allScores.slice(0, 10) : top5
+      const bottom5 = allScores.slice(-5)
+      const res = await fetch('/api/vector-analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ top5, top10, bottom5, lang: locale, full_name: result.full_name ?? '', result_id: result.id }),
+      })
+      const data = await res.json()
+      if (!data.error) {
+        setResult(prev => prev ? { ...prev, analysis: data } : prev)
+      }
+    } finally {
+      setGenerating(false)
+    }
+  }
+
   const profileUrl = typeof window !== 'undefined' ? window.location.href : ''
   const copyLink = () => {
     navigator.clipboard.writeText(profileUrl)
@@ -298,6 +327,21 @@ function VectorProfilePage() {
             <p className="text-slate-400 text-base max-w-lg mx-auto leading-relaxed">
               {topTrait ? getTraitFields(topTrait.name)?.short : ''}
             </p>
+          )}
+          {!analysis && isSuperAdmin && (
+            <div className="mt-6">
+              <button
+                onClick={generateForAdmin}
+                disabled={generating}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-violet-500/30 text-violet-400 text-xs font-semibold tracking-widest uppercase hover:bg-violet-500/10 transition-all duration-200 disabled:opacity-50"
+              >
+                {generating ? (
+                  <><span className="w-3.5 h-3.5 border-2 border-violet-400/30 border-t-violet-400 rounded-full animate-spin" />Генерирую анализ...</>
+                ) : (
+                  <><svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>Сгенерировать полный анализ (admin)</>
+                )}
+              </button>
+            </div>
           )}
         </div>
 
