@@ -55,6 +55,8 @@ export default function VectorTestIntro() {
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
     // Reset all previous answers, scores and share token before starting a new test
     reset()
+    // Generate fresh session_id for each new test attempt
+    localStorage.setItem('vector-session-id', crypto.randomUUID())
     setUserInfo({ fullName: fullName.trim(), phone: phone.trim(), email: email.trim() })
     router.push('/vector-test/test')
   }
