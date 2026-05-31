@@ -1225,50 +1225,51 @@ function VectorTestReport() {
                       .sort((a, b) => (rankMap.get(a.name) ?? 99) - (rankMap.get(b.name) ?? 99))
 
                     return (
-                      <div key={domain} className="flex flex-col gap-1">
+                      <div key={domain} className="flex flex-col gap-1.5 min-w-0">
                         {/* Domain header */}
-                        <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg mb-1 min-w-0"
-                          style={{ background: color + '12', border: `1px solid ${color}30` }}>
-                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
-                          <span className="text-[9px] font-bold tracking-wider uppercase leading-tight min-w-0"
+                        <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl mb-0.5 min-w-0"
+                          style={{ background: color + '15', border: `1px solid ${color}35` }}>
+                          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
+                          <span className="text-[10px] font-bold tracking-wider uppercase leading-tight min-w-0"
                             style={{ color, wordBreak: 'break-word' }}>
                             {getDomainName(domain)}
                           </span>
                         </div>
 
-                        {/* Traits in this domain */}
+                        {/* Traits — all 36 numbered */}
                         {domainTraits.map(trait => {
                           const rank = rankMap.get(trait.name) ?? 99
                           const isTop5 = rank <= 5
-                          const isTop10 = rank <= 10
+                          const isTop12 = rank <= 12
 
                           return (
                             <div key={trait.name}
-                              className="flex items-start gap-1.5 px-2 py-1.5 rounded-lg min-w-0"
+                              className="flex items-center gap-2 px-2.5 py-2 rounded-xl min-w-0"
                               style={isTop5 ? {
-                                background: color + '18',
+                                background: color + '1a',
                                 border: `1px solid ${color}55`,
-                              } : isTop10 ? {
-                                background: color + '0c',
-                                border: `1px solid ${color}30`,
+                                boxShadow: `0 0 10px ${color}20`,
+                              } : isTop12 ? {
+                                background: color + '10',
+                                border: `1px solid ${color}35`,
+                                boxShadow: `0 0 6px ${color}12`,
                               } : {
                                 background: 'rgba(255,255,255,0.02)',
                                 border: '1px solid rgba(255,255,255,0.05)',
                               }}
                             >
-                              {isTop10 ? (
-                                <div className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-0.5"
-                                  style={{ background: isTop5 ? color : color + '55', color: isTop5 ? '#0e1120' : color }}>
-                                  {rank}
-                                </div>
-                              ) : (
-                                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1"
-                                  style={{ background: color + '33' }} />
-                              )}
-                              <span className="font-serif text-[10px] leading-snug break-words min-w-0"
+                              <div className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold flex-shrink-0"
                                 style={{
-                                  color: isTop5 ? 'white' : isTop10 ? 'rgba(226,232,240,0.8)' : 'rgba(100,116,139,0.45)',
-                                  fontWeight: isTop5 ? 600 : 400,
+                                  background: isTop5 ? color : isTop12 ? color + '40' : 'rgba(255,255,255,0.05)',
+                                  color: isTop5 ? '#0e1120' : isTop12 ? color : 'rgba(100,116,139,0.4)',
+                                  border: `1px solid ${isTop5 ? color : isTop12 ? color + '50' : 'rgba(255,255,255,0.07)'}`,
+                                }}>
+                                {rank}
+                              </div>
+                              <span className="font-serif text-[11px] leading-snug min-w-0"
+                                style={{
+                                  color: isTop5 ? 'white' : isTop12 ? 'rgba(226,232,240,0.9)' : 'rgba(100,116,139,0.4)',
+                                  fontWeight: isTop5 ? 700 : isTop12 ? 500 : 400,
                                   wordBreak: 'break-word',
                                   overflowWrap: 'anywhere',
                                 }}>
@@ -1294,9 +1295,7 @@ function VectorTestReport() {
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-lg bg-white/5 border border-white/15" />
-                <span className="text-[10px] text-slate-500">
-                  {locale === 'en' ? '6–10' : '6–10'}
-                </span>
+                <span className="text-[10px] text-slate-500">6–12</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-lg bg-white/2 border border-white/5" />
