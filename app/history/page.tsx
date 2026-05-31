@@ -21,6 +21,7 @@ interface VectorTestRecord {
   test_mode: string | null;
   lang: string | null;
   analysis?: Record<string, unknown> | null;
+  paid_at?: string | null;
 }
 
 
@@ -476,7 +477,7 @@ export default function HistoryPage() {
     // Initial load
     Promise.all([
       supabase.from('analyses').select('*').order('created_at', { ascending: false }),
-      supabase.from('vector_test_results').select('id, full_name, email, phone, top5, scores, completed_at, share_token, test_mode, lang, analysis').order('completed_at', { ascending: false }),
+      supabase.from('vector_test_results').select('id, full_name, email, phone, top5, scores, completed_at, share_token, test_mode, lang, analysis, paid_at').order('completed_at', { ascending: false }),
     ]).then(([analysesRes, vectorRes]) => {
       setAnalyses(analysesRes.data ?? []);
       setVectorResults((vectorRes.data ?? []) as VectorTestRecord[]);
@@ -751,6 +752,17 @@ export default function HistoryPage() {
                           <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide ${
                             r.test_mode === 'full' ? 'bg-gold/15 text-gold' : 'bg-blue-400/15 text-blue-400'
                           }`}>{r.test_mode ?? 'full'}</span>
+                          {r.paid_at ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                              <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                              {lang === 'ru' ? 'Оплачен' : 'Paid'}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide bg-red-500/10 text-red-400 border border-red-500/20">
+                              <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                              {lang === 'ru' ? 'Не оплачен' : 'Unpaid'}
+                            </span>
+                          )}
                           <span className="text-slate-600 text-xs flex-shrink-0">
                             {r.completed_at ? formatDate(r.completed_at) : ''}
                           </span>
