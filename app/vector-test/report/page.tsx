@@ -289,7 +289,7 @@ function VectorTestReport() {
     return Object.fromEntries(DOMAINS.map(d => [d, totals[d].count > 0 ? Math.round(totals[d].sum / totals[d].count) : 0])) as Record<Domain, number>
   }, [traitScores])
 
-  // Save result once, then check paid status
+  // Save result once via server API (service role — reliable)
   useEffect(() => {
     if (!hasResults || savedRef.current) return
     savedRef.current = true
@@ -298,24 +298,31 @@ function VectorTestReport() {
       sessionId = crypto.randomUUID()
       localStorage.setItem('vector-session-id', sessionId)
     }
-    saveVectorTestResult({
-      session_id: sessionId,
-      scores,
-      top5,
-      domain_averages: domainAverages,
-      lang: locale,
-      full_name: userInfo?.fullName,
-      email: userInfo?.email,
-      phone: userInfo?.phone,
-      test_mode: testMode,
-    }).then(result => {
-      if (result?.share_token) setShareToken(result.share_token)
-      if (result?.id) {
-        setResultId(result.id)
-        // Check if already paid (returning user)
-        checkResultPaid(result.id).then(paid => { if (paid) setIsPaid(true) })
-      }
+    fetch('/api/vector-save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id: sessionId,
+        scores,
+        top5,
+        domain_averages: domainAverages,
+        lang: locale,
+        full_name: userInfo?.fullName ?? null,
+        email: userInfo?.email ?? null,
+        phone: userInfo?.phone ?? null,
+        test_mode: testMode,
+      }),
     })
+      .then(r => r.json())
+      .then(result => {
+        if (result?.share_token) setShareToken(result.share_token)
+        if (result?.id) {
+          setResultId(result.id)
+          checkResultPaid(result.id).then(paid => { if (paid) setIsPaid(true) })
+        }
+        if (result?.error) console.error('Save failed:', result.error)
+      })
+      .catch(err => console.error('Save request failed:', err))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasResults, scores, top5, domainAverages])
 
