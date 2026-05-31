@@ -767,10 +767,10 @@ function VectorProfilePage() {
                       return (
                         <div key={domain} className="flex flex-col gap-1.5 min-w-0">
                           {/* Domain header */}
-                          <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl mb-0.5 min-w-0"
+                          <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl mb-0.5 w-full"
                             style={{ background: color + '15', border: `1px solid ${color}35` }}>
                             <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
-                            <span className="text-[9px] font-bold tracking-wide uppercase leading-none whitespace-nowrap overflow-hidden text-ellipsis"
+                            <span className="text-[10px] font-bold leading-none whitespace-nowrap"
                               style={{ color }}>
                               {getDomainName(domain)}
                             </span>
