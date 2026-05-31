@@ -20,6 +20,7 @@ export default function TermsPage() {
 
           <Section title="1. Acceptance">
             <p>By using innervector.co you agree to these Terms. If you do not agree, please do not use the service.</p>
+            <p><strong>You must be at least 18 years old to use Inner Vector.</strong> By accessing the service, you confirm that you are 18 or older. If you are under 18, please do not use this platform.</p>
           </Section>
 
           <Section title="2. Description of Service">
