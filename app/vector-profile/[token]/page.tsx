@@ -354,7 +354,7 @@ function VectorProfilePage() {
                           </div>
                           <div className="flex-1 bg-red-500/4 border border-red-500/12 rounded-xl px-3 py-2.5">
                             <div className="text-[9px] tracking-widest text-slate-600 uppercase mb-1.5">{t.darkLabel}</div>
-                            <p className="text-slate-400 text-xs leading-relaxed line-clamp-3">{fields.dark}</p>
+                            <p className="text-slate-400 text-xs leading-relaxed">{fields.dark}</p>
                           </div>
                         </div>
                       </div>

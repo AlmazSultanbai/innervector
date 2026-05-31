@@ -29,7 +29,7 @@ const DOMAIN_EN: Record<string, string> = {
 
 export async function POST(req: NextRequest) {
   try {
-    const { top5, top10, lang = 'ru', full_name = '', result_id } = await req.json();
+    const { top5, top10, bottom5, lang = 'ru', full_name = '', result_id } = await req.json();
 
     if (!top5 || !Array.isArray(top5) || top5.length < 5) {
       return NextResponse.json({ error: '5 vectors required' }, { status: 400 });
@@ -51,6 +51,12 @@ export async function POST(req: NextRequest) {
         ).join('\n')
       : null
 
+    const bottom5List = bottom5?.length > 0
+      ? bottom5.map((v: {name:string;d:string}) =>
+          `  - ${makeVectorName(v.name)} (${DOMAIN_EN[v.d] ?? v.d})`
+        ).join('\n')
+      : null
+
     const langInstruction = lang === 'ru'
       ? 'ВАЖНО: Отвечай ПОЛНОСТЬЮ на русском языке. Каждое текстовое значение в JSON должно быть на русском. Обращайся к пользователю на "ты". Пиши живо, конкретно, без клише. Называй векторы по-русски.'
       : lang === 'ky'
@@ -68,8 +74,11 @@ Language: ${lang}
 TOP 5 DOMINANT VECTORS (most defining, in order):
 ${top5List}
 ${top10List ? `\nVECTORS 6–10 (supporting profile):\n${top10List}` : ''}
+${bottom5List ? `\nBOTTOM 5 VECTORS (weakest — these are genuine gaps, not strengths):\n${bottom5List}` : ''}
 
 ${langInstruction}
+
+CRITICAL HONESTY RULE: The bottom 5 vectors listed above are real weak zones for this person — do NOT describe them as strengths anywhere in the analysis. If a bottom vector appears in the narrative, it must be framed as a gap, blind spot, or "you need a partner for this." The analysis loses all credibility when it praises someone for qualities their data says are their weakest. Smart readers will notice the contradiction. Be honest — it builds more trust than flattery.
 
 Analyze this specific combination deeply. Be personal, concrete, and rich — avoid generic platitudes. Reference actual vector names throughout.
 
@@ -219,13 +228,13 @@ Rules:
 - Be specific — mention actual vector names from the profile throughout
 - "essence" must be written like a masterful character study — literary, warm, precise. No generic phrases.
 - "whereYouShine.contexts" must have exactly 6 items
-- "career.roles" must have exactly 5 items — real specific roles (e.g. "Стратегический консультант", "Product Manager", "Исследователь UX", "Коуч руководителей", "Сценарист / редактор")
+- "career.roles" must have exactly 5 items — real specific roles that are COHERENT with each other and with this specific profile. All 5 roles must make sense together as a cluster (e.g. for an Influence-dominant profile: founder, strategist, advisor, keynote speaker, coach — NOT nursing or unrelated fields). Never mix radically different fields.
 - "career.environments" must have exactly 4 items
 - "business.contributions" must have exactly 3 items (use top 3 vectors)
 - "love.dynamics" must have exactly 3 items (use top 3 vectors)
 - "blindSpots" must have exactly 3 items
 - "combinations" must have exactly 4 items with types: signature, hidden, tension, sleeper (in that order)
-- "famousPeople" must have exactly 3 real well-known people — use people the user will likely recognise
+- "famousPeople" must have exactly 3 real well-known people. IMPORTANT: avoid the most obvious default picks (Steve Jobs, Elon Musk, Oprah Winfrey, Bill Gates, Jeff Bezos) — they appear in every AI-generated profile and feel generic. Instead pick unexpected but precise matches: people who are genuinely less obvious but whose work and character clearly reflect this specific vector combination. The surprise of recognition ("I wouldn't have thought of them but it's exactly right") is more valuable than a famous name.
 - rarity values must be one of: "1 in 10 people", "1 in 30 people", "1 in 50 people", "1 in 100 people", "1 in 200 people"
 - Every insight must feel personal and non-generic`
 

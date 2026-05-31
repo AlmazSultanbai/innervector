@@ -345,12 +345,14 @@ function VectorTestReport() {
     const sessionId = localStorage.getItem('vector-session-id') ?? ''
     setAnalysisLoading(true)
     const top10 = traitScores.slice(0, 10)
+    const bottom5 = traitScores.slice(-5)
     fetch('/api/vector-analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         top5,
         top10,
+        bottom5,
         lang: locale,
         full_name: userInfo?.fullName ?? '',
         result_id: resultId,
