@@ -609,6 +609,9 @@ function VectorTestReport() {
           </div>
         </div>
 
+        {/* Agents ticker */}
+        <AgentsTicker progress={progress} topColor={topColor} locale={locale} />
+
         {/* Headline */}
         <h1 className="font-serif text-2xl sm:text-3xl text-white text-center mb-1">
           {locale === 'ru'
@@ -1352,6 +1355,55 @@ function VectorTestReport() {
   )
 }
 
+const AGENTS_RU = [
+  'Агент Профиля', 'Агент Карьеры', 'Агент Бизнеса', 'Агент Отношений',
+  'Агент Слепых зон', 'Агент Комбинаций', 'Агент Личности', 'Агент Векторов',
+  'Агент Среды', 'Агент Знаменитостей', 'Агент Партнёрства', 'Агент Синтеза',
+]
+const AGENTS_EN = [
+  'Profile Agent', 'Career Agent', 'Business Agent', 'Relationship Agent',
+  'Blind Spot Agent', 'Combination Agent', 'Personality Agent', 'Vector Agent',
+  'Environment Agent', 'Famous Match Agent', 'Partnership Agent', 'Synthesis Agent',
+]
+const AGENTS_KY = [
+  'Профиль Агенти', 'Карьера Агенти', 'Бизнес Агенти', 'Мамиле Агенти',
+  'Көр Жак Агенти', 'Айкалыш Агенти', 'Инсан Агенти', 'Вектор Агенти',
+  'Чөйрө Агенти', 'Белгилүү Адам Агенти', 'Өнөктүк Агенти', 'Синтез Агенти',
+]
+
+function AgentsTicker({ progress, topColor, locale }: { progress: number; topColor: string; locale: string }) {
+  const agents = locale === 'ru' ? AGENTS_RU : locale === 'ky' ? AGENTS_KY : AGENTS_EN
+  const activeCount = Math.max(1, Math.min(12, Math.ceil((progress / 92) * 12)))
+  const currentAgent = agents[activeCount - 1]
+
+  return (
+    <div className="flex flex-col items-center gap-2 mb-6">
+      {/* Active agents count */}
+      <div className="flex items-center gap-2 px-4 py-2 rounded-full border"
+        style={{ borderColor: topColor + '30', background: topColor + '08' }}>
+        <div className="flex gap-1">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className="w-1.5 h-1.5 rounded-full transition-all duration-500"
+              style={{
+                background: i < activeCount ? topColor : 'rgba(255,255,255,0.08)',
+                boxShadow: i < activeCount ? `0 0 4px ${topColor}80` : 'none',
+                transform: i === activeCount - 1 ? 'scale(1.4)' : 'scale(1)',
+              }} />
+          ))}
+        </div>
+        <span className="text-xs font-medium" style={{ color: topColor }}>
+          {activeCount} / 12
+        </span>
+      </div>
+      {/* Current agent name */}
+      <div className="flex items-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: topColor }} />
+        <span className="text-slate-500 text-xs">{currentAgent}</span>
+      </div>
+    </div>
+  )
+}
+
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mb-12">
@@ -1363,3 +1415,4 @@ function Section({ label, children }: { label: string; children: React.ReactNode
     </div>
   )
 }
+
