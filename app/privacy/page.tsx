@@ -19,7 +19,7 @@ export default function PrivacyPage() {
         <div className="prose-legal">
 
           <Section title="1. Who We Are">
-            <p>InnerVector ("we", "us", "our") operates the website innervector.co — a personality assessment platform. Contact: <a href="mailto:aldeco312@gmail.com">aldeco312@gmail.com</a></p>
+            <p>InnerVector (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;) operates the website innervector.co — a personality assessment platform. Contact: <a href="mailto:aldeco312@gmail.com">aldeco312@gmail.com</a></p>
           </Section>
 
           <Section title="2. What Data We Collect">
