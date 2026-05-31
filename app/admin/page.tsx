@@ -16,6 +16,7 @@ interface VectorTestRow {
   test_mode?: string;
   lang?: string;
   top5: Array<{ name: string; pct: number; d: string }>;
+  scores?: Record<string, { a: number; b: number }>;
   completed_at: string;
   share_token: string;
   retake_count?: number;
@@ -40,13 +41,48 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [generatingId, setGeneratingId] = useState<string | null>(null);
+
+  const generateAnalysis = async (row: VectorTestRow) => {
+    if (generatingId) return;
+    setGeneratingId(row.id);
+    try {
+      // Build sorted trait scores from raw scores
+      const scores = row.scores ?? {};
+      const allScores = Object.keys(scores)
+        .map(name => ({ name, pct: Math.round((scores[name].a / 10) * 100), d: '' }))
+        .sort((a, b) => b.pct - a.pct);
+      const top5 = row.top5 ?? allScores.slice(0, 5);
+      const top10 = allScores.slice(0, 10).length >= 10 ? allScores.slice(0, 10) : top5;
+      const bottom5 = allScores.slice(-5);
+
+      const res = await fetch('/api/vector-analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          top5,
+          top10,
+          bottom5,
+          lang: row.lang ?? 'ru',
+          full_name: row.full_name ?? '',
+          result_id: row.id,
+        }),
+      });
+      const data = await res.json();
+      if (!data.error) {
+        setVectorResults(prev => prev.map(r => r.id === row.id ? { ...r, analysis: data } : r));
+      }
+    } finally {
+      setGeneratingId(null);
+    }
+  };
 
   useEffect(() => {
     if (authed === null) return;
     if (!authed || authed === 'client') { router.replace('/'); return; }
     Promise.all([
       supabase.from('analyses').select('*').order('created_at', { ascending: false }),
-      supabase.from('vector_test_results').select('id,session_id,full_name,email,phone,test_mode,lang,top5,completed_at,share_token,retake_count,analysis').order('completed_at', { ascending: false }),
+      supabase.from('vector_test_results').select('id,session_id,full_name,email,phone,test_mode,lang,top5,scores,completed_at,share_token,retake_count,analysis').order('completed_at', { ascending: false }),
     ]).then(([gallupRes, vectorRes]) => {
       setAnalyses(gallupRes.data ?? []);
       setVectorResults(vectorRes.data ?? []);
@@ -268,12 +304,17 @@ export default function AdminPage() {
                           Профиль
                         </button>
                       ) : (
-                        <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/3 border border-white/8 text-slate-600 text-xs font-medium cursor-default select-none">
-                          <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                          </svg>
-                          Анализ идёт...
-                        </div>
+                        <button
+                          onClick={() => generateAnalysis(a)}
+                          disabled={generatingId === a.id}
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-violet-500/10 border border-violet-500/25 text-violet-400 text-xs font-medium hover:bg-violet-500/20 transition-all disabled:opacity-50"
+                        >
+                          {generatingId === a.id ? (
+                            <><svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>Генерирую...</>
+                          ) : (
+                            <><svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>Сгенерировать</>
+                          )}
+                        </button>
                       )}
                     </div>
                   </div>
