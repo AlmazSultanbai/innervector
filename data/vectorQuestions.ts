@@ -264,7 +264,7 @@ export const expressQuestions: (VectorQuestion & { _fullIdx: number })[] = (() =
     .map((q, i) => ({ ...q, _fullIdx: i }))
     .filter(q => {
       const c = seen.get(q.t) ?? 0
-      if (c < 2) { seen.set(q.t, c + 1); return true }
+      if (c < 1) { seen.set(q.t, c + 1); return true }
       return false
     })
 })()
