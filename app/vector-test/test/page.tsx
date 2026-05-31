@@ -10,7 +10,8 @@ import { ui } from '@/locales/ui'
 import { questionsEn } from '@/locales/questions.en'
 import { questionsKy } from '@/locales/questions.ky'
 
-const TIMER_DURATION = 20
+const TIMER_DURATION_FULL = 20
+const TIMER_DURATION_EXPRESS = 25
 const CIRCUMFERENCE = 2 * Math.PI * 13
 
 
@@ -19,6 +20,7 @@ export default function VectorTestPage() {
   const { current, isComplete, answer, skip, testMode } = useVectorTestStore()
   const locale = useLocaleStore(s => s.locale)
   const t = ui[locale]
+  const TIMER_DURATION = testMode === 'express' ? TIMER_DURATION_EXPRESS : TIMER_DURATION_FULL
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const timeLeftRef = useRef(TIMER_DURATION)
   const circleRef = useRef<SVGCircleElement>(null)
