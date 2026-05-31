@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { STRENGTHS, DOMAIN_COLORS, getDomainForStrength } from '@/lib/strengths';
+import { STRENGTHS, DOMAIN_COLORS, getDomainForStrength, STRENGTH_NAME_I18N } from '@/lib/strengths';
 import { Domain } from '@/lib/types';
 import { useLang } from '@/lib/LanguageContext';
 import LangToggle from '@/components/LangToggle';
@@ -151,6 +151,11 @@ export default function HomePage() {
   };
 
   const ready = selected.length >= 5;
+  const getStrengthLabel = (name: string) => {
+    if (lang === 'ru') return STRENGTH_NAME_I18N[name]?.ru ?? name;
+    if (lang === 'ky') return STRENGTH_NAME_I18N[name]?.ky ?? name;
+    return name;
+  };
 
   return (
     <div className="min-h-screen bg-radial flex flex-col">
@@ -473,7 +478,7 @@ export default function HomePage() {
                       }`}
                     >
                       <span className={`text-xs font-bold ${isGlowing ? 'opacity-100' : 'opacity-50'}`}>{i + 1}</span>
-                      {s}
+                      {getStrengthLabel(s)}
                       <span className="opacity-40 text-base leading-none">×</span>
                     </button>
                   );
@@ -530,7 +535,7 @@ export default function HomePage() {
                                 {rank + 1}
                               </span>
                             )}
-                            {s.name}
+                            {getStrengthLabel(s.name)}
                           </button>
                         );
                       })}

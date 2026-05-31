@@ -39,6 +39,43 @@ export const STRENGTHS: StrengthMeta[] = [
 
 export const STRENGTH_NAMES = STRENGTHS.map((s) => s.name).sort();
 
+export const STRENGTH_NAME_I18N: Record<string, { ru: string; ky: string }> = {
+  'Achiever':         { ru: 'Достижение',        ky: 'Жетишкендик' },
+  'Activator':        { ru: 'Активатор',          ky: 'Активатор' },
+  'Adaptability':     { ru: 'Адаптивность',       ky: 'Ийкемдүүлүк' },
+  'Analytical':       { ru: 'Аналитика',          ky: 'Аналитика' },
+  'Arranger':         { ru: 'Организованность',   ky: 'Уюштуруучу' },
+  'Belief':           { ru: 'Убеждения',          ky: 'Ишенимдер' },
+  'Command':          { ru: 'Командование',       ky: 'Командалык' },
+  'Communication':    { ru: 'Коммуникация',       ky: 'Коммуникация' },
+  'Competition':      { ru: 'Соперничество',      ky: 'Атаандашуу' },
+  'Connectedness':    { ru: 'Связанность',        ky: 'Байланыштуулук' },
+  'Consistency':      { ru: 'Последовательность', ky: 'Ырааттуулук' },
+  'Context':          { ru: 'Контекст',           ky: 'Контекст' },
+  'Deliberative':     { ru: 'Осторожность',       ky: 'Этияттык' },
+  'Developer':        { ru: 'Развитие людей',     ky: 'Өнүктүрүүчү' },
+  'Discipline':       { ru: 'Дисциплина',         ky: 'Тартип' },
+  'Empathy':          { ru: 'Эмпатия',            ky: 'Эмпатия' },
+  'Focus':            { ru: 'Концентрация',       ky: 'Фокус' },
+  'Futuristic':       { ru: 'Визионерство',       ky: 'Келечекчил' },
+  'Harmony':          { ru: 'Гармония',           ky: 'Гармония' },
+  'Ideation':         { ru: 'Генерация идей',     ky: 'Идея жаратуу' },
+  'Includer':         { ru: 'Инклюзивность',      ky: 'Инклюзивдүүлүк' },
+  'Individualization':{ ru: 'Индивидуальность',   ky: 'Жеке мүнөздөмө' },
+  'Input':            { ru: 'Коллекционирование', ky: 'Топтоо' },
+  'Intellection':     { ru: 'Мыслительность',     ky: 'Ой жүгүртүү' },
+  'Learner':          { ru: 'Обучаемость',        ky: 'Үйрөнүүчү' },
+  'Maximizer':        { ru: 'Максимализатор',     ky: 'Максималдаштыруу' },
+  'Positivity':       { ru: 'Позитивность',       ky: 'Позитивдүүлүк' },
+  'Relator':          { ru: 'Взаимоотношения',    ky: 'Мамиле' },
+  'Responsibility':   { ru: 'Ответственность',    ky: 'Жоопкерчилик' },
+  'Restorative':      { ru: 'Восстановление',     ky: 'Калыбына келтирүү' },
+  'Self-Assurance':   { ru: 'Самоуверенность',    ky: 'Өзүнө ишенүү' },
+  'Significance':     { ru: 'Значимость',         ky: 'Маанилүүлүк' },
+  'Strategic':        { ru: 'Стратегическое мышл.',ky: 'Стратегиялык ой' },
+  'Woo':              { ru: 'Обаяние',            ky: 'Жагымдуулук' },
+};
+
 export const DOMAIN_COLORS: Record<Domain, { bg: string; text: string; border: string; glow: string }> = {
   Executing: {
     bg: 'bg-blue-950/60',
