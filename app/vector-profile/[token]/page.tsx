@@ -782,7 +782,7 @@ function VectorProfilePage() {
                             const isTop12 = rank <= 12
                             return (
                               <div key={trait.name}
-                                className="flex items-center gap-2 px-2.5 py-2 rounded-xl min-w-0"
+                                className="flex flex-col items-start gap-1 px-2.5 py-2 rounded-xl w-full"
                                 style={isTop5 ? {
                                   background: color + '1a',
                                   border: `1px solid ${color}55`,
@@ -796,7 +796,6 @@ function VectorProfilePage() {
                                   border: '1px solid rgba(255,255,255,0.05)',
                                 }}
                               >
-                                {/* Rank badge — all 36 */}
                                 <div className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold flex-shrink-0"
                                   style={{
                                     background: isTop5 ? color : isTop12 ? color + '40' : 'rgba(255,255,255,0.05)',
@@ -805,13 +804,13 @@ function VectorProfilePage() {
                                   }}>
                                   {rank}
                                 </div>
-
-                                <span className="font-serif text-[11px] leading-snug min-w-0"
+                                <span className="font-serif text-[11px] leading-tight w-full"
                                   style={{
                                     color: isTop5 ? 'white' : isTop12 ? 'rgba(226,232,240,0.9)' : 'rgba(100,116,139,0.4)',
                                     fontWeight: isTop5 ? 700 : isTop12 ? 500 : 400,
-                                    wordBreak: 'break-word',
-                                    overflowWrap: 'anywhere',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
                                   }}>
                                   {getTraitName(trait.name)}
                                 </span>
