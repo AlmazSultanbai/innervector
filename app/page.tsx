@@ -430,6 +430,51 @@ export default function HomePage() {
         {mode === 'manual' && (
           <div className="animate-fade-in">
 
+            {/* Name fields — top of manual mode */}
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <svg className="w-4 h-4 text-gold/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+                <span className="text-slate-400 text-xs font-medium tracking-wide uppercase">
+                  {lang === 'ru' ? 'Имя клиента — обязательно для PDF и истории' : lang === 'ky' ? 'Кардың аты — PDF жана тарых үчүн талап кылынат' : 'Client name — required for PDF & history'}
+                </span>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder={lang === 'ru' ? 'Имя' : lang === 'ky' ? 'Аты' : 'First name'}
+                    className={`w-full rounded-xl px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none transition-all text-sm ${
+                      firstName.trim()
+                        ? 'bg-white/5 border border-white/10 focus:border-gold/40'
+                        : 'bg-gold/5 border border-gold/20 focus:border-gold/50'
+                    }`}
+                  />
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder={lang === 'ru' ? 'Фамилия' : lang === 'ky' ? 'Фамилиясы' : 'Last name'}
+                    className={`w-full rounded-xl px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none transition-all text-sm ${
+                      lastName.trim()
+                        ? 'bg-white/5 border border-white/10 focus:border-gold/40'
+                        : 'bg-gold/5 border border-gold/20 focus:border-gold/50'
+                    }`}
+                  />
+                </div>
+              </div>
+              {!firstName.trim() && !lastName.trim() && (
+                <p className="mt-1.5 text-gold/40 text-xs">
+                  {lang === 'ru' ? '⚠ Введите имя — иначе в PDF и истории будет «Anonymous»' : lang === 'ky' ? '⚠ Атын жазыңыз — антпесе PDF жана тарыхта «Anonymous» болот' : '⚠ Enter a name — otherwise PDF & history will show «Anonymous»'}
+                </p>
+              )}
+            </div>
+
             {/* Counter + progress bar */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
@@ -546,51 +591,6 @@ export default function HomePage() {
             </div>
           </div>
         )}
-
-        {/* Name fields — only in manual mode; upload mode extracts name from the file */}
-        {mode === 'manual' && <div className="mt-8">
-          <div className="flex items-center gap-2 mb-3">
-            <svg className="w-4 h-4 text-gold/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-            </svg>
-            <span className="text-slate-400 text-xs font-medium tracking-wide uppercase">
-              {lang === 'ru' ? 'Имя клиента — обязательно для PDF и истории' : lang === 'ky' ? 'Кардың аты — PDF жана тарых үчүн талап кылынат' : 'Client name — required for PDF & history'}
-            </span>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1">
-              <input
-                type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder={lang === 'ru' ? 'Имя' : lang === 'ky' ? 'Аты' : 'First name'}
-                className={`w-full rounded-xl px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none transition-all text-sm ${
-                  firstName.trim()
-                    ? 'bg-white/5 border border-white/10 focus:border-gold/40'
-                    : 'bg-gold/5 border border-gold/20 focus:border-gold/50'
-                }`}
-              />
-            </div>
-            <div className="flex-1">
-              <input
-                type="text"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder={lang === 'ru' ? 'Фамилия' : lang === 'ky' ? 'Фамилиясы' : 'Last name'}
-                className={`w-full rounded-xl px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none transition-all text-sm ${
-                  lastName.trim()
-                    ? 'bg-white/5 border border-white/10 focus:border-gold/40'
-                    : 'bg-gold/5 border border-gold/20 focus:border-gold/50'
-                }`}
-              />
-            </div>
-          </div>
-          {!firstName.trim() && !lastName.trim() && (
-            <p className="mt-1.5 text-gold/40 text-xs">
-              {lang === 'ru' ? '⚠ Введите имя — иначе в PDF и истории будет «Anonymous»' : lang === 'ky' ? '⚠ Атын жазыңыз — антпесе PDF жана тарыхта «Anonymous» болот' : '⚠ Enter a name — otherwise PDF & history will show «Anonymous»'}
-            </p>
-          )}
-        </div>}
 
         {/* CTA */}
         <div className="mt-6 text-center">
