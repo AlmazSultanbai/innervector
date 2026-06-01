@@ -26,7 +26,6 @@ export default function RefundPage() {
             <ul>
               <li>The AI analysis was not generated due to a technical error on our side</li>
               <li>You were charged but did not receive access to your full profile</li>
-              <li>You submit a refund request within <strong>7 days</strong> of purchase</li>
             </ul>
           </Section>
 
@@ -34,7 +33,6 @@ export default function RefundPage() {
             <ul>
               <li>You have already accessed and viewed your full AI analysis</li>
               <li>You changed your mind after the analysis was delivered</li>
-              <li>More than 7 days have passed since the purchase</li>
             </ul>
           </Section>
 
