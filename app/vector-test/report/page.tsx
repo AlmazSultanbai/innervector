@@ -494,6 +494,12 @@ function VectorTestReport() {
 
             {/* CTA */}
             <div className="px-6 py-5 border-t border-white/6 flex flex-col items-center gap-3">
+              {/* Price with strikethrough */}
+              <div className="flex items-center gap-3">
+                <span className="text-slate-500 text-lg line-through">$49</span>
+                <span className="text-gold text-2xl font-bold">$19</span>
+                <span className="text-xs text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded-full font-medium">-61%</span>
+              </div>
               <button
                 onClick={buyAnalysis}
                 disabled={paymentLoading || !resultId}
@@ -512,7 +518,7 @@ function VectorTestReport() {
                 <span className="text-base">
                   {paymentLoading
                     ? (locale === 'ru' ? 'Переходим к оплате...' : 'Redirecting...')
-                    : (locale === 'ru' ? 'Разблокировать за $9' : locale === 'ky' ? '$9 га ачуу' : 'Unlock for $9')}
+                    : (locale === 'ru' ? 'Разблокировать за $19' : locale === 'ky' ? '$19 га ачуу' : 'Unlock for $19')}
                 </span>
               </button>
               <p className="text-slate-600 text-xs text-center">

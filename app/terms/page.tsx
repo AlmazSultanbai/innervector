@@ -34,7 +34,7 @@ export default function TermsPage() {
           </Section>
 
           <Section title="3. Payments">
-            <p>Premium analysis is priced at $9 USD (one-time). Payments are processed by Lemon Squeezy, our Merchant of Record. They handle all taxes and compliance on our behalf.</p>
+            <p>Premium analysis is priced at $19 USD (one-time). Payments are processed by Lemon Squeezy, our Merchant of Record. They handle all taxes and compliance on our behalf.</p>
             <p>After successful payment your full analysis is unlocked immediately and permanently accessible via your unique profile link.</p>
           </Section>
 
