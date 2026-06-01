@@ -45,15 +45,7 @@ export default function PrivacyPage() {
             <p>Your data is stored in Supabase (EU region). We retain profile data indefinitely unless you request deletion. Test sessions without a name are stored anonymously.</p>
           </Section>
 
-          <Section title="5. Third-Party Services">
-            <ul>
-              <li><strong>Lemon Squeezy</strong> — payment processing (<a href="https://www.lemonsqueezy.com/privacy" target="_blank" rel="noopener noreferrer">their privacy policy</a>)</li>
-              <li><strong>Anthropic Claude</strong> — AI analysis generation (data is not used for training)</li>
-              <li><strong>Vercel</strong> — website hosting and analytics</li>
-            </ul>
-          </Section>
-
-          <Section title="6. Your Rights">
+          <Section title="5. Your Rights">
             <p>You have the right to:</p>
             <ul>
               <li>Access the data we hold about you</li>
@@ -63,11 +55,11 @@ export default function PrivacyPage() {
             <p>To exercise these rights, email us at <a href="mailto:aldeco312@gmail.com">aldeco312@gmail.com</a></p>
           </Section>
 
-          <Section title="7. Cookies">
+          <Section title="6. Cookies">
             <p>We use a session cookie (iv_role) solely for admin authentication. We do not use advertising or tracking cookies.</p>
           </Section>
 
-          <Section title="8. Changes">
+          <Section title="7. Changes">
             <p>We may update this policy. Continued use of the site after changes constitutes acceptance.</p>
           </Section>
 
