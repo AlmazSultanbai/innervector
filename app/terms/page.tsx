@@ -29,7 +29,7 @@ export default function TermsPage() {
               <li>A free personality test (Express and Full modes)</li>
               <li>A free top-5 vector results summary</li>
               <li>A premium AI-generated full analysis (paid, one-time purchase)</li>
-              <li>A Gallup CliftonStrengths analysis tool</li>
+              <li>Инструмент анализа внешних strengths-отчётов</li>
             </ul>
           </Section>
 
