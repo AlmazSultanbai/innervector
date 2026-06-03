@@ -929,8 +929,15 @@ function VectorTestReport() {
 
         {/* ── Career ──────────────────────────────────────────────────────── */}
         {analysis?.career && (
-          <Section label={locale === 'en' ? 'CAREER PATH' : locale === 'ky' ? 'КАРЬЕРА ЖОЛУ' : 'КАРЬЕРНЫЙ ПУТЬ'}>
+          <Section label={locale === 'en' ? 'CAREER DIRECTIONS TO EXPLORE' : locale === 'ky' ? 'ИЗИЛДӨӨ ҮЧҮН КАРЬЕРА БАГЫТТАРЫ' : 'КАРЬЕРНЫЕ НАПРАВЛЕНИЯ ДЛЯ ИССЛЕДОВАНИЯ'}>
             <div className="space-y-4">
+              <p className="text-slate-500 text-xs leading-relaxed">
+                {locale === 'ru'
+                  ? 'Таланты не определяют профессию — они показывают, в каких ролях и средах ты будешь в своей стихии. Это направления для исследования, не предписание.'
+                  : locale === 'ky'
+                  ? 'Таланттар кесипти аныктабайт — алар кайсы ролдордо жана чөйрөлөрдө өзүңдү толук ача аларыңды көрсөтөт. Бул изилдөө үчүн багыттар, буйрук эмес.'
+                  : 'Talents don’t determine your profession — they show which roles and environments let you thrive. These are directions to explore, not a prescription.'}
+              </p>
               {/* Summary */}
               <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
                 <p className="text-slate-300 text-sm leading-relaxed">{analysis.career.summary}</p>
