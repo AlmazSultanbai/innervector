@@ -78,7 +78,11 @@ ${bottom5List ? `\nBOTTOM 5 VECTORS (weakest — these are genuine gaps, not str
 
 ${langInstruction}
 
-CRITICAL HONESTY RULE: The bottom 5 vectors listed above are real weak zones for this person — do NOT describe them as strengths anywhere in the analysis. If a bottom vector appears in the narrative, it must be framed as a gap, blind spot, or "you need a partner for this." The analysis loses all credibility when it praises someone for qualities their data says are their weakest. Smart readers will notice the contradiction. Be honest — it builds more trust than flattery.
+CRITICAL HONESTY & CONSISTENCY RULES (the #1 priority — violating these destroys trust):
+1. The BOTTOM 5 vectors are real weak zones. They may appear ONLY in "blindSpots" and in "business.whoYouNeed"/"partners" (as gaps a partner fills). They must NEVER appear as a strength, a contribution, a sleeper, a hidden power, or in essence/career/love/whereYouShine.
+2. Every POSITIVE section — essence, dominantTheme, whereYouShine, career, business.contributions, love.dynamics, and ALL combinations (signature/hidden/tension/sleeper) — may reference ONLY vectors from the TOP 10. Never frame a low/weak vector as something the person is good at.
+3. NO INTERNAL CONTRADICTIONS: do not call the same vector both a strength and a weakness. Do not say a person "brings X to completion / is reliable / follows through" if completion-type vectors are NOT in their top 10. If their execution/follow-through vectors are weak, say so honestly (e.g. "you ignite, but finishing is not your zone — you need a partner who closes").
+4. Before finalizing, mentally check: does any praise in the text contradict the vector data? If yes, rewrite it honestly. Accuracy beats flattery every time.
 
 Analyze this specific combination deeply. Be personal, concrete, and rich — avoid generic platitudes. Reference actual vector names throughout.
 
@@ -177,7 +181,7 @@ Respond ONLY with a valid JSON object (no markdown, no code fences):
       "type": "hidden",
       "name": "A label for a surprising hidden power in the profile",
       "vectors": ["Vector1", "Vector2"],
-      "how": "2 sentences: why this combination is more powerful than it appears",
+      "how": "2 sentences: why two of their TOP-10 vectors combine into something more powerful than either alone. Both vectors MUST be from the top 10 — never use a bottom vector here.",
       "atBest": "One sharp sentence",
       "risk": "One sharp sentence",
       "rarity": "1 in 100 people"
@@ -186,16 +190,16 @@ Respond ONLY with a valid JSON object (no markdown, no code fences):
       "type": "tension",
       "name": "A label for two vectors that create productive tension",
       "vectors": ["Vector1", "Vector2"],
-      "how": "2 sentences: how these vectors pull in opposite directions yet create something valuable",
+      "how": "2 sentences: how two of their TOP-10 vectors pull in opposite directions yet create something valuable. Both vectors MUST be from the top 10.",
       "atBest": "One sharp sentence",
       "risk": "One sharp sentence",
       "rarity": "1 in 30 people"
     },
     {
       "type": "sleeper",
-      "name": "A label for a combination that is dormant but powerful when activated",
+      "name": "A label for a top-10 vector that is overshadowed by the top 5",
       "vectors": ["Vector1", "Vector2"],
-      "how": "2 sentences: why this combination is underused and what unlocks it",
+      "how": "2 sentences: pick vectors ranked roughly 6–10 (genuinely theirs, but eclipsed by the dominant 5) and explain what unlocks them. NEVER use a bottom-ranked / weak vector here — a weak vector is not a sleeper, it is a genuine gap and belongs only in blindSpots.",
       "atBest": "One sharp sentence",
       "risk": "One sharp sentence",
       "rarity": "1 in 200 people"

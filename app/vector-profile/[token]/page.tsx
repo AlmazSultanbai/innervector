@@ -90,7 +90,7 @@ const complementaryTraits: Record<string, string[]> = {
   'Эксперимент':['Системность','Завершение','Анализ'],'Адаптация':['Ритм','Системность','Стратегия'],'Долгосрочный след':['Инициатива','Автономия','Системность'],
 }
 
-interface TraitScore { name: string; pct: number; d: Domain }
+interface TraitScore { name: string; pct: number; d: Domain; _net?: number }
 
 function formatDate(iso: string, locale: Locale) {
   return new Date(iso).toLocaleDateString(
@@ -129,12 +129,19 @@ function VectorProfilePage() {
   const traitScores: TraitScore[] = useMemo(() => {
     if (!result?.scores) return []
     return Object.keys(result.scores)
-      .map(name => ({
-        name,
-        pct: Math.round((result.scores[name].a / 10) * 100),
-        d: (traitData[name]?.d ?? 'rost') as Domain,
-      }))
-      .sort((a, b) => b.pct - a.pct)
+      .map(name => {
+        const a = result.scores[name].a
+        const b = result.scores[name].b
+        const total = a + b
+        const pct = total > 0 ? Math.round((a / total) * 100) : 0
+        return {
+          name,
+          pct,
+          _net: a - b,
+          d: (traitData[name]?.d ?? 'rost') as Domain,
+        }
+      })
+      .sort((a, b) => (b.pct - a.pct) || ((b._net ?? 0) - (a._net ?? 0)))
   }, [result])
 
   const maxPct = traitScores[0]?.pct || 1

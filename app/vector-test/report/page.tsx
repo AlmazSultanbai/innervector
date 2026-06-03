@@ -148,7 +148,7 @@ const complementaryTraits: Record<string, string[]> = {
   'Долгосрочный след': ['Инициатива', 'Автономия', 'Системность'],
 }
 
-interface TraitScore { name: string; pct: number; d: Domain }
+interface TraitScore { name: string; pct: number; d: Domain; _net?: number }
 
 export default function VectorTestReportPage() {
   return (
@@ -168,12 +168,22 @@ function VectorTestReport() {
 
   const traitScores: TraitScore[] = useMemo(() =>
     Object.keys(scores)
-      .map(name => ({
-        name,
-        pct: Math.round((scores[name].a / 10) * 100),
-        d: (traitData[name]?.d ?? 'rost') as Domain,
-      }))
-      .sort((a, b) => b.pct - a.pct),
+      .map(name => {
+        const a = scores[name].a
+        const b = scores[name].b
+        const total = a + b
+        // Lean toward the trait pole (0–100), accounting for "away" answers.
+        const pct = total > 0 ? Math.round((a / total) * 100) : 0
+        return {
+          name,
+          pct,
+          // keep raw net for stable tie-breaking
+          _net: a - b,
+          d: (traitData[name]?.d ?? 'rost') as Domain,
+        }
+      })
+      // primary: lean %, secondary: net intensity → removes arbitrary ties
+      .sort((a, b) => (b.pct - a.pct) || (b._net - a._net)),
     [scores]
   )
 
