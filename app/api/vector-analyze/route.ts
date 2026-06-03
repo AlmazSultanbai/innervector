@@ -29,7 +29,7 @@ const DOMAIN_EN: Record<string, string> = {
 
 export async function POST(req: NextRequest) {
   try {
-    const { top5, top10, bottom5, lang = 'ru', full_name = '', result_id } = await req.json();
+    const { top5, top10, bottom5, energyVectors, growthVectors, lang = 'ru', full_name = '', result_id } = await req.json();
 
     if (!top5 || !Array.isArray(top5) || top5.length < 5) {
       return NextResponse.json({ error: '5 vectors required' }, { status: 400 });
@@ -57,6 +57,18 @@ export async function POST(req: NextRequest) {
         ).join('\n')
       : null
 
+    // Layer 2 & 3 — energy and growth vectors with their lean % (ranked high→low)
+    const energyList = energyVectors?.length > 0
+      ? energyVectors.map((v: {name:string;pct:number}) =>
+          `  - ${makeVectorName(v.name)}: ${v.pct}%`
+        ).join('\n')
+      : null
+    const growthList = growthVectors?.length > 0
+      ? growthVectors.map((v: {name:string;pct:number}) =>
+          `  - ${makeVectorName(v.name)}: ${v.pct}%`
+        ).join('\n')
+      : null
+
     const langInstruction = lang === 'ru'
       ? 'ВАЖНО: Отвечай ПОЛНОСТЬЮ на русском языке. Каждое текстовое значение в JSON должно быть на русском. Обращайся к пользователю на "ты". Пиши живо, конкретно, без клише. Называй векторы по-русски.'
       : lang === 'ky'
@@ -66,15 +78,24 @@ export async function POST(req: NextRequest) {
     // firstName reserved for future personalization
     // const firstName = full_name.trim().split(' ')[0] || ...
 
-    const prompt = `You are a master Inner Vector coach with deep expertise in the proprietary 36-vector methodology. Inner Vector is a personality system based on 6 domains: Influence, Execution, Relationships, Thinking, Energy, Growth — each with 6 vectors. You give profound, specific, non-generic insights about a person's nature based on their vector profile.
+    const prompt = `You are a master Inner Vector coach. Inner Vector is a 3-LAYER personality model — this layering is the core of the methodology and must shape your analysis:
+
+• LAYER 1 — TALENTS (WHAT you do well): 4 validated domains — Influence, Execution, Relationships, Thinking — each with 6 vectors. These are abilities. This is the backbone (aligned with the 4 empirically-validated CliftonStrengths domains).
+• LAYER 2 — ENERGY (what FUELS vs DRAINS you): a separate lens. These are NOT abilities — they describe motivation & temperament: what charges you up and what burns you out.
+• LAYER 3 — GROWTH (HOW & WHERE you develop): a separate lens. These are NOT abilities — they describe your development style and growth edges over time.
+
+Treating energy/growth as a different KIND of construct (not just "more talents") is what makes this model coherent — never describe an energy or growth vector as a talent/skill.
 
 ${full_name ? `Person's name: ${full_name}` : ''}
 Language: ${lang}
 
-TOP 5 DOMINANT VECTORS (most defining, in order):
+═══ LAYER 1 — TALENTS ═══
+TOP 5 DOMINANT TALENTS (most defining, in order):
 ${top5List}
-${top10List ? `\nVECTORS 6–10 (supporting profile):\n${top10List}` : ''}
-${bottom5List ? `\nBOTTOM 5 VECTORS (weakest — these are genuine gaps, not strengths):\n${bottom5List}` : ''}
+${top10List ? `\nTALENTS 6–10 (supporting):\n${top10List}` : ''}
+${bottom5List ? `\nWEAKEST TALENTS (genuine gaps, NOT strengths):\n${bottom5List}` : ''}
+${energyList ? `\n═══ LAYER 2 — ENERGY SIGNATURE (fuel vs drain, % = lean) ═══\n${energyList}` : ''}
+${growthList ? `\n═══ LAYER 3 — GROWTH EDGES (development style, % = lean) ═══\n${growthList}` : ''}
 
 ${langInstruction}
 
@@ -224,7 +245,27 @@ Respond ONLY with a valid JSON object (no markdown, no code fences):
       "whyMatch": "3 sentences",
       "achievement": "One sentence"
     }
-  ]
+  ],
+  "energySignature": {
+    "summary": "3-4 sentences on this person's energy pattern — what genuinely fuels them and what quietly drains them, based on the ENERGY vectors. This is about motivation & temperament, NOT skill. Reference the actual energy vector names.",
+    "energizers": [
+      { "vector": "Top energy vector name", "insight": "2 sentences: how this specific thing charges them up and what it looks like when they get it" },
+      { "vector": "2nd energy vector name", "insight": "2 sentences" }
+    ],
+    "drainers": [
+      { "vector": "Lowest energy vector name", "insight": "2 sentences: how the absence/opposite of this quietly burns them out — frame as a need, not a flaw" },
+      { "vector": "2nd lowest energy vector name", "insight": "2 sentences" }
+    ]
+  },
+  "growthEdges": {
+    "summary": "3-4 sentences on HOW this person grows and develops over time, based on the GROWTH vectors. This is about development style & trajectory, NOT current skill. Reference the actual growth vector names.",
+    "style": "One vivid sentence naming their core growth style (e.g. 'You grow through deep repetition, not novelty' or 'You grow by teaching what you just learned').",
+    "edges": [
+      { "vector": "Top growth vector name", "insight": "2 sentences: this is your natural growth engine — how to lean into it" },
+      { "vector": "2nd growth vector name", "insight": "2 sentences" },
+      { "vector": "A lower growth vector name", "insight": "2 sentences: a growth mode that doesn't come naturally — when to deliberately use it" }
+    ]
+  }
 }
 
 Rules:
@@ -240,12 +281,15 @@ Rules:
 - "combinations" must have exactly 4 items with types: signature, hidden, tension, sleeper (in that order)
 - "famousPeople" must have exactly 3 real well-known people. IMPORTANT: avoid the most obvious default picks (Steve Jobs, Elon Musk, Oprah Winfrey, Bill Gates, Jeff Bezos) — they appear in every AI-generated profile and feel generic. Instead pick unexpected but precise matches: people who are genuinely less obvious but whose work and character clearly reflect this specific vector combination. The surprise of recognition ("I wouldn't have thought of them but it's exactly right") is more valuable than a famous name.
 - rarity values must be one of: "1 in 10 people", "1 in 30 people", "1 in 50 people", "1 in 100 people", "1 in 200 people"
+- "energySignature": energizers = 2 items (highest energy vectors), drainers = 2 items (lowest energy vectors). Use ONLY energy-layer vector names. Frame as motivation/temperament, never as skill.
+- "growthEdges": edges = 3 items. Use ONLY growth-layer vector names. Frame as development style/trajectory, never as current skill.
+- LAYER DISCIPLINE: never mix layers. Talent vectors never appear in energySignature or growthEdges; energy/growth vectors never appear in essence/career/business/love/combinations. Each vector lives in exactly one layer.
 - Every insight must feel personal and non-generic`
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 8192,
-      system: 'You are a master Inner Vector coach. You give deeply personalized, rich analysis based on the 36-vector Inner Vector methodology. Always respond with valid JSON only — no markdown fences, no text before or after.',
+      system: 'You are a master Inner Vector coach. You give deeply personalized, rich analysis based on the 3-layer Inner Vector model: 4 validated talent domains (what you do well), plus an Energy lens (what fuels you) and a Growth lens (how you develop). Keep the layers distinct. Always respond with valid JSON only — no markdown fences, no text before or after.',
       messages: [{ role: 'user', content: prompt }],
     })
 

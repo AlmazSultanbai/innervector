@@ -221,6 +221,18 @@ export interface VectorAnalysis {
     whyMatch: string
     achievement: string
   }>
+  // Layer 2 — Energy lens (what fuels vs drains you)
+  energySignature?: {
+    summary: string
+    energizers: Array<{ vector: string; insight: string }>
+    drainers: Array<{ vector: string; insight: string }>
+  }
+  // Layer 3 — Growth lens (how & where you develop)
+  growthEdges?: {
+    summary: string
+    style: string
+    edges: Array<{ vector: string; insight: string }>
+  }
 }
 
 export interface VectorTestResult {

@@ -752,6 +752,73 @@ function VectorProfilePage() {
           </>
         )}
 
+        {/* ── LAYER 2: Energy Signature ───────────────────────────────── */}
+        {analysis?.energySignature && (
+          <Section label={locale === 'en' ? 'ENERGY SIGNATURE' : locale === 'ky' ? 'ЭНЕРГИЯ ПОДПИСЫ' : 'ЭНЕРГЕТИЧЕСКАЯ ПОДПИСЬ'}>
+            <div className="space-y-4">
+              <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
+                <p className="text-slate-300 text-sm leading-relaxed">{analysis.energySignature.summary}</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="bg-emerald-500/4 border border-emerald-500/15 rounded-2xl p-5">
+                  <div className="text-[10px] tracking-widest text-emerald-400/70 uppercase font-medium mb-3">
+                    {locale === 'en' ? 'What fuels you' : locale === 'ky' ? 'Сени заряддайт' : 'Что тебя заряжает'}
+                  </div>
+                  <div className="space-y-3">
+                    {analysis.energySignature.energizers.map((e, i) => (
+                      <div key={i}>
+                        <span className="font-serif text-sm text-white font-semibold">{e.vector}</span>
+                        <p className="text-slate-400 text-xs leading-relaxed mt-0.5">{e.insight}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="bg-red-500/4 border border-red-500/12 rounded-2xl p-5">
+                  <div className="text-[10px] tracking-widest text-red-400/70 uppercase font-medium mb-3">
+                    {locale === 'en' ? 'What drains you' : locale === 'ky' ? 'Сени чарчатат' : 'Что тебя истощает'}
+                  </div>
+                  <div className="space-y-3">
+                    {analysis.energySignature.drainers.map((e, i) => (
+                      <div key={i}>
+                        <span className="font-serif text-sm text-white font-semibold">{e.vector}</span>
+                        <p className="text-slate-400 text-xs leading-relaxed mt-0.5">{e.insight}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Section>
+        )}
+
+        {/* ── LAYER 3: Growth Edges ───────────────────────────────────── */}
+        {analysis?.growthEdges && (
+          <Section label={locale === 'en' ? 'GROWTH EDGES' : locale === 'ky' ? 'ӨСҮҮ ЧЕКТЕРИ' : 'ЗОНЫ РОСТА'}>
+            <div className="space-y-4">
+              <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
+                <p className="text-slate-300 text-sm leading-relaxed mb-4">{analysis.growthEdges.summary}</p>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gold/20 bg-gold/5">
+                  <svg className="w-3.5 h-3.5 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                  <span className="text-gold text-sm font-medium">{analysis.growthEdges.style}</span>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {analysis.growthEdges.edges.map((e, i) => (
+                  <div key={i} className="flex gap-3 bg-white/2 border border-white/7 rounded-xl p-4">
+                    <div className="w-1 rounded-full flex-shrink-0" style={{ background: '#d4a843', minHeight: 36 }} />
+                    <div>
+                      <span className="font-serif text-sm text-white font-semibold">{e.vector}</span>
+                      <p className="text-slate-400 text-sm leading-relaxed mt-0.5">{e.insight}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Section>
+        )}
+
         {/* ── 36 Vectors by domain columns (Full only) ────────────────── */}
         {testMode === 'full' && traitScores.length > 0 && (
           <Section label={t.all36Label}>
