@@ -166,26 +166,26 @@ function VectorTestReport() {
   const hasResults = Object.keys(scores).length > 0 &&
     Object.values(scores).some(s => s.a > 0 || s.b > 0)
 
-  const traitScores: TraitScore[] = useMemo(() =>
-    Object.keys(scores)
+  const traitScores: TraitScore[] = useMemo(() => {
+    // Max net points per trait depends on # questions: full=3 (max a-b = 6), express=1 (max = 2)
+    const maxNet = testMode === 'express' ? 2 : 6
+    return Object.keys(scores)
       .map(name => {
         const a = scores[name].a
         const b = scores[name].b
-        const total = a + b
-        // Lean toward the trait pole (0–100), accounting for "away" answers.
-        const pct = total > 0 ? Math.round((a / total) * 100) : 0
+        const net = a - b
+        // Strength = net lean toward the pole, normalized by max possible.
+        // Accounts for BOTH direction and intensity → real spread, fewer 100% ties.
+        const pct = Math.max(0, Math.min(100, Math.round((net / maxNet) * 100)))
         return {
           name,
           pct,
-          // keep raw net for stable tie-breaking
-          _net: a - b,
+          _net: net,
           d: (traitData[name]?.d ?? 'rost') as Domain,
         }
       })
-      // primary: lean %, secondary: net intensity → removes arbitrary ties
-      .sort((a, b) => (b.pct - a.pct) || (b._net - a._net)),
-    [scores]
-  )
+      .sort((a, b) => (b._net! - a._net!) || (b.pct - a.pct))
+  }, [scores, testMode])
 
   const maxPct = traitScores[0]?.pct || 1
   const normPct = (p: number) => Math.round((p / maxPct) * 100)

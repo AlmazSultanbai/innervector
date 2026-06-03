@@ -128,20 +128,21 @@ function VectorProfilePage() {
 
   const traitScores: TraitScore[] = useMemo(() => {
     if (!result?.scores) return []
+    const maxNet = result.test_mode === 'express' ? 2 : 6
     return Object.keys(result.scores)
       .map(name => {
         const a = result.scores[name].a
         const b = result.scores[name].b
-        const total = a + b
-        const pct = total > 0 ? Math.round((a / total) * 100) : 0
+        const net = a - b
+        const pct = Math.max(0, Math.min(100, Math.round((net / maxNet) * 100)))
         return {
           name,
           pct,
-          _net: a - b,
+          _net: net,
           d: (traitData[name]?.d ?? 'rost') as Domain,
         }
       })
-      .sort((a, b) => (b.pct - a.pct) || ((b._net ?? 0) - (a._net ?? 0)))
+      .sort((a, b) => ((b._net ?? 0) - (a._net ?? 0)) || (b.pct - a.pct))
   }, [result])
 
   const maxPct = traitScores[0]?.pct || 1
