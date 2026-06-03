@@ -145,12 +145,12 @@ export const questionsEn: { a: string; b: string }[] = [
   { a: 'My caution has protected me from serious mistakes more than once', b: 'My willingness to take risks has opened opportunities that cautious people missed' },
   { a: 'I take a long time with important decisions — and that\'s right', b: 'I make important decisions quickly — delay costs more than error' },
   { a: 'Before saying something important I think it over carefully', b: 'I say what I think in the moment — thinking comes through verbalizing' },
-  // Energy — Autonomy/Physical energy (121-125)
-  { a: 'I think better when I\'m moving — in the literal sense', b: 'I think better when I\'m in a calm, still state' },
-  { a: 'A day without action and movement leaves me empty', b: 'A day without silence and stillness leaves me empty' },
-  { a: 'I recharge from pace and intensity', b: 'I recharge from depth and unhurriedness' },
-  { a: 'It\'s uncomfortable for me to sit idle for long — I look for something to do', b: 'It\'s uncomfortable for me when there\'s too much movement and bustle around' },
-  { a: 'Physical activity helps me recover after a difficult day', b: 'Silence and rest help me recover after a difficult day' },
+  // Energy — Autonomy (121-125)
+  { a: 'I\'m energized when I choose how and in what order to work', b: 'I\'m calmer when there are clear instructions on how to do it' },
+  { a: 'Being controlled on process weighs on me more than the workload itself', b: 'Process control doesn\'t bother me — it even helps me stay on track' },
+  { a: 'My inner motivation is stronger than any external pressure', b: 'External deadlines and oversight help me keep my pace' },
+  { a: 'I work best where results are valued, not the way you get them', b: 'I work best where there are clear rules and expectations' },
+  { a: 'Freedom to do it my way matters more than stability and support', b: 'Stability and support matter more than freedom to do it my way' },
   // Energy — Solitude/Silence (126-130)
   { a: 'I need time alone to recharge after a full day', b: 'I need time with people to recharge after a full day' },
   { a: 'I think more clearly in silence than in noise', b: 'I think more clearly in motion and interaction than in silence' },
