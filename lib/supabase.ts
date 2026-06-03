@@ -213,7 +213,8 @@ export interface VectorAnalysis {
     how: string
     atBest: string
     risk: string
-    rarity: string
+    rarity?: string      // legacy — old analyses only
+    intensity?: string   // qualitative label (no fabricated stats)
   }>
   famousPeople: Array<{
     name: string

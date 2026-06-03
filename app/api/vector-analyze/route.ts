@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
 
     const prompt = `You are a master Inner Vector coach. Inner Vector is a 3-LAYER personality model — this layering is the core of the methodology and must shape your analysis:
 
-• LAYER 1 — TALENTS (WHAT you do well): 4 validated domains — Influence, Execution, Relationships, Thinking — each with 6 vectors. These are abilities. This is the backbone (aligned with the 4 empirically-validated CliftonStrengths domains).
+• LAYER 1 — TALENTS (WHAT you do well): 4 domains — Influence, Execution, Relationships, Thinking — each with 6 vectors. These are abilities/strengths. The domain structure is inspired by the CliftonStrengths family of talents (not a validated copy of it).
 • LAYER 2 — ENERGY (what FUELS vs DRAINS you): a separate lens. These are NOT abilities — they describe motivation & temperament: what charges you up and what burns you out.
 • LAYER 3 — GROWTH (HOW & WHERE you develop): a separate lens. These are NOT abilities — they describe your development style and growth edges over time.
 
@@ -196,7 +196,7 @@ Respond ONLY with a valid JSON object (no markdown, no code fences):
       "how": "2 sentences: exactly how these vectors amplify each other into something unique",
       "atBest": "One sharp sentence: what this looks like at peak performance",
       "risk": "One sharp sentence: the failure mode when these vectors misfire",
-      "rarity": "1 in 50 people"
+      "intensity": "Short qualitative label of how strongly this shows up — one of: \"Ярко выражено\", \"Заметно\", \"Тонко\" (or EN: \"Strong\", \"Moderate\", \"Subtle\")"
     },
     {
       "type": "hidden",
@@ -205,7 +205,7 @@ Respond ONLY with a valid JSON object (no markdown, no code fences):
       "how": "2 sentences: why two of their TOP-10 vectors combine into something more powerful than either alone. Both vectors MUST be from the top 10 — never use a bottom vector here.",
       "atBest": "One sharp sentence",
       "risk": "One sharp sentence",
-      "rarity": "1 in 100 people"
+      "intensity": "qualitative: Ярко выражено / Заметно / Тонко"
     },
     {
       "type": "tension",
@@ -214,7 +214,7 @@ Respond ONLY with a valid JSON object (no markdown, no code fences):
       "how": "2 sentences: how two of their TOP-10 vectors pull in opposite directions yet create something valuable. Both vectors MUST be from the top 10.",
       "atBest": "One sharp sentence",
       "risk": "One sharp sentence",
-      "rarity": "1 in 30 people"
+      "intensity": "qualitative: Ярко выражено / Заметно / Тонко"
     },
     {
       "type": "sleeper",
@@ -223,7 +223,7 @@ Respond ONLY with a valid JSON object (no markdown, no code fences):
       "how": "2 sentences: pick vectors ranked roughly 6–10 (genuinely theirs, but eclipsed by the dominant 5) and explain what unlocks them. NEVER use a bottom-ranked / weak vector here — a weak vector is not a sleeper, it is a genuine gap and belongs only in blindSpots.",
       "atBest": "One sharp sentence",
       "risk": "One sharp sentence",
-      "rarity": "1 in 200 people"
+      "intensity": "qualitative: Ярко выражено / Заметно / Тонко"
     }
   ],
   "famousPeople": [
@@ -280,7 +280,8 @@ Rules:
 - "blindSpots" must have exactly 3 items
 - "combinations" must have exactly 4 items with types: signature, hidden, tension, sleeper (in that order)
 - "famousPeople" must have exactly 3 real well-known people. IMPORTANT: avoid the most obvious default picks (Steve Jobs, Elon Musk, Oprah Winfrey, Bill Gates, Jeff Bezos) — they appear in every AI-generated profile and feel generic. Instead pick unexpected but precise matches: people who are genuinely less obvious but whose work and character clearly reflect this specific vector combination. The surprise of recognition ("I wouldn't have thought of them but it's exactly right") is more valuable than a famous name.
-- rarity values must be one of: "1 in 10 people", "1 in 30 people", "1 in 50 people", "1 in 100 people", "1 in 200 people"
+- "intensity" must be a qualitative label only ("Ярко выражено"/"Заметно"/"Тонко" or Strong/Moderate/Subtle). NEVER invent population statistics like "1 in 200 people" — we have no frequency data, fabricated stats destroy credibility.
+- "career.roles": frame every role as a DIRECTION TO EXPLORE, not a prescription. Use "ты можешь раскрыться в…", "стоит присмотреться к…" — never "тебе нужно стать X". This is a reflective tool, not a career verdict.
 - "energySignature": energizers = 2 items (highest energy vectors), drainers = 2 items (lowest energy vectors). Use ONLY energy-layer vector names. Frame as motivation/temperament, never as skill.
 - "growthEdges": edges = 3 items. Use ONLY growth-layer vector names. Frame as development style/trajectory, never as current skill.
 - LAYER DISCIPLINE: never mix layers. Talent vectors never appear in energySignature or growthEdges; energy/growth vectors never appear in essence/career/business/love/combinations. Each vector lives in exactly one layer.

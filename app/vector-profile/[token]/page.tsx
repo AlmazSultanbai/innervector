@@ -686,7 +686,7 @@ function VectorProfilePage() {
                             <div className="font-serif text-white text-base font-semibold mt-1">{combo.name}</div>
                           </div>
                         </div>
-                        <span className="text-slate-600 text-[10px] whitespace-nowrap flex-shrink-0 mt-1">{combo.rarity}</span>
+                        <span className="text-slate-600 text-[10px] whitespace-nowrap flex-shrink-0 mt-1">{combo.intensity ?? combo.rarity}</span>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {combo.vectors.map(v => (
@@ -917,6 +917,20 @@ function VectorProfilePage() {
 
           </Section>
         )}
+
+        {/* Methodology note */}
+        <div className="mb-8 bg-white/2 border border-white/8 rounded-2xl p-5">
+          <div className="text-[10px] tracking-widest text-slate-500 uppercase font-medium mb-2">
+            {locale === 'en' ? 'About this report' : locale === 'ky' ? 'Отчёт жөнүндө' : 'О методе'}
+          </div>
+          <p className="text-slate-500 text-xs leading-relaxed">
+            {locale === 'en'
+              ? 'Inner Vector is a reflective self-discovery and coaching tool, not a clinical or validated psychometric test. Percentages show your relative lean between vectors (within yourself), not an absolute score compared to other people. Use it to spark insight and conversation, not as a definitive verdict.'
+              : locale === 'ky'
+              ? 'Inner Vector — өзүн-өзү таануу жана коучинг үчүн рефлексиялык курал, клиникалык же валидацияланган психометрикалык тест эмес. Пайыздар адамдардын ортосундагы эмес, өзүңдүн ичиңдеги векторлордун салыштырмалуу ийилишин көрсөтөт.'
+              : 'Inner Vector — рефлексивный инструмент для самопознания и коучинга, а не клинический или валидированный психометрический тест. Проценты показывают твой относительный наклон между векторами (внутри себя), а не абсолютный балл в сравнении с другими людьми. Используй это как повод для инсайта и разговора, а не как окончательный вердикт.'}
+          </p>
+        </div>
 
         {/* Share this profile */}
         <div className="mb-8 bg-white/2 border border-gold/15 rounded-2xl p-5 print:hidden">
