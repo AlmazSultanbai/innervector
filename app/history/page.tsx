@@ -414,8 +414,10 @@ function downloadPDF(analysis: Analysis): Promise<void> {
 
 export default function HistoryPage() {
   const router = useRouter();
-  const { isAuthed, isSuperAdmin, authLoading } = useAuth();
+  const { authed, isAuthed, authLoading } = useAuth();
   const { lang } = useLang();
+  // admin OR superadmin (excludes 'client') — full panel access incl. delete/PDF
+  const isAdmin = authed === true || authed === 'super';
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [vectorResults, setVectorResults] = useState<VectorTestRecord[]>([]);
   const [activeTab, setActiveTab] = useState<'gallup' | 'vector'>('gallup');
@@ -694,7 +696,7 @@ export default function HistoryPage() {
                     </button>
 
                     {/* Gallup, PDF, Delete — только для superadmin */}
-                    {isSuperAdmin && (<>
+                    {isAdmin && (<>
                       {a.gallup_file_url && (
                         <a
                           href={a.gallup_file_url}
@@ -809,7 +811,7 @@ export default function HistoryPage() {
                             {lang === 'ru' ? 'Профиль' : lang === 'ky' ? 'Профил' : 'Profile'}
                           </button>
                         )}
-                        {isSuperAdmin && (<>
+                        {isAdmin && (<>
                           {r.share_token && (
                             <a
                               href={`/vector-profile/${r.share_token}?pdf=1`}
