@@ -115,7 +115,7 @@ Respond ONLY with a valid JSON object using this exact structure (no markdown, n
       "mechanism": "Exactly how these 3 amplify each other — 2 sentences, name the talents explicitly",
       "atItsBest": "One sharp sentence: what this looks like when firing perfectly",
       "whenItBackfires": "One sharp sentence: the specific failure mode",
-      "rarity": "1 in 10 / 1 in 50 / 1 in 100 people"
+      "rarity": "qualitative label only: Ярко выражено / Заметно / Тонко (or Strong / Moderate / Subtle) — NEVER a population statistic"
     },
     {
       "type": "hidden",
@@ -124,7 +124,7 @@ Respond ONLY with a valid JSON object using this exact structure (no markdown, n
       "mechanism": "How this specific pair amplifies each other — 2 sentences",
       "atItsBest": "One sharp sentence",
       "whenItBackfires": "One sharp sentence",
-      "rarity": "1 in 10 / 1 in 50 / 1 in 100 people"
+      "rarity": "qualitative label only: Ярко выражено / Заметно / Тонко (or Strong / Moderate / Subtle) — NEVER a population statistic"
     },
     {
       "type": "tension",
@@ -133,7 +133,7 @@ Respond ONLY with a valid JSON object using this exact structure (no markdown, n
       "mechanism": "Exactly how these two create internal tension — 2 sentences",
       "atItsBest": "One sharp sentence: when the tension becomes productive",
       "whenItBackfires": "One sharp sentence: when it causes paralysis or conflict",
-      "rarity": "1 in 10 / 1 in 50 / 1 in 100 people"
+      "rarity": "qualitative label only: Ярко выражено / Заметно / Тонко (or Strong / Moderate / Subtle) — NEVER a population statistic"
     },
     {
       "type": "sleeper",
@@ -142,7 +142,7 @@ Respond ONLY with a valid JSON object using this exact structure (no markdown, n
       "mechanism": "Why this surprising pair is actually powerful — 2 sentences",
       "atItsBest": "One sharp sentence",
       "whenItBackfires": "One sharp sentence",
-      "rarity": "1 in 10 / 1 in 50 / 1 in 100 people"
+      "rarity": "qualitative label only: Ярко выражено / Заметно / Тонко (or Strong / Moderate / Subtle) — NEVER a population statistic"
     }
   ]
 }
@@ -150,7 +150,9 @@ Respond ONLY with a valid JSON object using this exact structure (no markdown, n
 Rules:
 - "dominantDomain" must be exactly one of: Executing, Influencing, Relationship Building, Strategic Thinking
 - Return exactly 3 famous people, exactly 3 careers, and exactly 3 idealPartners
-- Famous people must be real, well-known figures (not obscure)
+- "rarity" must be a qualitative label only (Strong/Moderate/Subtle). NEVER invent population statistics like "1 in 100 people" — we have no frequency data; fabricated stats destroy credibility.
+- Famous people must be real figures whose strengths genuinely match — but AVOID the obvious AI defaults (Steve Jobs, Elon Musk, Oprah Winfrey, Bill Gates, Jeff Bezos). Pick less predictable but precise matches; the surprise of recognition is more valuable than fame.
+- Careers: frame each as a DIRECTION TO EXPLORE, not a verdict ("you could thrive in…", not "you must become…").
 - Careers should span different industries/contexts
 - idealPartners must be distinct archetypes covering different domains — no two should be from the same CliftonStrengths domain
 - idealPartners topStrengths must be valid CliftonStrengths names from the 34 themes
