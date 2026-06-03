@@ -68,10 +68,21 @@ function ResultsContent() {
     try {
       const gallupFileUrl = sessionStorage.getItem('iv_gallup_file_url') ?? undefined;
       sessionStorage.removeItem('iv_gallup_file_url'); // use once
+      // Bottom-5 lesser themes — only if they belong to THIS exact top set (full-34 upload)
+      let lesserStrengths: string[] | undefined;
+      try {
+        const raw = sessionStorage.getItem('iv_lesser_strengths');
+        if (raw) {
+          const parsed = JSON.parse(raw) as { top: string[]; lesser: string[] };
+          if (Array.isArray(parsed.top) && parsed.top.join(',') === strengthList.join(',') && parsed.lesser?.length >= 3) {
+            lesserStrengths = parsed.lesser;
+          }
+        }
+      } catch { /* ignore */ }
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ strengths: strengthList, lang: language, full_name: fullName ?? nameRef.current, gallup_file_url: gallupFileUrl }),
+        body: JSON.stringify({ strengths: strengthList, lesserStrengths, lang: language, full_name: fullName ?? nameRef.current, gallup_file_url: gallupFileUrl }),
       });
       if (!res.ok) throw new Error('Analysis failed');
       const data: AnalysisResult = await res.json();
@@ -778,6 +789,39 @@ function ResultsContent() {
                     ))}
                   </div>
                 </section>
+
+                {/* Lesser Talents — managing zones (only when full-34 report provided bottom themes) */}
+                {result.lesserTalents && result.lesserTalents.themes?.length > 0 && (
+                  <section className="animate-slide-in">
+                    <h2 className="font-serif text-xl text-white mb-4 flex items-center gap-3">
+                      <span className="w-6 h-px bg-gold/40" />
+                      {lang === 'ru' ? 'Зоны управления (нижние таланты)' : lang === 'ky' ? 'Башкаруу зоналары' : 'Managing Zones (lesser talents)'}
+                      <span className="flex-1 h-px bg-white/5" />
+                    </h2>
+                    <div className="card p-5 mb-3">
+                      <p className="text-slate-300 text-sm leading-relaxed">{result.lesserTalents.summary}</p>
+                    </div>
+                    <div className="grid sm:grid-cols-2 gap-3 mb-3">
+                      {result.lesserTalents.themes.map((lt, i) => (
+                        <div key={i} className="card p-4">
+                          <div className="font-serif text-white font-semibold text-sm mb-2">{lt.name}</div>
+                          <div className="mb-2">
+                            <div className="text-[10px] tracking-widest text-red-400/60 uppercase font-medium mb-1">{lang === 'ru' ? 'Риск' : lang === 'ky' ? 'Тобокел' : 'Risk'}</div>
+                            <p className="text-slate-400 text-xs leading-relaxed">{lt.risk}</p>
+                          </div>
+                          <div>
+                            <div className="text-[10px] tracking-widest text-emerald-400/60 uppercase font-medium mb-1">{lang === 'ru' ? 'Как управлять' : lang === 'ky' ? 'Кантип башкаруу' : 'How to manage'}</div>
+                            <p className="text-slate-400 text-xs leading-relaxed">{lt.manage}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="card p-5 border-gold/15">
+                      <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-2">{lang === 'ru' ? 'Что это даёт твоим топ-талантам' : lang === 'ky' ? 'Топ-таланттарга эмне берет' : 'What this gives your top talents'}</div>
+                      <p className="text-slate-300 text-sm leading-relaxed">{result.lesserTalents.forTopTalents}</p>
+                    </div>
+                  </section>
+                )}
 
                 {/* Famous People */}
                 <section>

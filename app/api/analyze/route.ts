@@ -34,11 +34,17 @@ async function findExistingAnalysis(full_name: string, strengths: string[]): Pro
 
 export async function POST(req: NextRequest) {
   try {
-    const { strengths, lang = 'en', full_name = '', gallup_file_url } = await req.json();
+    const { strengths, lesserStrengths, lang = 'en', full_name = '', gallup_file_url } = await req.json();
 
     if (!strengths || !Array.isArray(strengths) || strengths.length < 5 || strengths.length > 10) {
       return NextResponse.json({ error: '5 to 10 strengths required' }, { status: 400 });
     }
+
+    // Bottom-5 lesser themes — only present when a full-34 report was uploaded
+    const lesser: string[] = Array.isArray(lesserStrengths)
+      ? lesserStrengths.filter((s: string) => typeof s === 'string').slice(0, 5)
+      : [];
+    const hasLesser = lesser.length >= 3;
 
     const langInstruction =
       lang === 'ru'
@@ -62,13 +68,21 @@ export async function POST(req: NextRequest) {
     }
 
     const rankedList = strengths.map((s: string, i: number) => `  ${i + 1}. ${s}`).join('\n');
+    const lesserList = hasLesser ? lesser.map((s: string) => `  - ${s}`).join('\n') : '';
 
     const prompt = `You are a world-class Gallup CliftonStrengths coach and organizational psychologist with 20+ years of experience. You give profound, highly specific, non-generic insights.
 
 The user's CliftonStrengths profile (ranked from strongest to weakest):
 ${rankedList}
+${hasLesser ? `\nTheir LESSER themes (bottom of the full-34 report — ranks ~30-34, "who they are NOT"):\n${lesserList}` : ''}
 
 ${langInstruction}
+
+${hasLesser ? `GALLUP METHODOLOGY ON LESSER THEMES (follow it precisely):
+- Lesser themes are NOT weaknesses to fix and will never become strengths. They simply describe patterns this person rarely uses.
+- A weakness can only be managed THROUGH one's strengths — never from a deficit. Management strategies: (1) complementary partnership with someone strong there, (2) delegation, (3) a simple system/routine to get "just good enough", (4) compensate using a dominant talent.
+- Lesser themes also influence HOW the person expresses their top 5 — name that interaction concretely.
+- Do NOT moralize or tell them to "work on" these. Frame as awareness + smart management.` : ''}
 
 Analyze this specific combination deeply. Be concrete, personal, and insightful — avoid generic platitudes. Reference the actual strengths by name in your analysis.
 
@@ -144,10 +158,18 @@ Respond ONLY with a valid JSON object using this exact structure (no markdown, n
       "whenItBackfires": "One sharp sentence",
       "rarity": "qualitative label only: Ярко выражено / Заметно / Тонко (or Strong / Moderate / Subtle) — NEVER a population statistic"
     }
-  ]
+  ]${hasLesser ? `,
+  "lesserTalents": {
+    "summary": "2-3 sentences: what these bottom themes reveal about who this person is NOT, and how that very absence shapes the way they express their TOP 5 (be concrete, name themes).",
+    "themes": [
+      { "name": "exact lesser theme name", "risk": "1-2 sentences: a specific situation where this lesser theme can quietly get in the way", "manage": "1-2 sentences: how to manage it THROUGH a named top strength — partner, delegate, build a system, or compensate. Reference an actual top theme." }
+    ],
+    "forTopTalents": "2-3 sentences: how consciously managing/delegating these lesser themes frees the person to spend more time in their dominant talents — i.e. the bottom protects and amplifies the top."
+  }` : ''}
 }
 
-Rules:
+Rules:${hasLesser ? `
+- "lesserTalents.themes" must contain exactly the ${lesser.length} lesser themes provided above, in the same order. Use their exact names. For each, "manage" MUST reference a real top strength from the profile (management only works through strengths). Never tell them to "fix" or "develop" a lesser theme.` : ''}
 - "dominantDomain" must be exactly one of: Executing, Influencing, Relationship Building, Strategic Thinking
 - Return exactly 3 famous people, exactly 3 careers, and exactly 3 idealPartners
 - "rarity" must be a qualitative label only (Strong/Moderate/Subtle). NEVER invent population statistics like "1 in 100 people" — we have no frequency data; fabricated stats destroy credibility.

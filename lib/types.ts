@@ -37,6 +37,18 @@ export interface TalentCombination {
   rarity: string;
 }
 
+export interface LesserTalent {
+  name: string;        // CliftonStrengths theme name
+  risk: string;        // where this lesser theme can get in the way
+  manage: string;      // how to manage it via your dominant strengths (partner / delegate / system / compensate)
+}
+
+export interface LesserTalents {
+  summary: string;        // what the bottom reveals ("who you are not") + how it shapes the top 5
+  themes: LesserTalent[]; // the bottom 5 lesser themes
+  forTopTalents: string;  // how managing the bottom protects & amplifies the top talents
+}
+
 export interface AnalysisResult {
   combinations: TalentCombination[];
   talentDNA: string;
@@ -48,6 +60,7 @@ export interface AnalysisResult {
   famousPeople: FamousPerson[];
   careers: Career[];
   idealPartners: IdealPartner[];
+  lesserTalents?: LesserTalents;   // only when a full-34 report provided the bottom themes
   share_token?: string;
 }
 

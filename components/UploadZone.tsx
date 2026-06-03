@@ -36,10 +36,19 @@ export default function UploadZone({ onExtracted }: Props) {
       }
 
       const strengths: string[] = data.strengths ?? [];
+      const lesserStrengths: string[] = data.lesserStrengths ?? [];
       const fullName: string = data.full_name ?? '';
       const gallupFileUrl: string | undefined = data.gallup_file_url ?? undefined;
       setFoundCount(strengths.length);
       setState('success');
+      // Stash bottom-5 lesser themes tied to this exact top set (only for full-34 reports)
+      try {
+        if (lesserStrengths.length >= 3) {
+          sessionStorage.setItem('iv_lesser_strengths', JSON.stringify({ top: strengths.slice(0, 10), lesser: lesserStrengths }));
+        } else {
+          sessionStorage.removeItem('iv_lesser_strengths');
+        }
+      } catch { /* ignore */ }
       // Pass top 10 in ranked order + name + original file URL to parent
       onExtracted(strengths.slice(0, 10), fullName, gallupFileUrl);
     } catch {

@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
 TASK: Extract the following from this document:
 1. The full name of the person this report belongs to
 2. The TOP 10 CliftonStrengths themes, strictly in rank order from #1 (strongest) to #10
+3. The BOTTOM 5 (lesser) themes — ranks #30 to #34 — ONLY if this is a full "CliftonStrengths 34" report that clearly lists all 34 in order. If only a top-5/top-10 report is shown, leave bottom empty.
 
 WHERE TO LOOK FOR THE NAME:
 - Top of the page / header area (most common — "Name: John Smith" or just "John Smith")
@@ -70,8 +71,10 @@ Respond ONLY with a valid JSON object, no markdown fences:
 {
   "full_name": "First Last",
   "strengths": ["Rank1Strength", "Rank2Strength", ..., "Rank10Strength"],
+  "lesserStrengths": ["Rank30", "Rank31", "Rank32", "Rank33", "Rank34"],
   "count": <number of strengths found>
-}`;
+}
+- "lesserStrengths": only fill if all 34 are visible in rank order; otherwise return []. Never invent bottom themes.`;
 
     let messageContent: Anthropic.MessageParam['content'];
 
@@ -110,9 +113,14 @@ Respond ONLY with a valid JSON object, no markdown fences:
     const parsed = JSON.parse(cleaned);
     const extracted: string[] = parsed.strengths ?? [];
     const fullName: string = parsed.full_name ?? '';
+    const extractedLesser: string[] = parsed.lesserStrengths ?? [];
 
     // Validate — keep only recognised names, preserve order
     const valid = extracted.filter((s) => STRENGTH_NAMES.includes(s));
+    // Lesser themes: valid, not overlapping with top, max 5
+    const lesserValid = extractedLesser
+      .filter((s) => STRENGTH_NAMES.includes(s) && !valid.includes(s))
+      .slice(0, 5);
 
     if (valid.length < 5) {
       return NextResponse.json(
@@ -151,8 +159,8 @@ Respond ONLY with a valid JSON object, no markdown fences:
       console.error('Storage error (non-fatal):', storageErr);
     }
 
-    // Always return up to 10, in the ranked order extracted
-    return NextResponse.json({ strengths: valid.slice(0, 10), full_name: fullName, gallup_file_url });
+    // Always return up to 10, in the ranked order extracted (+ bottom 5 if a full-34 report)
+    return NextResponse.json({ strengths: valid.slice(0, 10), lesserStrengths: lesserValid, full_name: fullName, gallup_file_url });
   } catch (err) {
     console.error('Extract error:', err);
     return NextResponse.json({ error: 'Failed to read the file. Please try again.' }, { status: 500 });
