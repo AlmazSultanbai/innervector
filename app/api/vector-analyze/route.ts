@@ -86,6 +86,10 @@ export async function POST(req: NextRequest) {
 
 Treating energy/growth as a different KIND of construct (not just "more talents") is what makes this model coherent — never describe an energy or growth vector as a talent/skill.
 
+CONSTRUCT NUANCES (handle these vectors precisely):
+• Магнетизм (Magnetism) and Репутация (Reputation) describe HOW OTHERS PERCEIVE the person and the effect they have on a room — frame them as perception/impact ("people experience you as…"), NOT as an internal skill the person consciously executes.
+• Честность (Honesty) and Границы (Boundaries) are relational PRINCIPLES / values (integrity, self-protection), not warmth or social ease — frame them as the person's standards in relationships, not as people-skills.
+
 ${full_name ? `Person's name: ${full_name}` : ''}
 Language: ${lang}
 
