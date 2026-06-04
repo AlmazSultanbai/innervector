@@ -92,8 +92,10 @@ export default function HomePage() {
     }
   }, [pickMode]);
 
-  const handleExtracted = useCallback((strengths: string[], fullName?: string, gallupFileUrl?: string) => {
+  const handleExtracted = useCallback((strengths: string[], fullName?: string, gallupFileUrl?: string, lesserStrengths?: string[]) => {
     setSelected(strengths.slice(0, MAX));
+    // Auto-fill bottom-5 lesser bucket when the full-34 report provided them
+    setLesser((lesserStrengths ?? []).slice(0, LESSER_MAX));
     if (fullName?.trim()) {
       const parts = fullName.trim().split(/\s+/);
       setFirstName(parts[0] ?? '');
