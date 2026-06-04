@@ -548,22 +548,27 @@ export default function HomePage() {
               </div>
             )}
 
-            {/* Lesser chips (bottom 5) */}
+            {/* Lesser chips (bottom 5) — same domain colors, no negativity */}
             {lesser.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 mb-6 p-4 rounded-xl bg-red-500/5 border border-red-500/15">
-                <span className="text-red-400/70 text-[10px] font-bold uppercase tracking-widest mr-1">
+              <div className="flex flex-wrap items-center gap-2 mb-6 p-4 rounded-xl bg-white/3 border border-white/8">
+                <span className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mr-1">
                   {lang === 'ru' ? 'Нижние' : lang === 'ky' ? 'Төмөнкү' : 'Lesser'}
                 </span>
-                {lesser.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setLesser(p => p.filter(x => x !== s))}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border bg-red-500/8 text-red-300 border-red-500/25 hover:opacity-80 transition-all"
-                  >
-                    {getStrengthLabel(s)}
-                    <span className="opacity-40 text-base leading-none">×</span>
-                  </button>
-                ))}
+                {lesser.map((s, i) => {
+                  const domain = getDomainForStrength(s)!;
+                  const colors = DOMAIN_COLORS[domain];
+                  return (
+                    <button
+                      key={s}
+                      onClick={() => setLesser(p => p.filter(x => x !== s))}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-all hover:opacity-80 ${colors.bg} ${colors.text} ${colors.border}`}
+                    >
+                      <span className="text-xs font-bold opacity-50">{30 + i}</span>
+                      {getStrengthLabel(s)}
+                      <span className="opacity-40 text-base leading-none">×</span>
+                    </button>
+                  );
+                })}
               </div>
             )}
 
@@ -612,8 +617,7 @@ export default function HomePage() {
                             disabled={bucketFull}
                             className={`strength-pill ${getDomainPillClass(s.name)} ${
                               bucketFull ? 'opacity-30 cursor-not-allowed' : ''
-                            } ${isLesser ? 'ring-1 ring-red-500/50' : ''} ${isGlowing ? 'scale-105' : ''} transition-transform duration-150`}
-                            style={isLesser ? { borderColor: 'rgba(239,68,68,0.5)', color: '#fca5a5' } : undefined}
+                            } ${isGlowing ? 'scale-105' : ''} transition-transform duration-150`}
                           >
                             {isSelected && (
                               <span className={`inline-flex items-center justify-center w-4 h-4 rounded-full text-xs font-bold transition-all ${
@@ -623,7 +627,7 @@ export default function HomePage() {
                               </span>
                             )}
                             {isLesser && (
-                              <span className="inline-flex items-center justify-center min-w-[20px] h-4 px-1 rounded-full text-[11px] font-bold bg-red-500/25 text-red-300">
+                              <span className="inline-flex items-center justify-center min-w-[20px] h-4 px-1 rounded-full text-[11px] font-bold bg-current opacity-20">
                                 {30 + lesser.indexOf(s.name)}
                               </span>
                             )}
