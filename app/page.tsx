@@ -622,7 +622,11 @@ export default function HomePage() {
                                 {rank + 1}
                               </span>
                             )}
-                            {isLesser && <span className="text-red-400 text-xs font-bold">↓</span>}
+                            {isLesser && (
+                              <span className="inline-flex items-center justify-center min-w-[20px] h-4 px-1 rounded-full text-[11px] font-bold bg-red-500/25 text-red-300">
+                                {30 + lesser.indexOf(s.name)}
+                              </span>
+                            )}
                             {getStrengthLabel(s.name)}
                           </button>
                         );
