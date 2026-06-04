@@ -11,6 +11,7 @@ import DNAAnimation from '@/components/DNAAnimation';
 import LoginModal, { useAuth } from '@/components/LoginModal';
 
 const MAX = 10;
+const LESSER_MAX = 5;
 
 const DOMAIN_ORDER: Domain[] = ['Executing', 'Influencing', 'Relationship Building', 'Strategic Thinking'];
 
@@ -44,6 +45,8 @@ export default function HomePage() {
   const [showLogin, setShowLogin] = useState(false);
   const [mode, setMode] = useState<InputMode>('upload');
   const [selected, setSelected] = useState<string[]>([]);
+  const [lesser, setLesser] = useState<string[]>([]);
+  const [pickMode, setPickMode] = useState<'top' | 'lesser'>('top');
   const [search, setSearch] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -71,12 +74,23 @@ export default function HomePage() {
   const domainLabels = lang === 'ru' ? DOMAIN_LABELS_RU : lang === 'ky' ? DOMAIN_LABELS_KY : DOMAIN_LABELS_EN;
 
   const toggle = useCallback((name: string) => {
-    setSelected((prev) => {
-      if (prev.includes(name)) return prev.filter((s) => s !== name);
-      if (prev.length >= MAX) return prev;
-      return [...prev, name];
-    });
-  }, []);
+    if (pickMode === 'lesser') {
+      // toggle into the "bottom 5" bucket, ensure it's not in top
+      setSelected((prev) => prev.filter((s) => s !== name));
+      setLesser((prev) => {
+        if (prev.includes(name)) return prev.filter((s) => s !== name);
+        if (prev.length >= LESSER_MAX) return prev;
+        return [...prev, name];
+      });
+    } else {
+      setLesser((prev) => prev.filter((s) => s !== name));
+      setSelected((prev) => {
+        if (prev.includes(name)) return prev.filter((s) => s !== name);
+        if (prev.length >= MAX) return prev;
+        return [...prev, name];
+      });
+    }
+  }, [pickMode]);
 
   const handleExtracted = useCallback((strengths: string[], fullName?: string, gallupFileUrl?: string) => {
     setSelected(strengths.slice(0, MAX));
@@ -98,6 +112,14 @@ export default function HomePage() {
     const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
     const params = new URLSearchParams({ s: selected.join(','), lang, name: fullName });
     sessionStorage.setItem('iv_show_confetti', '1');
+    // Stash bottom-5 lesser themes (manual mode) tied to this exact top set
+    try {
+      if (lesser.length >= 3) {
+        sessionStorage.setItem('iv_lesser_strengths', JSON.stringify({ top: selected, lesser }));
+      } else {
+        sessionStorage.removeItem('iv_lesser_strengths');
+      }
+    } catch { /* ignore */ }
     router.push(`/results?${params.toString()}`);
   };
 
@@ -475,41 +497,34 @@ export default function HomePage() {
               )}
             </div>
 
-            {/* Counter + progress bar */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-slate-400 text-sm">{t.selectCount(selected.length)}</span>
-                {selected.length > 0 && (
-                  <button onClick={() => setSelected([])} className="text-slate-500 hover:text-slate-300 text-xs transition-colors">
-                    {t.clearAll}
-                  </button>
-                )}
-              </div>
-              {/* Rank dots */}
-              <div className="flex gap-1.5">
-                {Array.from({ length: MAX }).map((_, i) => {
-                  const s = selected[i];
-                  const domain = s ? getDomainForStrength(s) : null;
-                  const colors = domain ? DOMAIN_COLORS[domain] : null;
-                  const isGlowing = glowIndex === i;
-                  return (
-                    <div
-                      key={i}
-                      title={s ?? ''}
-                      className={`flex-1 h-2 rounded-full transition-all duration-150 ${
-                        s
-                          ? `${colors?.bg} border ${colors?.border} ${isGlowing ? `${colors?.glow} shadow-lg scale-y-150` : ''}`
-                          : 'bg-white/5 border border-white/8'
-                      }`}
-                    />
-                  );
-                })}
-              </div>
+            {/* Bucket toggle: top-10 vs bottom-5 */}
+            <div className="flex gap-2 mb-4 p-1 rounded-xl bg-white/4 border border-white/8 w-fit">
+              <button
+                onClick={() => setPickMode('top')}
+                className={`px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all ${
+                  pickMode === 'top' ? 'bg-gold/15 text-gold border border-gold/25' : 'text-slate-500 hover:text-slate-300'
+                }`}
+              >
+                {lang === 'ru' ? `Топ-10 · ${selected.length}/10` : lang === 'ky' ? `Топ-10 · ${selected.length}/10` : `Top 10 · ${selected.length}/10`}
+              </button>
+              <button
+                onClick={() => setPickMode('lesser')}
+                className={`px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all ${
+                  pickMode === 'lesser' ? 'bg-red-500/15 text-red-400 border border-red-500/25' : 'text-slate-500 hover:text-slate-300'
+                }`}
+              >
+                {lang === 'ru' ? `Нижние-5 · ${lesser.length}/5` : lang === 'ky' ? `Төмөнкү-5 · ${lesser.length}/5` : `Bottom 5 · ${lesser.length}/5`}
+              </button>
             </div>
+            <p className="text-slate-500 text-xs mb-4">
+              {pickMode === 'top'
+                ? (lang === 'ru' ? 'Выбери до 10 сильнейших талантов (по порядку).' : lang === 'ky' ? '10 күчтүү талантты танда (тартиби менен).' : 'Pick up to 10 strongest talents (in order).')
+                : (lang === 'ru' ? 'Необязательно: выбери 5 самых слабых талантов — добавит «зоны управления» в анализ.' : lang === 'ky' ? 'Милдеттүү эмес: 5 эң алсыз талантты танда.' : 'Optional: pick your 5 weakest talents — adds "managing zones" to the analysis.')}
+            </p>
 
-            {/* Selected chips */}
+            {/* Top chips */}
             {selected.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-6 p-4 rounded-xl bg-white/3 border border-white/8">
+              <div className="flex flex-wrap gap-2 mb-3 p-4 rounded-xl bg-white/3 border border-white/8">
                 {selected.map((s, i) => {
                   const domain = getDomainForStrength(s)!;
                   const colors = DOMAIN_COLORS[domain];
@@ -517,7 +532,7 @@ export default function HomePage() {
                   return (
                     <button
                       key={s}
-                      onClick={() => toggle(s)}
+                      onClick={() => { setLesser(p => p.filter(x => x !== s)); setSelected(p => p.filter(x => x !== s)); }}
                       className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ${colors.bg} ${colors.text} ${colors.border} hover:opacity-80 ${
                         isGlowing ? `${colors.glow} shadow-lg scale-105` : ''
                       }`}
@@ -528,6 +543,25 @@ export default function HomePage() {
                     </button>
                   );
                 })}
+              </div>
+            )}
+
+            {/* Lesser chips (bottom 5) */}
+            {lesser.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 mb-6 p-4 rounded-xl bg-red-500/5 border border-red-500/15">
+                <span className="text-red-400/70 text-[10px] font-bold uppercase tracking-widest mr-1">
+                  {lang === 'ru' ? 'Нижние' : lang === 'ky' ? 'Төмөнкү' : 'Lesser'}
+                </span>
+                {lesser.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setLesser(p => p.filter(x => x !== s))}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border bg-red-500/8 text-red-300 border-red-500/25 hover:opacity-80 transition-all"
+                  >
+                    {getStrengthLabel(s)}
+                    <span className="opacity-40 text-base leading-none">×</span>
+                  </button>
+                ))}
               </div>
             )}
 
@@ -563,15 +597,21 @@ export default function HomePage() {
                       {items.map((s) => {
                         const rank = selected.indexOf(s.name);
                         const isSelected = rank !== -1;
+                        const isLesser = lesser.includes(s.name);
                         const isGlowing = glowIndex === rank && isSelected;
+                        // disable only when the ACTIVE bucket is full and this pill isn't in it
+                        const bucketFull = pickMode === 'top'
+                          ? (!isSelected && selected.length >= MAX)
+                          : (!isLesser && lesser.length >= LESSER_MAX);
                         return (
                           <button
                             key={s.name}
                             onClick={() => toggle(s.name)}
-                            disabled={!isSelected && selected.length >= MAX}
+                            disabled={bucketFull}
                             className={`strength-pill ${getDomainPillClass(s.name)} ${
-                              !isSelected && selected.length >= MAX ? 'opacity-30 cursor-not-allowed' : ''
-                            } ${isGlowing ? 'scale-105' : ''} transition-transform duration-150`}
+                              bucketFull ? 'opacity-30 cursor-not-allowed' : ''
+                            } ${isLesser ? 'ring-1 ring-red-500/50' : ''} ${isGlowing ? 'scale-105' : ''} transition-transform duration-150`}
+                            style={isLesser ? { borderColor: 'rgba(239,68,68,0.5)', color: '#fca5a5' } : undefined}
                           >
                             {isSelected && (
                               <span className={`inline-flex items-center justify-center w-4 h-4 rounded-full text-xs font-bold transition-all ${
@@ -580,6 +620,7 @@ export default function HomePage() {
                                 {rank + 1}
                               </span>
                             )}
+                            {isLesser && <span className="text-red-400 text-xs font-bold">↓</span>}
                             {getStrengthLabel(s.name)}
                           </button>
                         );

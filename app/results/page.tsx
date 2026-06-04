@@ -58,13 +58,24 @@ function ResultsContent() {
     if (timerRef.current) clearInterval(timerRef.current);
     if (agentTimerRef.current) clearInterval(agentTimerRef.current);
     timerRef.current = setInterval(() => setElapsed(s => s + 1), 1000);
-    // Agents connect one by one: 10 agents over ~20s = every 2s
+    // 15 agents if bottom-5 lesser themes were provided for THIS top set, else 10
+    let agentTarget = 10;
+    try {
+      const raw = sessionStorage.getItem('iv_lesser_strengths');
+      if (raw) {
+        const parsed = JSON.parse(raw) as { top: string[]; lesser: string[] };
+        if (parsed.top?.join(',') === strengthList.join(',') && parsed.lesser?.length >= 3) {
+          agentTarget = 15;
+        }
+      }
+    } catch { /* ignore */ }
+    // Agents connect one by one, every ~1.7s
     let count = 0;
     agentTimerRef.current = setInterval(() => {
       count += 1;
       setAgentCount(count);
-      if (count >= 10 && agentTimerRef.current) clearInterval(agentTimerRef.current);
-    }, 2000);
+      if (count >= agentTarget && agentTimerRef.current) clearInterval(agentTimerRef.current);
+    }, 1700);
     try {
       const gallupFileUrl = sessionStorage.getItem('iv_gallup_file_url') ?? undefined;
       sessionStorage.removeItem('iv_gallup_file_url'); // use once
