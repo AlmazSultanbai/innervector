@@ -1338,10 +1338,15 @@ function VectorTestReport() {
                           const rank = rankMap.get(trait.name) ?? 99
                           const isTop5 = rank <= 5
                           const isTop12 = rank <= 12
+                          const tooltipText = locale === 'en'
+                            ? traitDataEn[trait.name]?.short
+                            : locale === 'ky'
+                            ? traitDataKy[trait.name]?.short
+                            : traitData[trait.name]?.short
 
                           return (
                             <div key={trait.name}
-                              className="flex flex-col items-start gap-1 px-2.5 py-2 rounded-xl w-full"
+                              className="group/trait relative flex flex-col items-start gap-1 px-2.5 py-2 rounded-xl w-full cursor-default"
                               style={isTop5 ? {
                                 background: color + '1a',
                                 border: `1px solid ${color}55`,
@@ -1355,6 +1360,19 @@ function VectorTestReport() {
                                 border: '1px solid rgba(255,255,255,0.05)',
                               }}
                             >
+                              {/* Tooltip */}
+                              {tooltipText && (
+                                <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-52 invisible opacity-0 group-hover/trait:visible group-hover/trait:opacity-100 transition-opacity duration-150">
+                                  <div className="rounded-xl px-3 py-2.5 text-left"
+                                    style={{ background: '#0d1628', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+                                    <div className="font-serif text-[11px] font-semibold mb-1" style={{ color }}>{getTraitName(trait.name)}</div>
+                                    <p className="text-[10px] leading-relaxed text-slate-300">{tooltipText}</p>
+                                  </div>
+                                  {/* Arrow */}
+                                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0"
+                                    style={{ borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: '5px solid rgba(255,255,255,0.12)' }} />
+                                </div>
+                              )}
                               <div className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold flex-shrink-0"
                                 style={{
                                   background: isTop5 ? color : isTop12 ? color + '40' : 'rgba(255,255,255,0.05)',
