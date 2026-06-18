@@ -12,7 +12,7 @@ import LangSwitcher from '@/components/LangSwitcher'
 import type { Domain } from '@/data/vectorTraits'
 import type { TestMode } from '@/store/vectorTestStore'
 
-const domains: Domain[] = ['vliyanie', 'realizacia', 'otnosenia', 'myshlenie', 'energia', 'rost']
+const domains: Domain[] = ['vliyanie', 'realizacia', 'otnosenia', 'myshlenie']
 
 export default function VectorTestIntro() {
   const router = useRouter()
@@ -34,8 +34,6 @@ export default function VectorTestIntro() {
       realizacia: 'РЕАЛИЗАЦИЯ',
       otnosenia:  'ОТНОШЕНИЯ',
       myshlenie:  'МЫШЛЕНИЕ',
-      energia:    'ЭНЕРГИЯ',
-      rost:       'РОСТ',
     }
     return ruLabels[d]
   }

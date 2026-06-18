@@ -1,232 +1,215 @@
 // English translations for trait short/positive/dark/team fields
-// Keys are the Russian trait names (same as traitData keys)
 export const traitDataEn: Record<string, { short: string; positive: string; dark: string; team: string }> = {
 
-  // ── INFLUENCE ─────────────────────────────────────────────────────────────
-  'Убеждение': {
-    short: 'The tendency to shift others\' perspectives through clear arguments and precise reading of what drives them.',
-    positive: 'You have a strong gift for influencing others through words. You often construct arguments so that the other person arrives at the right conclusion on their own. This shows up as a feel for which argument will land with which person. In work situations, this helps wherever the outcome depends on your ability to convey an idea and get people moving.',
-    dark: 'In excess, this can slide into manipulation — you may persuade someone toward what benefits you even when it isn\'t in their interest. Sometimes arguing becomes about winning, not about truth. People start feeling pressure even when you\'re sincere. Over time, this erodes trust.',
-    team: 'Sales, negotiation, law, consulting, politics, fundraising, business development.',
+  // EXECUTION
+  'Достиженец': {
+    short: 'An internal engine that demands constant progress and a sense of accomplishment.',
+    positive: 'You often feel truly alive only when moving forward. A day without results feels wasted. In work situations this gives you exceptional productivity — you close tasks where others procrastinate. A high internal bar is your default, not an exception.',
+    dark: 'In excess this can lead to never feeling like enough has been done. You may skip celebrating wins and immediately move to the next goal. Colleagues may feel you\'re perpetually dissatisfied. Burnout is a real risk when the to-do list is endless.',
+    team: 'Executive management, sales, entrepreneurship, high-performance sports.',
   },
-  'Вдохновение': {
-    short: 'The tendency to paint a picture of the future that people want to be part of.',
-    positive: 'You often see the future more vividly than the present and can pass that vision on to others. In work situations, this helps launch movements, shape team culture, and keep people committed through difficult projects. It often shows up as the ability to create meaning — people around you feel their work matters and that they\'re part of something bigger.',
-    dark: 'In excess, this can lead to losing touch with reality. People get inspired, then run into the gap between what was promised and what\'s actually happening. If inspiration isn\'t backed by a concrete plan and accountability, trust slowly crumbles.',
-    team: 'Leadership, founding companies and movements, teaching, mentoring, public speaking, culture building.',
+  'Организатор': {
+    short: 'The tendency to flexibly configure people, resources and tasks for maximum results.',
+    positive: 'You see how parts should connect and constantly seek a better configuration. Change doesn\'t scare you — it\'s a chance to find a more efficient arrangement. Especially strong in complex projects with many moving parts.',
+    dark: 'Constant reshuffling can confuse those who need stability. A new configuration may seem better only in theory, without accounting for human factors. Colleagues tire of frequent reorganizations.',
+    team: 'Project management, event management, operations, logistics.',
   },
-  'Катализатор': {
-    short: 'The tendency to raise uncomfortable questions and stress-test decisions in the name of honest results.',
-    positive: 'You often ask the questions others won\'t. You notice when a group is heading the wrong way and say so. In work situations, this helps teams avoid costly mistakes — when everyone nods, you raise your hand. It often shows up as a drive to pressure-test ideas before they become expensive problems.',
-    dark: 'In excess, directness can turn into aggression. Fragile trust in a group can shatter from a single poorly timed question. Sometimes you play catalyst not because you see a real problem, but because you\'re bored or want to prove a point.',
-    team: 'Strategic consulting, auditing, journalism, devil\'s advocate roles, positions requiring decision pressure-testing.',
+  'Убеждения': {
+    short: 'The need to live and work in line with deep personal values.',
+    positive: 'You have a stable core of values that doesn\'t depend on external circumstances. When work aligns with what you believe in, your commitment is total. People sense your sincerity and trust you precisely because you\'re consistent in your convictions.',
+    dark: 'Strong beliefs can turn into rigidity. You may reject ideas simply because they don\'t fit your value system — even when they\'re correct. Working in organizations whose values you don\'t share is genuinely difficult.',
+    team: 'Non-profit sector, social entrepreneurship, spiritual mentoring, social movements.',
   },
-  'Репутация': {
-    short: 'The tendency to build influence through consistent actions and making words match deeds.',
-    positive: 'Your influence is often built not on loud statements but on consistency. In work situations, this helps where trust matters more than a flashy win — people need to know you do what you say. It often shows up as a rock-solid reputation for reliability that doesn\'t need to be explained to every new person you meet.',
-    dark: 'In excess, this can lead to being held hostage by your own image. Fear of damaging your reputation makes you avoid risks, new roles, and public mistakes. One public misstep can undo years of work, and that fear can be paralyzing.',
-    team: 'Long-term leadership, boards, law, medicine, high-trust expert roles.',
+  'Последовательность': {
+    short: 'A belief in equal rules and fair treatment for everyone without exception.',
+    positive: 'You ensure rules are applied uniformly — regardless of status or personal affinity. This builds trust: people know you have no double standards. In work environments this helps build processes and culture where everyone knows the rules of the game.',
+    dark: 'In excess this can become bureaucracy. You may apply rules where flexibility is needed. Making exceptions is genuinely difficult, even when the situation clearly calls for it.',
+    team: 'HR, law, auditing, public administration, education.',
   },
-  'Инициатива': {
-    short: 'The tendency to start moving without waiting for perfect conditions and to launch processes.',
-    positive: 'You\'re often the person who takes the first step. While others analyze and postpone, you\'re already in motion. It often shows up as a special energy at the launch of something new. In work situations, this helps where something needs to be unstuck — you create momentum where none existed.',
-    dark: 'In excess, this can lead to leaving things unfinished. You fall in love with beginnings and lose interest in the middle. Projects may be abandoned behind you. People around you grow tired of constant restarts — they may need stability, not another launch.',
-    team: 'Entrepreneurship, innovation, R&D, crisis management, opening new directions.',
+  'Осторожность': {
+    short: 'The tendency to carefully weigh decisions, seeing risks before others notice them.',
+    positive: 'Before taking a step, you see where it might be slippery. Your decisions are well-considered — not because you\'re afraid, but because you understand the cost of mistakes. In work situations you protect the team from catastrophic miscalculations.',
+    dark: 'Caution can turn into indecision. You may deliberate so long that the moment passes. Others may see you as a pessimist or a brake — even when your concerns are correct.',
+    team: 'Finance, insurance, law, medicine, security, risk management.',
   },
-  'Магнетизм': {
-    short: 'The tendency to naturally draw interest, attention, and engagement from people without deliberate effort.',
-    positive: 'You have a strong tendency to attract people\'s attention organically. This isn\'t necessarily loud charisma — it\'s more like the ability to create a field of interest around you. In work situations, this helps where you need to gather people, build an audience, or attract resources without forcing it.',
-    dark: 'In excess, this can create dependency on the pull effect. When you\'re depleted and the attraction weakens, it can disorient you. Also, people with strong magnetism often attract those who want to use their energy rather than create alongside them.',
-    team: 'Public roles, brand leadership, founding communities, politics, entertainment, high-level sales.',
-  },
-
-  // ── EXECUTION ─────────────────────────────────────────────────────────────
   'Дисциплина': {
-    short: 'The tendency to take consistent steps even without inspiration or external pressure.',
-    positive: 'You can often work without mood, audience, or instant results. Discipline for you is more of a foundation than a constraint. In work situations, this helps you achieve results through consistency where others wait for inspiration. It often shows up as the ability to stay on course without external pressure.',
-    dark: 'In excess, this can lead to rigidity — going through the motions without any live energy. You may keep doing something that once made sense without noticing the context has shifted. Harshness toward yourself can gradually become harshness toward others.',
-    team: 'Elite sport, science, writing, crafts, investing, any long-term work.',
+    short: 'The tendency to live by a schedule, create structure and execute regularly regardless of mood.',
+    positive: 'You work even without inspiration — because you have a system. Structure is not a cage for you but a tool for freedom. Reliability and consistency of results distinguish you from those who work in bursts.',
+    dark: 'In excess discipline turns into rigidity. Disruptions to your routine can throw you off disproportionately. Creative and spontaneous people nearby may feel constrained by your structure.',
+    team: 'Sports, science, programming, long-term projects, finance.',
   },
-  'Завершение': {
-    short: 'The tendency to bring things to a clear finish and close open loops.',
-    positive: 'You often feel genuine discomfort with unfinished business. In work situations, this helps on the final stretch — when the team is tired and ready to settle for "good enough," you hold the standard to the end. It often shows up as willingness to own the closing — those tasks everyone keeps putting off.',
-    dark: 'In excess, this can mean pushing through something that should have been stopped long ago. Stubbornness about finishing can become an inability to call it when needed. The obsession with the finish line also creates pressure on those around you.',
-    team: 'Project management, release management, quality control, law, financial auditing.',
-  },
-  'Системность': {
-    short: 'The tendency to see order in chaos and build repeatable processes.',
-    positive: 'You often instinctively build structure where others improvise. In work situations, this helps create processes that run without you — packaging a successful result into a system that can scale. It often shows up as the ability to see exactly where chaos is blocking growth and eliminating it structurally.',
-    dark: 'In excess, the system can become an end in itself. Flexibility and speed are sacrificed to structure. Creative people around you may feel hemmed in by your processes.',
-    team: 'Operations management, process engineering, corporate standardization, IT architecture, logistics.',
-  },
-  'Качество': {
-    short: 'An internal standard of excellence, attention to detail, and reliable output.',
-    positive: 'You have a high internal bar for quality. It often shows up as difficulty releasing work that doesn\'t satisfy you. In work situations, this helps where reliability matters more than speed — people know that what they get from you is what was promised, at the level you claimed.',
-    dark: 'In excess, this can mean getting stuck in refinements when you should be moving on. Perfectionism can quietly become control and distrust of others. The market\'s pace doesn\'t always wait for your perfection.',
-    team: 'Design, engineering, research, medicine, craftsmanship, precise technical work.',
-  },
-  'Скорость': {
-    short: 'The tendency to move quickly to action and improve iteratively.',
-    positive: 'You often get results fast. While others prepare, you\'ve already taken the first step and gotten feedback. In work situations, this helps in environments where iteration speed determines the winner. It often shows up as comfort working with an imperfect draft — you know a fast version beats a perfect one that never ships.',
-    dark: 'In excess, this can lead to sloppy work — details left incomplete, errors accumulating and becoming costly. People around you may read your speed as disrespect for process and for them.',
-    team: 'Startups, agile development, sales, emergency services, journalism, trading.',
+  'Фокус': {
+    short: 'The ability to choose what matters, hold direction and ignore the secondary.',
+    positive: 'You set a goal and keep it in sight. Where others get lost in details, you see the vector. In work situations this helps you stay on course amid chaos and follow through on commitments.',
+    dark: 'Strong focus can lead to tunnel vision — you may miss opportunities that appear from the side. People around you sometimes need flexibility, while you hold the course regardless.',
+    team: 'Project management, executive leadership, research, strategy.',
   },
   'Ответственность': {
-    short: 'The tendency to treat results as your own domain of influence and honor your commitments.',
-    positive: 'When you take on a task, it\'s genuinely yours. No excuses, no blame on external circumstances. In work situations, this makes you a reliable partner — people know they can count on you. This is especially valuable in high-uncertainty environments where reasons for non-delivery are always available.',
-    dark: 'In excess, this can lead to overload. You may take on too much and burn out. A background hum of guilt for everything can become your default state. The habit of carrying everything alone can lead to exhaustion and resentment toward others.',
-    team: 'Leadership positions, business ownership, medicine, military service, parenting.',
+    short: 'The tendency to treat results as your own and keep commitments regardless of circumstances.',
+    positive: 'When you take on a task, it truly becomes yours. No excuses, no blame-shifting. People know: you can be counted on. This is especially valuable where uncertainty is high and the temptation to pass responsibility is strong.',
+    dark: 'Strong responsibility can lead to overload. You take on too much and burn out. Pervasive guilt can become a background state. Delegating is your growth area.',
+    team: 'Leadership roles, business ownership, medicine, military service.',
+  },
+  'Решатель': {
+    short: 'The tendency to find the root of a problem and restore a system to working order.',
+    positive: 'Where others see a crisis, you see a task. You diagnose, find what broke and restore it. In work situations this makes you indispensable during failures — technical, team-level or operational.',
+    dark: 'Constant "fix everything" mode can lead to creating problems where none exist — just to have something to solve. You can also get stuck in fixing instead of building something new.',
+    team: 'IT support, crisis management, medicine, coaching, operations.',
   },
 
-  // ── RELATIONSHIPS ─────────────────────────────────────────────────────────
+  // INFLUENCE
+  'Катализатор': {
+    short: 'The tendency to move to action immediately and start motion where others are still thinking.',
+    positive: 'You convert discussions into actions. While others analyze, you\'re already moving. This creates momentum where there was none. In teams you break inertia and give things a start.',
+    dark: 'Rushing can lead to insufficient preparation. You launch before conditions are clear, dragging along a team that isn\'t ready. Sometimes the best move is to wait, not act.',
+    team: 'Startups, sales, crisis management, project launches.',
+  },
+  'Командность': {
+    short: 'The readiness to take charge of decisions and speak directly about what needs to be done.',
+    positive: 'In situations of uncertainty you take the wheel. You can say the unpleasant truth where others stay silent. Directness is your tool, not rudeness. In crises your ability to clearly say who does what and when saves the situation.',
+    dark: 'High directness can overpower people. You may leave no room for others\' input — not from disrespect but because you see the solution and can\'t stand delay. Over time people stop arguing with you — and that\'s the problem.',
+    team: 'Leadership, military service, crisis management, negotiation, politics.',
+  },
+  'Коммуникация': {
+    short: 'The tendency to translate ideas into words, stories and images that are remembered.',
+    positive: 'You know how to make complex things simple. Your explanations, presentations and conversations stick — because you instinctively search for the right image, the right story. In work situations this helps you convey ideas and lead people through words.',
+    dark: 'In excess form can start to matter more than substance. You may spend too much time on packaging rather than the core. There\'s also a risk of speaking beautifully about things not yet fully thought through.',
+    team: 'Public speaking, marketing, PR, teaching, politics, journalism.',
+  },
+  'Соперничество': {
+    short: 'The need to measure yourself against others and achieve victory.',
+    positive: 'You always know where you stand relative to others. This isn\'t envy — it\'s a way of measuring yourself. Competitiveness drives you to keep raising the bar. In the right environment this leads to exceptional results.',
+    dark: 'When there\'s no clear way to "win" you may lose motivation. Collaborative work can feel less appealing than individual results. There\'s a risk of turning minor things into competitions.',
+    team: 'Sales, professional sports, trading, law, politics.',
+  },
+  'Максимизатор': {
+    short: 'The drive to turn good into great by developing strengths rather than fixing weaknesses.',
+    positive: 'You instinctively see where something can be better — through building on strengths, not correcting weaknesses. Mediocrity doesn\'t satisfy you. You find what makes people exceptional and amplify it.',
+    dark: 'Maximizing takes time and resources. Where "good enough" works, you invest excess energy chasing excellence. People nearby may struggle to meet your standards.',
+    team: 'Coaching, consulting, design, product development, mentoring.',
+  },
+  'Уверенность': {
+    short: 'A firm trust in one\'s own judgment and the ability to act without external approval.',
+    positive: 'You don\'t wait for permission. You have an internal compass you trust. This lets you act under uncertainty when others wait for consensus. In work situations this helps you make decisions quickly and own their consequences without regret.',
+    dark: 'Strong self-assurance can close you off from feedback. You may not hear warnings because you\'ve already decided. Absence of doubt sometimes means absence of necessary checks before acting.',
+    team: 'Entrepreneurship, executive leadership, military service, judiciary.',
+  },
+  'Значимость': {
+    short: 'The need to do work that leaves a mark and is noticed by others.',
+    positive: 'It matters to you that your work is significant — and recognized. This isn\'t vanity; it\'s an engine that drives you to do truly big things. You take on high-stakes tasks where your contribution will be visible.',
+    dark: 'In excess the need for recognition can become dependence on it. If results exist but applause doesn\'t, motivation drops. There\'s also a risk of taking on loud projects at the expense of quiet but important work.',
+    team: 'Entrepreneurship, public life, politics, artistic careers.',
+  },
+  'Обаяние': {
+    short: 'A natural ability to quickly win over strangers.',
+    positive: 'You can turn a stranger into almost a friend within a few minutes. It\'s not manipulation — you genuinely care about people and they feel it. Large networks form naturally because every contact feels easy and pleasant.',
+    dark: 'Ease of connection can lead to shallow relationships. Where depth is needed, you keep expanding the network. People who value deep relationships may perceive your style as inauthentic.',
+    team: 'Sales, network business, politics, PR, fundraising, business development.',
+  },
+
+  // RELATIONSHIPS
+  'Гибкость': {
+    short: 'The ability to live in the present moment and adapt to changes without losing equilibrium.',
+    positive: 'You don\'t resist change — you flow with it. When a plan falls apart, you don\'t get lost; you find a new path right now. This makes you valuable in dynamic environments where the cost of inflexibility is high.',
+    dark: 'Too much flexibility can mean a lack of firm position. People nearby sometimes need predictability. There\'s also a risk of adapting to bad conditions instead of changing them.',
+    team: 'Crisis management, startups, military service, critical-care medicine.',
+  },
+  'Взаимосвязь': {
+    short: 'A sense that everything is connected and every action has meaning in the larger picture.',
+    positive: 'You see threads between events, people and ideas — where others see randomness. This gives you a distinctive view: you think systemically and spiritually at once. In work situations this helps create meaning for teams that lose touch with their "why."',
+    dark: 'Searching for connections can lead into abstraction. Not every colleague shares the view that everything is interconnected, and explaining it can be difficult. There\'s a risk of seeing patterns where none exist.',
+    team: 'Spiritual mentoring, strategic planning, non-profit sector, philosophy.',
+  },
+  'Развитие': {
+    short: 'The ability to notice potential in people and find joy in watching them grow.',
+    positive: 'You see not who a person is now, but who they could become. Every small progress in another person brings you genuine joy. This makes you an exceptional mentor and leader — your people grow faster.',
+    dark: 'You may invest in people who don\'t want to grow. The need to develop others can lead you to see potential where someone has already chosen their level.',
+    team: 'Coaching, mentoring, teaching, HR, corporate learning.',
+  },
   'Эмпатия': {
-    short: 'The tendency to feel another person\'s state and factor it into decisions.',
-    positive: 'You often feel what someone else is going through almost physically — before they say a word. In work situations, this helps in negotiation, leadership, and mentoring — people feel understood, and that creates fast trust. It often shows up as catching the hidden emotional subtext where others only see words.',
-    dark: 'In excess, this can lead to emotional exhaustion. You may absorb others\' emotions, and heavy conversations take real time to recover from. In conflicts, you can suffer twice — for yourself and for the other person.',
-    team: 'Therapy, coaching, negotiation, high-level sales, mediation, spiritual guidance.',
+    short: 'The ability to sense another person\'s emotional state almost as your own.',
+    positive: 'You feel what\'s happening in another person — before they say a word. This creates fast, deep trust. In negotiations, mentoring and crisis situations you understand people at a level unavailable to those who work only with text and logic.',
+    dark: 'Absorbing others\' emotions can be exhausting. After heavy conversations you need time to recover. It\'s hard to make tough decisions when you physically feel their impact on others.',
+    team: 'Psychotherapy, coaching, medicine, HR, negotiation.',
   },
-  'Забота': {
-    short: 'The tendency to support, create safety, and notice what people need.',
-    positive: 'You often notice when someone is struggling even when they don\'t say a word. You naturally support people and create a safe space. In work situations, this helps build teams where people aren\'t afraid to be vulnerable — which is the foundation of real trust and quality work.',
-    dark: 'In excess, this can lead to self-depletion — you put others\' needs above your own. You take on others\' pain and carry it as your own. Sometimes care can become a way of keeping people dependent on you.',
-    team: 'Nursing, social work, HR, education, nonprofit work.',
+  'Гармония': {
+    short: 'The drive toward consensus and the ability to find common ground between people with different views.',
+    positive: 'You instinctively seek what everyone can agree on — not to avoid conflict, but because you see value in every position. You work well in teams with different viewpoints and create space where people genuinely hear each other.',
+    dark: 'In excess the drive for harmony can turn into avoidance of necessary conflict. You may stay silent where an uncomfortable question needed to be raised. Decisions made "for peace" aren\'t always the best decisions.',
+    team: 'Mediation, HR, diplomacy, facilitation, education.',
   },
-  'Глубина': {
-    short: 'An orientation toward rare but solid and genuine relationships.',
-    positive: 'You often prefer a few real relationships over a dozen surface-level ones. The people close to you know: you\'re genuinely present. In work situations, this helps build long-term partnerships, retain key clients, and form a trusted inner circle.',
-    dark: 'In excess, this can mean slow adaptation in new environments. You may take a long time to open up and vet people. New acquaintances sometimes read you as closed off. Losing a close relationship can be particularly painful.',
-    team: 'Psychotherapy, coaching, mentoring, spiritual guidance, long-term partnerships.',
+  'Принятие': {
+    short: 'The need to ensure no one is left on the sidelines and everyone feels included.',
+    positive: 'You notice who\'s been pushed to the edge and take a step toward them. This creates a culture where people don\'t feel invisible. In teams you build belonging — the thing that keeps people in organizations long-term.',
+    dark: 'Trying to include everyone can lead to averaging everything out. Not every decision needs everyone\'s input. Sometimes movement matters more than consensus, and your style can slow things down.',
+    team: 'Education, HR, non-profit sector, community organizations.',
   },
-  'Партнёрство': {
-    short: 'The tendency to build mutually beneficial cooperation and weigh everyone\'s interests.',
-    positive: 'You often find solutions where both sides win. Collaboration for you isn\'t a zero-sum game — it\'s a way to create more value. In work situations, this helps in diplomacy, business development, and mediation. People return to you because they know they can negotiate honestly.',
-    dark: 'In excess, this can mean making compromises at your own expense. Dependence on others\' agreement can make you indecisive. Sometimes you agree when you should have held your ground.',
-    team: 'Business development, diplomacy, law, mediation, founding joint ventures.',
+  'Индивидуальность': {
+    short: 'The ability to see the uniqueness of each person and tailor your approach to them.',
+    positive: 'You don\'t apply the same approach to everyone — you see what makes each person distinct. This lets you find the exact type of support that works for each one. In management this is a key skill: you motivate different people in different ways.',
+    dark: 'High attention to individuality can make working with groups and processes harder. You may spend too much time on individual approaches where scalable solutions are needed.',
+    team: 'People management, coaching, high-level sales, education.',
   },
-  'Честность': {
-    short: 'The tendency to tell the truth and give direct feedback.',
-    positive: 'You often tell the truth even when it\'s uncomfortable. People around you know: they\'ll get real feedback from you, not polite nothing. In work situations, this makes you a trusted advisor — in an environment where everyone says what people want to hear, your directness creates genuine trust.',
-    dark: 'In excess, directness can turn into bluntness. You can hurt someone with a truth they didn\'t ask for and weren\'t ready to hear. Sometimes honesty sounds like judgment. This can leave you being right but alone.',
-    team: 'Auditing, journalism, law, boards of directors, executive coaching.',
+  'Позитивность': {
+    short: 'Contagious optimism and the ability to find the good even in difficult situations.',
+    positive: 'You lift the energy in a room. People around you feel that the task is doable, that work can be joyful, that current difficulties are surmountable. In teams this is a precious resource — especially in long projects when fatigue builds.',
+    dark: 'In excess positivity can look like an inability to see real problems. Analytically-minded people may find your optimism frivolous. There\'s a risk of staying in the positive picture when the situation calls for honest scrutiny.',
+    team: 'Education, HR, sales, service, team leadership.',
   },
-  'Границы': {
-    short: 'The tendency to say no, protect your resources, and separate what\'s yours from what\'s others\'.',
-    positive: 'You often know where you end and another person begins — and you can hold that line. You can say "no" without excessive guilt. You protect your resources, understanding that a burned-out person helps no one. In work situations, this helps in roles with high emotional load — you don\'t dissolve into others\' problems.',
-    dark: 'In excess, firm boundaries can become a wall. You can become inaccessible to close people when you need to be present. Sometimes you turn down requests where a simple yes wouldn\'t cost you much.',
-    team: 'Psychotherapy, law, negotiation, HR, any role with high emotional load.',
-  },
-
-  // ── THINKING ──────────────────────────────────────────────────────────────
-  'Анализ': {
-    short: 'The tendency to break down complexity, find causes, and verify facts.',
-    positive: 'You often break complex things into their parts and find logic where others see chaos. Your decisions tend to rest on data and cause-and-effect relationships. In work situations, this helps stress-test ideas before they become expensive.',
-    dark: 'In excess, this can lead to analysis paralysis — data collection continues until the decision is no longer needed. You can also dismiss others\' intuition and experience, demanding proof where none is possible.',
-    team: 'Data science, financial analysis, scientific research, auditing, strategic consulting.',
-  },
-  'Стратегия': {
-    short: 'The tendency to see the whole system, direction, and consequences of decisions several steps ahead.',
-    positive: 'You often think several moves ahead. While others are solving today\'s problem, you can already see what will happen in three more moves. In work situations, this helps you spot risks before they become problems and opportunities before others see them.',
-    dark: 'In excess, this can mean living in plans instead of real action. Execution can collide with details you glossed over at the strategic level. There\'s also a risk of becoming detached from practice.',
-    team: 'Senior management, military strategy, investment, boards, urban planning.',
-  },
-  'Интуиция': {
-    short: 'Fast recognition of the essence based on experience, patterns, and weak signals.',
-    positive: 'You often arrive at the right answer faster than you can explain why. This works from accumulated experience that fires faster than conscious analysis. In work situations, this helps in uncertainty, where data is insufficient for rigorous conclusions.',
-    dark: 'In excess, this can produce errors disguised as gut feeling. You can be resistant to being persuaded even when facts are against you. You may shut down discussion where it\'s needed.',
-    team: 'Creative industries, medical diagnosis, early-stage investing, negotiation.',
-  },
-  'Синтез': {
-    short: 'The tendency to connect ideas from different fields into something new.',
-    positive: 'You often connect ideas from entirely different domains and produce something new. Where others see unrelated things, you see a pattern. In work situations, this helps create breakthrough concepts — a biology book suddenly explains a business process, a conversation with an artist solves an engineering problem.',
-    dark: 'In excess, this can produce ideas too complex for others. You see connections that no one around you finds obvious, and you struggle to explain your logic. Sometimes synthesis becomes an end in itself without implementation.',
-    team: 'Design thinking, R&D, book writing, teaching, innovation, cross-functional roles.',
-  },
-  'Осмотрительность': {
-    short: 'The tendency to see risks in advance and protect against costly mistakes.',
-    positive: 'You often don\'t take a step until you\'ve weighed the risks. Where others rush forward, you can pause and think. In work situations, this helps protect teams and projects from expensive mistakes — you foresee scenarios others simply ignore.',
-    dark: 'In excess, this can lead to indecisiveness. You may wait for the perfect moment that never comes. While you weigh options, the window of opportunity can close. Sometimes the cost of inaction is greater than the cost of risk.',
-    team: 'Finance, insurance, law, security, medicine, quality control.',
-  },
-  'Любознательность': {
-    short: 'The desire to understand, explore, and expand one\'s view of the world.',
-    positive: 'You\'re often interested in almost everything. You ask questions others don\'t think of, read things irrelevant to work, and talk with people from wildly different worlds. In work situations, this helps you be a knowledgeable conversation partner and a fast learner.',
-    dark: 'In excess, this can lead to endless knowledge consumption without action. You can study for years without applying anything. Curiosity can pull you off track — you jump between topics without going deep on any of them.',
-    team: 'Journalism, research, anthropology, teaching, strategic consulting.',
+  'Близость': {
+    short: 'An orientation toward deep, genuine relationships with people you trust.',
+    positive: 'You prefer a few real relationships to dozens of shallow ones. Close people know: with you they can be themselves. You invest in relationships over the long haul and they reciprocate in kind. This creates networks of deep trust that function for years.',
+    dark: 'Opening up slowly can give an impression of aloofness or coldness. You adapt more slowly in new environments. Losing close relationships is experienced particularly deeply.',
+    team: 'Psychotherapy, coaching, long-term partnership, mentoring.',
   },
 
-  // ── ENERGY ────────────────────────────────────────────────────────────────
-  'Смысл': {
-    short: 'The need to see purpose, impact, and a connection between work and values.',
-    positive: 'You often can\'t work without knowing "why." When there\'s purpose, you can give everything without watching the clock. This often shows up as the capacity for long, selfless investment in work that resonates with your values.',
-    dark: 'In excess, this can mean shutting down on tasks that lack obvious meaning — even simple things can feel unbearable. There\'s also a vulnerability to compelling missions: if someone packages meaning well, you may follow without asking enough questions.',
-    team: 'Social work, activism, mission-driven work, founding movements, science, spiritual leadership.',
+  // THINKING
+  'Аналитик': {
+    short: 'The tendency to break complex things apart, seek evidence and verify logic.',
+    positive: 'You don\'t accept claims without proof. You ask questions that expose assumptions hiding behind apparent facts. In work situations this makes you a valuable idea-tester — you find weak spots before they become costly mistakes.',
+    dark: 'Endless analysis can lead to decision paralysis. Data is never complete — but you may wait for it anyway. There\'s also a risk of dismissing intuition and experience where they work better than data.',
+    team: 'Data science, financial analysis, scientific research, strategic consulting.',
   },
-  'Автономия': {
-    short: 'The need for freedom to choose how, when, and in what format you act.',
-    positive: 'You often need freedom to work at full capacity — not freedom from work, but freedom in work: choosing how to do it and at what pace. Internal motivation is often stronger than external pressure. In work situations, this helps in roles where results are valued over process.',
-    dark: 'In excess, this can lead to resistance to any rules, even reasonable ones. It\'s hard to work within hierarchical structures. You may read any oversight as pressure. Without internal discipline, autonomy can become anarchy.',
-    team: 'Entrepreneurship, freelancing, creative industries, academia, consulting.',
+  'Контекст': {
+    short: 'Understanding the present through studying the past — where we came from shapes where we\'re going.',
+    positive: 'You instinctively look for the story: how this was built, what decisions were made before, what worked earlier. This guards against repeating old mistakes and gives you an inside understanding of the system. In work situations you\'re the keeper of organizational knowledge.',
+    dark: 'Too strong a focus on the past can slow movement toward the new. Not everything that worked before will work in a changed world. Sometimes you need to release context and act from the present.',
+    team: 'History, academic research, organizational management, law.',
   },
-  'Вызов': {
-    short: 'Energy from complexity, high stakes, and overcoming.',
-    positive: 'You often come alive in difficult situations. When stakes are high, the task seems impossible, others are backing down — you may engage more intensely. In work situations, this helps on projects requiring maximum effort.',
-    dark: 'In excess, this can mean creating problems where none exist. You can overcomplicate the simple, seek conflict, and provoke crises — just to feel alive. Routine and stability can start to feel like defeat.',
-    team: 'Elite sport, military service, extreme professions, startups, politics.',
+  'Будущее': {
+    short: 'The ability to see opportunities and changes many steps ahead.',
+    positive: 'You live in the future. Your ideas are about what doesn\'t exist yet but could. This gives you a distinctive edge: you see opportunities before they become obvious. In work situations this makes you a valuable visionary — someone who points the direction.',
+    dark: 'Living in the future can make you impatient with the present. You may underestimate the complexity of execution — in your mind everything looks simpler than it is in practice. People working on current tasks may find your ideas disconnected.',
+    team: 'Strategic planning, innovation, R&D, founding companies, politics.',
   },
-  'Ритм': {
-    short: 'Energy from structure, routine, repetition, and predictable cycles.',
-    positive: 'You often work better when there\'s structure and a clear order. You don\'t waste energy on chaos — you build the conditions for efficiency in advance. Your habits often become a personal energy management system. In stable environments, you can produce results that surprise people.',
-    dark: 'In excess, this can lead to inflexibility. A disruption to your rhythm can throw you off disproportionately hard. Sometimes you resist change even when it\'s needed.',
-    team: 'Accounting, law, engineering, teaching, medicine.',
+  'Генератор': {
+    short: 'A passion for ideas, their connections and unexpected combinations of knowledge from different fields.',
+    positive: 'Ideas captivate you — new concepts, non-obvious links, ways to explain the complex simply. Where others see two unconnected facts, you see a pattern. In work situations this helps with innovation, strategy and anywhere non-standard thinking is needed.',
+    dark: 'Fascination with ideas can get in the way of execution. You may move to the next idea before the previous one is built. People who implement your ideas may struggle to keep pace with their flow.',
+    team: 'R&D, strategy, design thinking, innovation, writing.',
   },
-  'Новизна': {
-    short: 'Energy from new experiences, tasks, people, environments, and directions.',
-    positive: 'You often come alive when something new appears — a task, an environment, a person. Boredom for you can be genuinely painful. In work situations, this helps you be an explorer and pioneer, adapting in a rapidly changing world.',
-    dark: 'In excess, this can lead to instability. You may drop good things for new ones. Relationships, projects, careers can start to seem dull the moment they\'re no longer new. There\'s a risk of living in perpetual starts without building anything significant.',
-    team: 'Research, travel, journalism, anthropology, innovation, training.',
+  'Накопитель': {
+    short: 'An insatiable desire to collect, store and accumulate — information, experience, resources.',
+    positive: 'You instinctively collect: articles, facts, contacts, tools — because they might come in handy. Broad erudition and a rich network form naturally. In work situations this makes you a valuable source of resources and knowledge for the team.',
+    dark: 'Accumulation can become an end in itself. The collection grows but is rarely applied. It\'s hard to discard "potentially useful" things. This can lead to information overload and difficulty prioritizing.',
+    team: 'Research, journalism, library science, intelligence, consulting.',
   },
-  'Тишина': {
-    short: 'Energy from solitude, stillness, and deep inner work.',
-    positive: 'You often recharge in solitude and deep stillness. You don\'t need people to feel alive — you need space to hear yourself. In stillness, you often think more clearly and make better decisions. In work situations, this helps in roles requiring deep concentration.',
-    dark: 'In excess, this can lead to isolation. You may withdraw when the situation calls for presence. Working in open spaces and noisy teams is hard — in today\'s work world, this can be a real obstacle.',
-    team: 'Writing, programming, scientific research, design, philosophy.',
+  'Размышление': {
+    short: 'The tendency toward deep independent thinking and internal dialogue.',
+    positive: 'You think deeply and at length — not because you\'re slow, but because you don\'t stop at the surface. In solitude you arrive at conclusions you won\'t find in fast discussions. Self-analysis and reflection give you a clarity others value.',
+    dark: 'Internal dialogue can lead to endless contemplation without action. The solitude of thought can turn into isolation. There\'s also a risk of staying with deep understanding that never gets communicated.',
+    team: 'Philosophy, psychotherapy, academic research, writing, strategy.',
   },
-
-  // ── GROWTH ────────────────────────────────────────────────────────────────
-  'Мастерство': {
-    short: 'The drive to go deep and become genuinely formidable in a chosen domain.',
-    positive: 'You often go deep enough in one area that few can compare. Surface knowledge doesn\'t satisfy you — you want to understand how it all works from the inside. In work situations, this helps you become the kind of expert people seek for deep understanding, not just information.',
-    dark: 'In excess, this can produce tunnel vision. You can get stuck in your niche and miss the moment when the world has moved on. Narrow depth can leave you vulnerable to market shifts.',
-    team: 'Surgery, programming, professional sport, crafts, academic research.',
+  'Ученик': {
+    short: 'A love for the process of learning — for moving from ignorance toward mastery.',
+    positive: 'What captivates you is not the result but the process of learning. Mastering a new topic is itself a source of energy. You jump into new projects quickly precisely because learning interests you. In a fast-changing world this is a competitive advantage — you\'re always moving toward current knowledge.',
+    dark: 'Love of learning can lead to endless starts without completion. You move to a new topic when the previous one becomes familiar — that is, before it becomes mastery. This can create breadth without depth.',
+    team: 'Academia, consulting, journalism, R&D, fast-growing new industries.',
   },
-  'Рефлексия': {
-    short: 'The tendency to extract lessons from experience and adjust behavior accordingly.',
-    positive: 'You often draw lessons from every experience. Where others simply move on, you pause and make sense of things. In work situations, this helps you avoid repeating the same mistakes and accumulate practical wisdom.',
-    dark: 'In excess, this can lead to over-rumination. You may return to past mistakes again and again — not to extract a lesson, but to punish yourself. Too much reflection can leave you hesitant in the present.',
-    team: 'Psychotherapy, philosophy, journaling, spiritual practice, coaching.',
-  },
-  'Передача': {
-    short: 'The tendency to grow by teaching others and experiencing their growth as your own.',
-    positive: 'You often grow when you teach others. By explaining, you understand more deeply yourself. Seeing someone take a step forward because of you gives you energy. In work situations, this helps in mentoring roles — your influence multiplies through the people you\'ve developed.',
-    dark: 'In excess, this can lead to stagnation — you can get stuck in the teacher role and stop growing yourself. By transmitting knowledge, you sometimes create an illusion of development while repeating the same things for years. There\'s also a risk of creating dependency in students.',
-    team: 'Teaching, coaching, mentoring, corporate training, parenting.',
-  },
-  'Эксперимент': {
-    short: 'The tendency to learn through action and fast iteration, without fear of mistakes.',
-    positive: 'You often learn by doing. Theory is a starting point; real knowledge comes from trying. You\'re not afraid to be wrong — you understand that every failure narrows the space of the unknown. In work situations, this makes you a fast iterator.',
-    dark: 'In excess, this can lead to chaos — experiments without hypotheses, without tracking results. Sometimes there\'s a risk of experimenting on people and situations that don\'t deserve it.',
-    team: 'Startups, product development, A/B testing, behavioral economics.',
-  },
-  'Адаптация': {
-    short: 'The tendency to reorganize when things change without losing sight of the goal.',
-    positive: 'You often don\'t break when the plan falls apart — you reconfigure. In work situations, this helps in unstable environments where conditions shift constantly. A crisis for you often becomes not a catastrophe, but a condition of the problem.',
-    dark: 'In excess, this can mean lacking a position. You may change course so easily that people stop understanding where you\'re leading. There\'s also a risk of adapting to bad conditions instead of changing them.',
-    team: 'Crisis management, military service, critical care medicine, agile development.',
-  },
-  'Долгосрочный след': {
-    short: 'The tendency to think about long-term value and make decisions with a horizon of many years.',
-    positive: 'You often think about what will remain after you — ideas, culture, people you\'ve shaped. This gives decisions another dimension — you don\'t live only for today. In work situations, this helps build sustainable projects and make decisions with a long horizon.',
-    dark: 'In excess, attention to the long-term can crowd out the present. Thinking about the big future, you may overlook people right beside you right now. There\'s also a risk that concern for legacy becomes ego — building to be remembered.',
-    team: 'Founding institutions, charitable foundations, political leadership, writing books.',
+  'Стратег': {
+    short: 'The ability to see patterns, find the best path and grasp the system as a whole.',
+    positive: 'You instinctively find multiple possible routes where others see only one. You quickly assess options and choose the best. In work situations this makes you an indispensable advisor and leader — you see moves several steps ahead.',
+    dark: 'Strategic thinking can detach you from execution. You see the best path but can\'t always explain why — it\'s intuition, not an algorithm. People who want step-by-step instructions find your thinking style hard to follow.',
+    team: 'Executive leadership, consulting, military strategy, investment, founding companies.',
   },
 }
