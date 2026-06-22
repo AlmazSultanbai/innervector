@@ -79,7 +79,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (authed === null) return;
-    if (!authed || authed === 'client') { router.replace('/'); return; }
+    if (authed !== 'super') { router.replace('/'); return; }
     Promise.all([
       supabase.from('analyses').select('*').order('created_at', { ascending: false }),
       supabase.from('vector_test_results').select('id,session_id,full_name,email,phone,test_mode,lang,top5,scores,completed_at,share_token,retake_count,analysis').order('completed_at', { ascending: false }),

@@ -40,7 +40,7 @@ export async function middleware(request: NextRequest) {
     const signed = request.cookies.get('iv_role')?.value ?? '';
     const role = await verifyCookie(signed, secret);
 
-    if (role !== 'admin' && role !== 'superadmin') {
+    if (role !== 'superadmin') {
       if (isAdminPage) {
         return NextResponse.redirect(new URL('/', request.url));
       }
