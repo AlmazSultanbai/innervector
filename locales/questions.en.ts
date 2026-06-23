@@ -1,235 +1,178 @@
-// English translations of all questions in the same order as vectorQuestions.ts
-// Full test uses first 3 per trait (108 total); Express uses first 2 per trait (72 total)
+// English translations of all 102 questions — same order as vectorQuestions.ts
 export const questionsEn: { a: string; b: string }[] = [
-  // Influence — Persuasion (1-5)
-  { a: 'It matters to me to find the right argument so the person arrives at the needed conclusion on their own', b: 'It matters to me to simply state my position and let the person decide for themselves' },
-  { a: 'I can tell when an argument has landed — by the person\'s reaction before they even respond', b: 'I usually find out I\'ve persuaded someone only when they explicitly tell me' },
-  { a: 'I adapt my words for different people to get the same idea across', b: 'I say the same thing to everyone — whoever gets it, gets it' },
-  { a: 'I enjoy the process of persuasion — it\'s like an intellectual game', b: 'Persuasion is a necessary obligation for me, not a pleasure' },
-  { a: 'When I believe in an idea, I can talk about it for hours without tiring', b: 'Even for ideas I like, I invest exactly as many words as needed' },
-  // Influence — Inspiration (6-10)
-  { a: 'When I describe the future, people start wanting to get there', b: 'When I describe the future, people start asking practical questions' },
-  { a: 'I think about the meaning of work before thinking about how to do it', b: 'I think about how to do the work before thinking about its meaning' },
-  { a: 'People say that after talking with me they feel energized to act', b: 'People say that after talking with me they feel clear about what to do' },
-  { a: 'It matters to me that a person understands why — then they\'ll figure out how on their own', b: 'It matters to me that a person understands how — then meaning comes through practice' },
-  { a: 'I naturally talk about the big picture — mission, values, the vision of the future', b: 'I naturally talk about specifics — tasks, steps, results' },
-  // Influence — Catalyst (11-15)
-  { a: 'I ask uncomfortable questions even when the group clearly wants to move on', b: 'I hold back uncomfortable questions if I see it\'s not the right time' },
-  { a: 'It irritates me when everyone agrees too easily — I look for the weak point', b: 'It pleases me when everyone agrees — it means the idea is strong' },
-  { a: 'I\'m willing to disrupt a comfortable atmosphere for the sake of an honest conversation', b: 'I prefer to preserve the atmosphere and have the honest conversation later in private' },
-  { a: 'People sometimes say I\'m too blunt or sharp', b: 'People sometimes say I\'m too cautious or diplomatic' },
-  { a: 'The best way to help someone is to challenge their beliefs', b: 'The best way to help someone is to support and develop their beliefs' },
-  // Influence — Reputation (16-20)
-  { a: 'My reputation is built over years through consistent actions', b: 'My reputation is built through bright moments and memorable actions' },
-  { a: 'It matters more to me to be seen as reliable than as interesting', b: 'It matters more to me to be seen as interesting than as predictable' },
-  { a: 'I don\'t talk about myself much — let the results speak for me', b: 'I actively share about my work — it\'s important that people know what I do' },
-  { a: 'I physically cannot break a given word even when it\'s inconvenient', b: 'I can reconsider a commitment if circumstances change substantially' },
-  { a: 'It matters to me what people who have known me for a long time think of me', b: 'It matters to me what people who are meeting me for the first time think of me' },
-  // Influence — Initiative/Embodiment (21-25)
-  { a: 'I influence people through how I live and work — without words', b: 'I influence people through what I say and explain' },
-  { a: 'I\'m uncomfortable demanding from others what I don\'t do myself', b: 'I can demand from others what I don\'t do myself if it\'s their area of responsibility' },
-  { a: 'My standards show in the details — how I dress, how I speak, how I keep my word', b: 'My standards show in results — not in details but in the outcome' },
-  { a: 'I feel discomfort if I act against my values', b: 'I flexibly adapt my behavior to the situation without seeing it as a contradiction' },
-  { a: 'People around me quietly begin matching my standards', b: 'People around me stay as they are — I don\'t particularly influence their behavior' },
-  // Influence — Magnetism (26-30)
-  { a: 'People gravitate toward me even when I\'m not making any special effort', b: 'I need to put in effort to attract people to me' },
-  { a: 'In a new group, people quickly start coming to me for advice or decisions', b: 'In a new group, I remain in the background for a while until people get to know me better' },
-  { a: 'I notice that the right people and opportunities come to me on their own', b: 'The right people and opportunities appear when I actively seek them' },
-  { a: 'When I enter a room, the atmosphere changes — people notice it', b: 'When I enter a room, I blend into the atmosphere without changing it' },
-  { a: 'My presence by itself creates the feeling that something important is happening', b: 'My presence is valued for its concrete contribution, not simply for being there' },
-  // Execution — Initiative/Startup energy (31-35)
-  { a: 'I feel a special lift at the moment of launching something new', b: 'I feel the lift when I see something gaining momentum and working' },
-  { a: 'I don\'t need perfect conditions to start — I\'ll start and figure it out as I go', b: 'I need to understand the basics before taking the first step' },
-  { a: 'I easily find where to begin even in a completely new area', b: 'In a new area I need time to figure out where to start' },
-  { a: 'The first version doesn\'t have to be good — what matters is launching', b: 'The first version needs to be good enough — otherwise it\'s better not to start' },
-  { a: 'An idea comes alive for me the moment I start doing it', b: 'An idea comes alive for me when I fully think it through' },
-  // Execution — Completion (36-40)
-  { a: 'An unfinished task literally hangs on me until it\'s closed', b: 'I can set aside an unfinished task without much discomfort if needed' },
-  { a: 'I can\'t consider a task done until I\'ve checked all the details', b: 'I consider a task done when the main result is achieved' },
-  { a: 'I see things through to the end even when it\'s no longer interesting — because it has to be done', b: 'If something loses its meaning I can stop it and don\'t see that as failure' },
-  { a: 'It physically bothers me to leave something half-done', b: 'I calmly switch between tasks without bringing each one to perfection' },
-  { a: 'People know — if I took it on, it will be done', b: 'People know — if I took it on, it will be done quickly' },
-  // Execution — Systematization (41-45)
-  { a: 'I instinctively build processes — it\'s uncomfortable to do the same thing differently each time', b: 'I instinctively adapt — it\'s uncomfortable to follow a process if the situation calls for something else' },
-  { a: 'When I see chaos, I want to bring order and structure', b: 'When I see chaos, I want to find a quick solution and move on' },
-  { a: 'It matters to me that the result can be repeated without me', b: 'It matters to me that the result is achieved — how exactly is less important' },
-  { a: 'I think about scaling from the very start — how will this work at 10x', b: 'I think about how it works now — scale can come later' },
-  { a: 'A good system is more important than one brilliant result', b: 'One brilliant result is more important than an average but stable system' },
-  // Execution — Quality (46-50)
-  { a: 'I notice mistakes and flaws that others simply don\'t see', b: 'I notice opportunities and potential that others simply don\'t see' },
-  { a: 'It physically bothers me to release work that I\'m not satisfied with', b: 'I can release work that isn\'t perfect if it solves the problem' },
-  { a: 'I\'ll redo something if I see it can be better — even if no one will notice', b: 'I\'ll redo something only if others will notice it or it affects the result' },
-  { a: 'My quality standards are internal — they don\'t depend on others\' expectations', b: 'My quality standards are external — determined by what the client needs' },
-  { a: 'Better to do less but well than a lot at an average level', b: 'Better to do a lot at an average level than a little but well — volume matters' },
-  // Execution — Speed (51-55)
-  { a: 'A fast draft is better than a slow ideal — I feel this in my work', b: 'A slow ideal is better than a fast draft — I feel this in my work' },
-  { a: 'I make decisions quickly — better to err and correct than to wait', b: 'I make decisions deliberately — better to wait than to err and fix' },
-  { a: 'Iteration speed matters more than the depth of each iteration', b: 'The depth of each iteration matters more than the speed' },
-  { a: 'I get irritated when the process slows without good reason', b: 'I get irritated when the process speeds up at the cost of quality' },
-  { a: 'I get energy from accomplishing a lot in a short time', b: 'I get energy from doing one thing deeply and thoroughly' },
-  // Execution — Adaptation (56-60)
-  { a: 'When the plan falls apart, I quickly find a new route without losing the goal', b: 'When the plan falls apart, I need time to reorganize' },
-  { a: 'I see unexpected changes as new conditions of the problem, not as a problem', b: 'Unexpected changes throw me off and take time to adjust to' },
-  { a: 'I work well in environments where the rules are constantly changing', b: 'I work well in environments where the rules are stable and predictable' },
-  { a: 'It\'s easy for me to change approach mid-stream if I see the current one isn\'t working', b: 'It\'s important to me to stick to the chosen approach — frequent changes are destabilizing' },
-  { a: 'A crisis is an interesting problem under new conditions for me', b: 'A crisis is a threat that needs to be quickly eliminated to return to normal' },
-  // Relationships — Depth (61-65)
-  { a: 'A few deep relationships matter more to me than many shallow ones', b: 'A wide circle of acquaintances matters more to me than a few close people' },
-  { a: 'I invest in relationships fully — I remember details, keep my word, stay', b: 'I invest in relationships as the situation calls — when it\'s needed and appropriate' },
-  { a: 'I open up to new people slowly and cautiously', b: 'I open up to new people quickly — it\'s easy for me to talk about myself' },
-  { a: 'Losing a close person is a serious wound that takes a long time to heal', b: 'Losing a close person is painful but I recover fairly quickly' },
-  { a: 'My most important relationships were built over years through shared experiences and trials', b: 'My most important relationships often started quickly — from the first conversation' },
-  // Relationships — Partnership/Networking (66-70, 80-84)
-  { a: 'I easily find common ground with anyone from any culture and field', b: 'I easily find common ground with people similar to me — with others it takes effort' },
-  { a: 'After small talk with a stranger I feel energized', b: 'After small talk with a stranger I feel drained' },
-  { a: 'I know many people from very different worlds', b: 'I know a small number of people but I know them very well' },
-  { a: 'Meeting someone new is natural and enjoyable for me', b: 'Meeting someone new takes effort and the right mood' },
-  { a: 'I maintain contact with many people simultaneously without strain', b: 'Maintaining many contacts simultaneously is draining for me' },
-  // Relationships — Care (71-75)
-  { a: 'I notice when someone is struggling — even when they don\'t say so', b: 'I notice when someone is struggling only when they tell me directly' },
-  { a: 'It\'s natural for me to offer help before someone has asked', b: 'I prefer to wait until someone asks for help themselves' },
-  { a: 'The wellbeing of people around me affects my own state', b: 'I can separate others\' states from my own and remain stable' },
-  { a: 'I create a space where people feel safe and open up', b: 'I create a space where people feel effective and motivated' },
-  { a: 'How a person feels matters to me as much as what they do', b: 'What a person does matters more to me — feelings are important but secondary' },
-  // Relationships — Empathy (76-80)
-  { a: 'I sense a person\'s state before they\'ve said anything', b: 'I understand a person\'s state through their words and actions, not intuitively' },
-  { a: 'After a heavy conversation I need time to recover — I carry some of their pain', b: 'After a heavy conversation I quickly return to normal' },
-  { a: 'In conflict I feel the tension of both sides and it exhausts me', b: 'In conflict I stay in my own position and don\'t absorb others\' emotions' },
-  { a: 'People say I understand them better than they understand themselves', b: 'People say I give them clarity and focus — I help them figure things out' },
-  { a: 'I physically sense the atmosphere in a room — tension, joy, anxiety', b: 'I read the atmosphere in a room analytically — through behavior and words' },
-  // Relationships — Honesty (81-85)
-  { a: 'I\'ll tell the truth even if it destroys the comfort in a relationship', b: 'I\'ll tell the truth in a way that preserves the relationship even if it takes longer' },
-  { a: 'It physically bothers me to say things I don\'t believe', b: 'I can adapt what I say to the audience without considering it dishonesty' },
-  { a: 'People know they\'ll get real feedback from me, not polite words', b: 'People know they\'ll get support and constructive input from me, not harsh criticism' },
-  { a: 'I\'d rather lose a relationship than regularly say things I don\'t mean', b: 'I\'d rather keep the relationship and find a way to say the truth gradually' },
-  { a: 'Ambiguity and evasiveness in others\' words irritates me', b: 'I understand that people can\'t always speak directly and accept it with understanding' },
-  // Relationships — Partnership/Network connector (86-90)
-  { a: 'When meeting a new person I immediately think of who among my contacts I should introduce them to', b: 'When meeting a new person I think about what we could do together' },
-  { a: 'I enjoy seeing two people I introduced create something of value', b: 'I enjoy creating something of value myself with people I know' },
-  { a: 'I think of my network as an ecosystem to be cultivated', b: 'I think of my network as a circle of people I trust' },
-  { a: 'I easily see synergy between people who don\'t yet know each other', b: 'I easily see synergy between people when I already know them well' },
-  { a: 'People often ask me "do you know anyone who could help?"', b: 'People often ask me "what do you think about this?"' },
-  // Thinking — Strategy (91-95, 110-114)
-  { a: 'I see where a situation is heading earlier than most people around me', b: 'I see the details of a situation more deeply than most people around me' },
-  { a: 'It\'s easier for me to think about the system as a whole than about a specific element', b: 'It\'s easier for me to think about a specific element and build the system from there' },
-  { a: 'I easily lose interest in details once I\'ve grasped the big picture', b: 'Details are as important to me as the big picture — one doesn\'t work without the other' },
-  { a: 'When the team gets stuck in details, I elevate the conversation', b: 'When the team talks abstractly, I bring the conversation back to specifics' },
-  { a: 'I understand a situation better when I step back and look at it from a distance', b: 'I understand a situation better when I dive in and study it from within' },
-  // Thinking — Analysis (96-100)
-  { a: 'Before making a decision I look for data and cause-and-effect relationships', b: 'Before making a decision I look at the experience of people I trust' },
-  { a: 'It\'s important to me to understand why something works, not just what works', b: 'It\'s important to me to understand what works — explaining the mechanism matters less' },
-  { a: 'I ask questions that uncover hidden assumptions in others\' reasoning', b: 'I ask questions that help someone better understand what they want to do' },
-  { a: 'A weak argument irritates me even if the conclusion is correct', b: 'A correct conclusion satisfies me even if the reasoning isn\'t perfect' },
-  { a: 'I won\'t start moving until I understand the logic — why, because of what, in what order', b: 'I\'ll start moving and figure out the logic as I go — action brings clarity' },
-  // Thinking — Intuition (101-105)
-  { a: 'I often know the right answer before I can explain why', b: 'I arrive at the right answer through a logical chain I can explain' },
-  { a: 'My first reaction is usually more accurate than conclusions after lengthy analysis', b: 'My conclusions after analysis are usually more accurate than my first reaction' },
-  { a: 'I trust my inner signal even when it contradicts the obvious facts', b: 'I trust facts even when they contradict my inner feeling' },
-  { a: 'In uncertain situations I act on instinct — and it works', b: 'In uncertain situations I\'d rather wait for more data than act in the dark' },
-  { a: 'People ask "how did you sense that?" — I notice what they missed', b: 'People ask "how did you figure that out?" — I notice what they missed' },
-  // Thinking — Strategy extended (106-110)
-  { a: 'When making a decision, I automatically think ahead several steps', b: 'When making a decision, I focus on the nearest result' },
-  { a: 'I notice risks before they become problems', b: 'I notice opportunities before others notice them' },
-  { a: 'I\'m troubled by what might go wrong — even when everything is going well', b: 'I\'m inspired by what could work out — even when the current situation is difficult' },
-  { a: 'I think in scenarios — what if A, what if B, what if neither works', b: 'I think in goals — where I want to arrive and what needs to happen to get there' },
-  { a: 'A pleasant surprise is rare for me — I\'ve usually foreseen the outcome', b: 'Pleasant surprises are common for me — I don\'t try to anticipate everything in advance' },
-  // Thinking — Synthesis (111-115)
-  { a: 'I see connections between ideas from completely different domains', b: 'I see connections between ideas within one domain — deep and non-obvious' },
-  { a: 'My best ideas are born at the intersection of different disciplines', b: 'My best ideas come from deep immersion in a single topic' },
-  { a: 'I easily find analogies — I explain complex things through images from another field', b: 'I easily find precise definitions — I call things by their names without metaphors' },
-  { a: 'I\'m fascinated by the moment when two unrelated things suddenly explain each other', b: 'I\'m fascinated by the moment when something complex finally becomes fully clear' },
-  { a: 'People say my ideas are unexpected and original', b: 'People say my ideas are precise and well-grounded' },
-  // Thinking — Prudence (116-120)
-  { a: 'Before acting I weigh what could go wrong', b: 'Before acting I weigh what could work out if everything goes well' },
-  { a: 'I\'d rather miss an opportunity than enter it unprepared', b: 'I\'d rather enter an opportunity unprepared than miss it' },
-  { a: 'My caution has protected me from serious mistakes more than once', b: 'My willingness to take risks has opened opportunities that cautious people missed' },
-  { a: 'I take a long time with important decisions — and that\'s right', b: 'I make important decisions quickly — delay costs more than error' },
-  { a: 'Before saying something important I think it over carefully', b: 'I say what I think in the moment — thinking comes through verbalizing' },
-  // Energy — Autonomy (121-125)
-  { a: 'I\'m energized when I choose how and in what order to work', b: 'I\'m calmer when there are clear instructions on how to do it' },
-  { a: 'Being controlled on process weighs on me more than the workload itself', b: 'Process control doesn\'t bother me — it even helps me stay on track' },
-  { a: 'My inner motivation is stronger than any external pressure', b: 'External deadlines and oversight help me keep my pace' },
-  { a: 'I work best where results are valued, not the way you get them', b: 'I work best where there are clear rules and expectations' },
-  { a: 'Freedom to do it my way matters more than stability and support', b: 'Stability and support matter more than freedom to do it my way' },
-  // Energy — Solitude/Silence (126-130)
-  { a: 'I need time alone to recharge after a full day', b: 'I need time with people to recharge after a full day' },
-  { a: 'I think more clearly in silence than in noise', b: 'I think more clearly in motion and interaction than in silence' },
-  { a: 'I can spend an entire day alone and feel fine', b: 'An entire day alone leaves me depleted' },
-  { a: 'My best ideas come in moments of stillness and solitude', b: 'My best ideas come in conversation and interaction with people' },
-  { a: 'Open offices and noisy spaces reduce my effectiveness', b: 'Open offices and a lively atmosphere increase my effectiveness' },
-  // Energy — Novelty (131-135)
-  { a: 'A new task or environment energizes me more than familiar ones', b: 'A familiar task or environment give me more confidence and effectiveness' },
-  { a: 'Routine kills my energy — I need constant change', b: 'Routine gives me energy — I work better in familiar conditions' },
-  { a: 'I\'m the first to try new tools, approaches, formats', b: 'I wait for new things to prove their value before switching to them' },
-  { a: 'Boredom for me is physically palpable — like pressure or heaviness', b: 'I take boredom calmly — it\'s just a quiet period' },
-  { a: 'I often change projects and interests — and that\'s fine', b: 'I stay committed to one project for a long time — depth matters more than variety' },
-  // Energy — Rhythm (136-140)
-  { a: 'It\'s important for me to know in advance what will happen and when', b: 'I like it when the day unfolds spontaneously' },
-  { a: 'I work better when I have a clear routine', b: 'I work better when I can freely switch between tasks' },
-  { a: 'Unexpected changes in plans throw me off more than others', b: 'I take unexpected changes in plans easily — they\'re just new conditions' },
-  { a: 'My habits and rituals are the foundation of my effectiveness', b: 'Rigid habits and rituals constrain me — I prefer flexibility' },
-  { a: 'Predictability is a resource for me, not a limitation', b: 'Predictability is boredom for me, not stability' },
-  // Energy — Challenge (141-145)
-  { a: 'I truly engage only when a task seems difficult or impossible', b: 'I truly engage when a task is clear and achievable' },
-  { a: 'Easy tasks don\'t interest me — I need it to be hard', b: 'Easy tasks suit me — efficiency matters more than struggle' },
-  { a: 'High stakes and pressure improve my concentration', b: 'High stakes and pressure reduce my concentration' },
-  { a: 'I choose the harder path if it leads to a more valuable result', b: 'I choose the easier path if it leads to the same result' },
-  { a: 'When things are too calm I start looking for a way to make them harder', b: 'When things are calm I enjoy it and recharge' },
-  // Energy — Purpose (146-150)
-  { a: 'Without understanding why, I can\'t work at full capacity', b: 'An interesting task energizes me regardless of the big-picture meaning' },
-  { a: 'Money and status don\'t motivate me if there\'s no sense of importance', b: 'Money and status are honest and sufficient motivation' },
-  { a: 'I\'m willing to work for free if I truly believe in the cause', b: 'I work more effectively when my contribution is fairly compensated' },
-  { a: 'I leave projects that stop making sense — even if they\'re profitable', b: 'I stay in projects that are profitable — meaning can be found later' },
-  { a: 'What matters most is the feeling that my work is changing something in people\'s lives', b: 'What matters most is the feeling that I\'m growing professionally and becoming better' },
-  // Growth — Mastery (151-155)
-  { a: 'I\'m willing to spend years going deeper in one thing to become the best at it', b: 'I prefer to grow broadly — several domains are better than one' },
-  { a: 'Surface knowledge of a topic doesn\'t satisfy me — I want to understand it from the inside', b: 'Working knowledge of a topic is enough for me — I don\'t need to know how it\'s built inside' },
-  { a: 'I notice nuances in my field that others simply don\'t see', b: 'I notice connections between different fields that others simply don\'t see' },
-  { a: 'Being recognized as an expert in my work matters to me', b: 'Being recognized as a well-rounded and interesting person matters to me' },
-  { a: 'I get special satisfaction reaching a new level in something I\'ve been doing for a long time', b: 'I get special satisfaction from learning something completely new to me' },
-  // Growth — Curiosity (156-160)
-  { a: 'I\'m drawn to topics far beyond my main field', b: 'I\'m drawn to going ever deeper into my main field' },
-  { a: 'I can hold a conversation with people from completely different professions', b: 'I can hold a very deep conversation with people from my own profession' },
-  { a: 'I often read books and articles from areas unrelated to my work', b: 'I mainly read what deepens my understanding of my own work' },
-  { a: 'I\'m interested in the process of learning itself — regardless of the domain', b: 'I\'m interested in the specific work I do — learning is a tool' },
-  { a: 'I easily switch between very different topics throughout the day', b: 'I prefer to focus on one topic until I fully understand it' },
-  // Growth — Mentoring/Transfer (161-165)
-  { a: 'When I explain something to someone else, I start understanding it more deeply myself', b: 'I understand things better when I think about them alone' },
-  { a: 'I feel special joy when I see a person take a step forward because of me', b: 'I feel special joy when I myself take a step forward through my own efforts' },
-  { a: 'It matters to me to pass on knowledge in a way that the person can act without me', b: 'It matters to me to do work so well that the person will keep coming back' },
-  { a: 'The role of mentor or teacher gives me meaning and energy', b: 'The role of executor or creator gives me meaning and energy' },
-  { a: 'When I see potential in a person, I want to help them develop it', b: 'When I see potential in an idea, I want to realize it' },
-  // Growth — Reflection (166-170)
-  { a: 'After an important event I return to it mentally — what happened and why', b: 'After an important event I move on — the main lesson is absorbed' },
-  { a: 'I keep a journal or regularly reflect on the path I\'ve traveled', b: 'I process the path through action — new steps bring more clarity' },
-  { a: 'My best decisions are the result of deep reflection on previous experience', b: 'My best decisions come from intuition or a quick read of the current situation' },
-  { a: 'I rarely repeat mistakes because I examine them carefully', b: 'I rarely repeat mistakes because I quickly sense when something is going wrong' },
-  { a: 'Pausing and reflecting is as productive for me as taking action', b: 'Action is the only real productivity; pausing is a waste of time' },
-  // Growth — Experimentation (171-175)
-  { a: 'The best way to understand something is to try it and see what happens', b: 'The best way to understand something is to study how it works before trying' },
-  { a: 'I\'m not afraid to fail — failure narrows the space of the unknown', b: 'I try not to fail — failure costs time and resources I\'d rather not waste' },
-  { a: 'I find theory without practice boring — my hands need to work', b: 'It\'s important for me to understand the theory before practice — otherwise it\'s unclear what to do' },
-  { a: 'I often try new approaches even when the old one works — maybe there\'s a better way', b: 'I change my approach only when the old one has stopped working' },
-  { a: 'A failed experiment is a valuable result to me, not a loss', b: 'A failed experiment is a loss I need to minimize' },
-  // Growth — Legacy (176-180)
-  { a: 'It matters to me what remains after me — ideas, people I\'ve changed', b: 'What matters to me is what\'s happening now — the present is more important than what comes after' },
-  { a: 'I make decisions asking "how will this affect people in 10 years"', b: 'I make decisions asking "what will this give me in the coming months"' },
-  { a: 'The thought that my work will outlast me gives me energy and meaning', b: 'The thought that I\'m doing something important right now gives me energy' },
-  { a: 'I build things that can work without me — systems, cultures, people', b: 'I build things where my participation is irreplaceable — a unique contribution matters more than scale' },
-  { a: 'I think about the mark I\'ll leave — in family, profession, society', b: 'I think about how to live life as fully as possible right now' },
-  // Execution — Discipline (181-184)
-  { a: 'I can work productively even when there\'s no inspiration or motivation', b: 'Without inspiration and the right mood my productivity drops noticeably' },
-  { a: 'My best results come through consistency and regularity', b: 'My best results come through bursts of intense effort' },
-  { a: 'I follow the plan even if external conditions change and no one is checking', b: 'I revise the plan when conditions change — otherwise it\'s not adaptation, it\'s stubbornness' },
-  { a: 'Boring work that needs to be done regularly doesn\'t throw me off', b: 'Monotonous, regular work drains me significantly' },
-  // Execution — Responsibility (185-188)
-  { a: 'If I took on a task — it\'s mine, and I hold responsibility for it to the end', b: 'If circumstances change — responsibility can be redistributed' },
-  { a: 'I\'m physically uncomfortable making excuses about external circumstances when a result isn\'t achieved', b: 'External circumstances are a legitimate reason to explain why the result differs from the plan' },
-  { a: 'I take on commitments less often but fulfill them completely', b: 'I take on a lot and deliver as much as circumstances allow' },
-  { a: 'People know: if I said it, it will be done', b: 'People know: if I said it, that was my attempt to do it' },
-  // Relationships — Boundaries (189-192)
-  { a: 'I can say no without prolonged guilt', b: 'Refusing someone stays in my head for a long time and causes discomfort' },
-  { a: 'I know where I end and another person begins — and I can hold that line', b: 'It\'s hard for me to separate my pain from the pain of a close person' },
-  { a: 'Preserving my own resources matters more to me than fulfilling others\' requests at any cost', b: 'Helping others matters more to me than preserving my own resources' },
-  { a: 'I can easily stop responding when I need space', b: 'It\'s hard for me to disconnect from people even when I need to be alone' },
+
+  // ── EXECUTION ──────────────────────────────────────────────────────────────
+  // Achiever
+  { a: 'I need to accomplish something every day', b: 'Quality matters more to me than quantity done' },
+  { a: 'After one task I immediately start the next', b: 'After finishing a task I take a break to recover' },
+  { a: 'A day without results feels wasted to me', b: 'A good day is time well spent, not necessarily productive' },
+
+  // Arranger
+  { a: 'When plans change I quickly restructure the approach', b: 'When plans change I stick to the original decision' },
+  { a: 'I enjoy coordinating people and resources', b: 'I prefer to focus on my own task' },
+  { a: 'I instinctively see who should do what', b: 'I prefer not to get involved in others\' tasks' },
+
+  // Belief
+  { a: 'My values don\'t change from situation to situation', b: 'I\'m flexible in my beliefs depending on context' },
+  { a: 'Work without meaning is impossible for me', b: 'I can work for results even without personal conviction' },
+  { a: 'People sense that I\'m sincere in what I say', b: 'People value my objectivity and neutrality' },
+
+  // Consistency
+  { a: 'The same rules for everyone — otherwise it\'s unfair', b: 'Rules should adapt to the situation' },
+  { a: 'I\'m uncomfortable when different people are treated differently', b: 'Different people require different approaches — that\'s normal' },
+  { a: 'Predictability and stability matter more than flexibility', b: 'Flexibility and adaptation matter more than rigid rules' },
+
+  // Deliberative
+  { a: 'I weigh a decision before acting', b: 'I act quickly and adjust as I go' },
+  { a: 'I see in advance where things might go wrong', b: 'I don\'t worry about risks in advance' },
+  { a: 'It\'s important for me to prepare well before starting', b: 'It\'s important to start — I\'ll figure out the details later' },
+
+  // Discipline
+  { a: 'I work better with a clear schedule', b: 'I\'m comfortable working without a rigid schedule' },
+  { a: 'My habits and routines increase my effectiveness', b: 'Rigid habits limit me — I prefer flexibility' },
+  { a: 'Disorder around me reduces my productivity', b: 'I work productively in any conditions' },
+
+  // Focus
+  { a: 'I can work on one task for a long time without distraction', b: 'I\'m more effective switching between multiple tasks' },
+  { a: 'I set clear priorities and stick to them', b: 'My priorities shift easily if something more important comes up' },
+  { a: 'A task not leading to the goal is a waste of time', b: 'I take on interesting tasks even if slightly off course' },
+
+  // Responsibility
+  { a: 'Once I commit to something I\'ll do it no matter what', b: 'If circumstances change significantly I\'ll reconsider my commitment' },
+  { a: 'I feel personally responsible for what I\'m entrusted with', b: 'I share responsibility with the team' },
+  { a: 'An unfinished task weighs on me', b: 'Unfinished tasks don\'t trouble me' },
+
+  // Restorative
+  { a: 'I get energized when I need to find what\'s broken and fix it', b: 'I prefer to create something new rather than fix what\'s old' },
+  { a: 'I\'m good at finding the root of a problem', b: 'I prefer to prevent problems rather than solve them' },
+  { a: 'A crisis mobilizes me rather than scares me', b: 'In a crisis I need time to gather myself' },
+
+  // ── INFLUENCE ──────────────────────────────────────────────────────────────
+  // Activator
+  { a: 'I prefer to start now and learn as I go', b: 'I prefer to plan before acting' },
+  { a: 'Too much discussion irritates me', b: 'Thorough discussion is an important part of the process' },
+  { a: 'I energize others to start right now', b: 'I help others slow down and think things through' },
+
+  // Command
+  { a: 'In an unclear situation I take control', b: 'In an unclear situation I wait for someone to take initiative' },
+  { a: 'I say what I think even when it\'s uncomfortable', b: 'I hold back my opinion to avoid creating conflict' },
+  { a: 'I\'m comfortable managing other people', b: 'I\'m more comfortable in an executor role' },
+
+  // Communication
+  { a: 'I can explain complex things in simple language', b: 'Accuracy matters more than simplicity when I explain' },
+  { a: 'I easily find the right words for any audience', b: 'I need time to find the right words' },
+  { a: 'A good story is more convincing than any argument', b: 'Facts and data are more convincing than stories' },
+
+  // Competition
+  { a: 'I need to know how I compare to others', b: 'I need to improve regardless of others' },
+  { a: 'I work better when I have someone to compete with', b: 'Competition distracts me more than motivates me' },
+  { a: 'Losing strongly motivates me next time', b: 'I accept losing calmly — participation is what matters' },
+
+  // Maximizer
+  { a: 'I\'m more interested in developing strengths than fixing weaknesses', b: 'It\'s important to work on weaknesses to improve' },
+  { a: 'A mediocre result doesn\'t satisfy me', b: 'I can stop at \'good enough\'' },
+  { a: 'I see how to make something good even better', b: 'I find ways to fix what was done poorly' },
+
+  // Self-Assurance
+  { a: 'I\'m confident in my decisions without needing others\' approval', b: 'Others\' opinions matter to me before deciding' },
+  { a: 'I trust my instincts even without enough data', b: 'Without data and feedback it\'s hard for me to decide' },
+  { a: 'I don\'t get lost in uncertain situations', b: 'Uncertainty slows me down' },
+
+  // Significance
+  { a: 'It matters to me that my work is noticed and valued', b: 'It\'s enough to know I did a good job' },
+  { a: 'I strive to leave a mark — to be remembered', b: 'Enjoying the process matters more to me' },
+  { a: 'I take on tasks where my contribution will be visible', b: 'I\'m comfortable working in the background' },
+
+  // Woo
+  { a: 'I enjoy meeting new people', b: 'I prefer deep conversations with people I know' },
+  { a: 'I easily connect with strangers', b: 'I need time to open up with someone new' },
+  { a: 'First impressions are my strong suit', b: 'Deep connections matter more than first impressions' },
+
+  // ── RELATIONSHIPS ──────────────────────────────────────────────────────────
+  // Adaptability
+  { a: 'I adapt easily when plans change', b: 'I find it hard when plans change unexpectedly' },
+  { a: 'I\'m comfortable acting without a clear plan', b: 'I need a plan to feel confident' },
+  { a: 'I live in the present moment and don\'t worry about tomorrow', b: 'I always think about what comes next' },
+
+  // Connectedness
+  { a: 'I believe everything in life is connected', b: 'I believe events happen independently of each other' },
+  { a: 'I need to understand the overall meaning of what\'s happening', b: 'Specific facts matter more to me than overall meaning' },
+  { a: 'I help people find their connection to the common goal', b: 'I help people focus on their personal tasks' },
+
+  // Developer
+  { a: 'I notice potential in people they don\'t see themselves', b: 'I assess people by their current abilities' },
+  { a: 'I enjoy helping others grow and develop', b: 'I enjoy helping others solve specific problems' },
+  { a: 'Another person\'s progress genuinely makes me happy', b: 'My own progress matters more to me than others\'' },
+
+  // Empathy
+  { a: 'I sense a person\'s state before they say a word', b: 'I need words or actions to understand someone\'s state' },
+  { a: 'Others\' pain affects me personally', b: 'I empathize without taking others\' emotions to heart' },
+  { a: 'People say I understand them very well', b: 'People value me for logical and practical advice' },
+
+  // Harmony
+  { a: 'I look for what people can agree on', b: 'I look for the best solution even if it causes disagreement' },
+  { a: 'Conflicts exhaust me — I prefer to avoid them', b: 'Conflict is a normal part of the work process' },
+  { a: 'I need there to be peace and agreement in the team', b: 'I need the team to make the best decisions' },
+
+  // Includer
+  { a: 'I notice when someone is left out', b: 'I\'m usually focused on my own work' },
+  { a: 'I need everyone in the group to feel accepted', b: 'I need the right people in the group' },
+  { a: 'I try to engage those who are silent', b: 'If someone is silent — that\'s their choice' },
+
+  // Individualization
+  { a: 'I quickly notice what makes each person special', b: 'I first see what connects people' },
+  { a: 'I adjust my approach depending on who I\'m talking to', b: 'I use one approach for everyone — it\'s fair' },
+  { a: 'I need to know what drives each specific person', b: 'I need to understand how the group works as a whole' },
+
+  // Positivity
+  { a: 'My optimism energizes people around me', b: 'I prefer a realistic view without excessive enthusiasm' },
+  { a: 'I can see the good even in difficult situations', b: 'I assess risks and difficulties soberly' },
+  { a: 'People feel better after talking with me', b: 'People feel more accurately understood after talking with me' },
+
+  // Relator
+  { a: 'I enjoy deep relationships with those I trust', b: 'I enjoy a wide circle of acquaintances' },
+  { a: 'I prefer to work with people I know well', b: 'I find it interesting to work with new people' },
+  { a: 'Closeness builds slowly with me but firmly', b: 'I quickly find common ground with anyone' },
+
+  // ── STRATEGIC THINKING ─────────────────────────────────────────────────────
+  // Analytical
+  { a: 'I need evidence before I agree', b: 'I trust intuition even without enough evidence' },
+  { a: 'I look for cause and logic behind any phenomenon', b: 'Practical results matter more to me than explanations' },
+  { a: 'I ask questions to check how well-founded an idea is', b: 'I accept ideas if they sound reasonable' },
+
+  // Context
+  { a: 'I need to know the history before making a decision', b: 'I\'m interested in the present, not the past' },
+  { a: 'I often think about how things got to where they are', b: 'I\'m more concerned with what to do next' },
+  { a: 'The past helps avoid repeating the same mistakes', b: 'Every situation is unique — the past isn\'t a guide' },
+
+  // Futuristic
+  { a: 'I\'m inspired by the image of what could be', b: 'I\'m inspired by what already exists and works' },
+  { a: 'I often imagine how everything will be in a few years', b: 'I\'m focused on what needs to be done now' },
+  { a: 'My ideas about the future inspire those around me', b: 'My decisions inspire others through their reliability' },
+
+  // Ideation
+  { a: 'I enjoy finding unexpected connections between things', b: 'I enjoy going deep into one topic in detail' },
+  { a: 'New ideas come to me constantly', b: 'I prefer to develop one good idea' },
+  { a: 'I get energized by brainstorming and generating ideas', b: 'I\'m more comfortable working with a ready-made plan' },
+
+  // Input
+  { a: 'I collect useful facts, articles and ideas', b: 'I collect only what\'s needed right now' },
+  { a: 'I\'m interested in a wide variety of topics and areas', b: 'I prefer to focus on one area' },
+  { a: 'I often become the source of needed information in the team', b: 'I turn to others when I need information' },
+
+  // Intellection
+  { a: 'I enjoy thinking alone — it restores me', b: 'I enjoy thinking out loud together with others' },
+  { a: 'I love diving deep into complex ideas and questions', b: 'I prefer to quickly arrive at a practical answer' },
+  { a: 'Time for reflection is a necessity, not a luxury', b: 'I find it easiest to think while doing something' },
+
+  // Learner
+  { a: 'I enjoy the learning process itself', b: 'Specific results matter more to me than the process' },
+  { a: 'I\'m always learning something new — it energizes me', b: 'I prefer to perfect what I already know' },
+  { a: 'Diving into an unfamiliar topic captivates me', b: 'An unfamiliar topic creates tension for me' },
+
+  // Strategic
+  { a: 'I quickly see multiple possible paths in any situation', b: 'I carefully develop one good plan' },
+  { a: 'I notice patterns where others see chaos', b: 'I focus on details and concrete steps' },
+  { a: 'I find the best route among many options', b: 'I prefer to move step by step along a clear plan' },
+
 ]
