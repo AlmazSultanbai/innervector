@@ -286,6 +286,11 @@ export default function HomePage() {
 
           {/* Text */}
           <div className="flex-1 text-center lg:text-left animate-slide-in delay-100">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-5 border"
+              style={{ background: 'rgba(212,168,67,0.08)', borderColor: 'rgba(212,168,67,0.3)' }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
+              <span className="text-gold text-xs font-semibold tracking-widest uppercase">AI Hub School</span>
+            </div>
             <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
               {t.heroTitle1}<br />
               <span className="text-gold-light italic">{t.heroTitle2}</span>
