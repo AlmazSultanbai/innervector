@@ -438,7 +438,7 @@ function VectorTestReport() {
     const steps = locale === 'ru'
       ? [
           { label: 'Обрабатываем твои ответы', threshold: 5 },
-          { label: 'Строим профиль из 36 векторов', threshold: 22 },
+          { label: 'Строим профиль из 34 векторов', threshold: 22 },
           { label: 'Анализируем карьерные траектории', threshold: 42 },
           { label: 'Составляем личный портрет', threshold: 65 },
           { label: 'Подбираем знаменитых двойников', threshold: 82 },
@@ -446,14 +446,14 @@ function VectorTestReport() {
       : locale === 'ky'
       ? [
           { label: 'Жоопторуңду иштетүүдөбүз', threshold: 5 },
-          { label: '36 вектор профилин түзүүдөбүз', threshold: 22 },
+          { label: '34 вектор профилин түзүүдөбүз', threshold: 22 },
           { label: 'Карьера жолдорун талдоодобуз', threshold: 42 },
           { label: 'Жеке портретиңди даярдоодобуз', threshold: 65 },
           { label: 'Окшош адамдарды издөөдөбүз', threshold: 82 },
         ]
       : [
           { label: 'Processing your answers', threshold: 5 },
-          { label: 'Building your 36-vector profile', threshold: 22 },
+          { label: 'Building your 34-vector profile', threshold: 22 },
           { label: 'Analysing career trajectories', threshold: 42 },
           { label: 'Crafting your personal portrait', threshold: 65 },
           { label: 'Finding your famous matches', threshold: 82 },
@@ -1248,10 +1248,10 @@ function VectorTestReport() {
               ? 'Inner Vector — өзүн-өзү таануу жана коучинг үчүн рефлексиялык курал, клиникалык же валидацияланган психометрикалык тест эмес. Пайыздар өзүңдүн ичиңдеги векторлордун салыштырмалуу ийилишин көрсөтөт.'
               : 'Inner Vector — рефлексивный инструмент для самопознания и коучинга, а не клинический или валидированный психометрический тест. Проценты показывают относительный наклон между твоими векторами, а не абсолютный балл в сравнении с другими.'}
             {testMode === 'express' && (locale === 'ru'
-              ? ' Экспресс — это быстрый снимок твоих ведущих векторов, а не полное ранжирование всех 36. Для точной картины пройди полный тест.'
+              ? ' Экспресс — это быстрый снимок твоих ведущих векторов, а не полное ранжирование всех 34. Для точной картины пройди полный тест.'
               : locale === 'ky'
-              ? ' Экспресс — бул сенин негизги векторлоруңдун тез сүрөтү, 36нын толук рейтинги эмес.'
-              : ' Express is a quick snapshot of your leading vectors, not a full ranking of all 36. Take the full test for the precise picture.')}
+              ? ' Экспресс — бул сенин негизги векторлоруңдун тез сүрөтү, 34түн толук рейтинги эмес.'
+              : ' Express is a quick snapshot of your leading vectors, not a full ranking of all 34. Take the full test for the precise picture.')}
           </p>
         </div>
 
