@@ -679,9 +679,9 @@ export default function HomePage() {
       <footer className="text-center py-6 text-slate-600 text-xs border-t border-white/5 space-y-2">
         <p>{t.footer}</p>
         <div className="flex justify-center gap-5">
-          <a href="/privacy" className="hover:text-slate-400 transition-colors">Privacy Policy</a>
-          <a href="/terms" className="hover:text-slate-400 transition-colors">Terms of Service</a>
-          <a href="/refund" className="hover:text-slate-400 transition-colors">Refund Policy</a>
+          <a href="/privacy" className="hover:text-slate-400 transition-colors">{t.privacyPolicy}</a>
+          <a href="/terms" className="hover:text-slate-400 transition-colors">{t.termsOfService}</a>
+          <a href="/refund" className="hover:text-slate-400 transition-colors">{t.refundPolicy}</a>
         </div>
       </footer>
     </div>

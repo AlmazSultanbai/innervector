@@ -61,6 +61,9 @@ export const translations = {
     planMission: 'Your Mission',
     planReflect: 'Reflect',
     planStrengthsActivated: 'Strengths activated',
+    privacyPolicy: 'Privacy Policy',
+    termsOfService: 'Terms of Service',
+    refundPolicy: 'Refund Policy',
   },
   ru: {
     badge: 'Inner Vector • Navigator',
@@ -122,6 +125,9 @@ export const translations = {
     planMission: 'Ваша миссия',
     planReflect: 'Рефлексия',
     planStrengthsActivated: 'Активированные силы',
+    privacyPolicy: 'Политика конфиденциальности',
+    termsOfService: 'Условия использования',
+    refundPolicy: 'Политика возврата',
   },
   ky: {
     badge: 'Inner Vector • Navigator',
@@ -183,6 +189,9 @@ export const translations = {
     planMission: 'Сиздин миссияңыз',
     planReflect: 'Ойлонуу',
     planStrengthsActivated: 'Активдештирилген күчтөр',
+    privacyPolicy: 'Купуялык саясаты',
+    termsOfService: 'Колдонуу шарттары',
+    refundPolicy: 'Кайтаруу саясаты',
   },
 } as const;
 
