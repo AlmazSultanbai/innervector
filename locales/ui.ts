@@ -111,7 +111,7 @@ export const ui: Record<Locale, {
     rulesSubtitle: 'Прочитай правила — это займёт 30 секунд',
     rulesStartBtn: 'Начать тест',
     rules: [
-      { icon: '⚡', title: 'Доверяй первому импульсу', desc: 'У тебя 25 секунд на вопрос. Отвечай инстинктивно — первая реакция точнее долгих раздумий.' },
+      { icon: '⚡', title: 'Доверяй первому импульсу', desc: 'У тебя 30 секунд на вопрос. Отвечай инстинктивно — первая реакция точнее долгих раздумий.' },
       { icon: '⚖️', title: 'Нет правильных ответов', desc: 'Это не экзамен. Выбирай то, что ближе тебе, а не то, что кажется «правильным» или «лучшим».' },
       { icon: '🎯', title: 'Будь честен с собой', desc: 'Тест показывает кто ты есть, а не каким хочешь казаться. Чем честнее — тем точнее результат.' },
       { icon: '🔇', title: 'Убери отвлекающие факторы', desc: 'Найди тихое место. Не отвлекайся на телефон и разговоры — каждый вопрос требует полного внимания.' },
@@ -171,7 +171,7 @@ export const ui: Record<Locale, {
     rulesSubtitle: 'Read the rules — it takes 30 seconds',
     rulesStartBtn: 'Start the test',
     rules: [
-      { icon: '⚡', title: 'Trust your first instinct', desc: 'You have 25 seconds per question. Answer instinctively — your first reaction is more accurate than overthinking.' },
+      { icon: '⚡', title: 'Trust your first instinct', desc: 'You have 30 seconds per question. Answer instinctively — your first reaction is more accurate than overthinking.' },
       { icon: '⚖️', title: 'No right or wrong answers', desc: 'This is not an exam. Choose what feels true to you, not what seems "better" or "more correct".' },
       { icon: '🎯', title: 'Be honest with yourself', desc: 'The test reveals who you are, not who you want to appear to be. The more honest you are, the more accurate the result.' },
       { icon: '🔇', title: 'Remove distractions', desc: 'Find a quiet place. Put your phone away and focus — each question deserves your full attention.' },
@@ -231,7 +231,7 @@ export const ui: Record<Locale, {
     rulesSubtitle: 'Эрежелерди окуп чык — 30 секунд убакыт кетет',
     rulesStartBtn: 'Тестти баштоо',
     rules: [
-      { icon: '⚡', title: 'Биринчи сезимиңе ишен', desc: 'Ар бир суроого 25 секунд берилет. Инстинктивдүү жооп бер — биринчи реакция узак ойлонуудан так.' },
+      { icon: '⚡', title: 'Биринчи сезимиңе ишен', desc: 'Ар бир суроого 30 секунд берилет. Инстинктивдүү жооп бер — биринчи реакция узак ойлонуудан так.' },
       { icon: '⚖️', title: 'Туура же туура эмес жооп жок', desc: 'Бул экзамен эмес. Сага жакыныраак болгонду тандап, "туура" же "жакшы" көрүнгөндү эмес.' },
       { icon: '🎯', title: 'Өзүңө чынчыл бол', desc: 'Тест сен ким экениңди көрсөтөт, ким болгуң келгениңди эмес. Чынчыл болгон сайын натыйжа так болот.' },
       { icon: '🔇', title: 'Алаксыткан нерселерди алып кет', desc: 'Тынч жер тап. Телефонду жана сүйлөшүүлөрдү токтот — ар бир суроо толук көңүл буруунду талап кылат.' },

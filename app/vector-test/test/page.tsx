@@ -10,8 +10,8 @@ import { ui } from '@/locales/ui'
 import { questionsEn } from '@/locales/questions.en'
 import { questionsKy } from '@/locales/questions.ky'
 
-const TIMER_DURATION_FULL = 25
-const TIMER_DURATION_EXPRESS = 25
+const TIMER_DURATION_FULL = 30
+const TIMER_DURATION_EXPRESS = 30
 const CIRCUMFERENCE = 2 * Math.PI * 13
 
 
