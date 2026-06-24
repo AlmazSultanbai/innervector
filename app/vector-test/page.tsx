@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { domainColors } from '@/data/vectorTraits'
@@ -26,10 +26,13 @@ export default function VectorTestIntro() {
   const locale = useLocaleStore(s => s.locale)
   const t = ui[locale]
 
+  const [daysLeft, setDaysLeft] = useState<number | null>(null)
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  useEffect(() => { setDaysLeft(getDaysLeft()) }, [])
 
   const getDomainLabel = (d: Domain) => {
     if (locale === 'en') return domainNamesI18n[d]?.en ?? d
@@ -69,7 +72,7 @@ export default function VectorTestIntro() {
     <div className="min-h-screen bg-radial flex flex-col">
 
       {/* Free trial top bar */}
-      {(() => { const d = getDaysLeft(); return d > 0 ? (
+      {daysLeft !== null && daysLeft > 0 && (
         <div className="w-full flex items-center justify-center gap-3 px-4 py-2.5 text-xs font-semibold tracking-wide"
           style={{ background: 'linear-gradient(90deg, rgba(16,185,129,0.15) 0%, rgba(5,150,105,0.1) 50%, rgba(16,185,129,0.15) 100%)', borderBottom: '1px solid rgba(16,185,129,0.2)' }}>
           <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#34d399" strokeWidth={2}>
@@ -77,9 +80,9 @@ export default function VectorTestIntro() {
           </svg>
           <span style={{ color: '#34d399' }}>{t.freeBadge}</span>
           <span className="w-px h-3 flex-shrink-0" style={{ background: 'rgba(52,211,153,0.3)' }} />
-          <span style={{ color: '#6ee7b7' }}>{t.freeDaysLeft(d)}</span>
+          <span style={{ color: '#6ee7b7' }}>{t.freeDaysLeft(daysLeft)}</span>
         </div>
-      ) : null })()}
+      )}
 
       {/* Nav */}
       <div className="flex items-center justify-between px-4 sm:px-6 pt-5 pb-3">
