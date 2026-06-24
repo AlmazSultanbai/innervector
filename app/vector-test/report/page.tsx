@@ -1198,9 +1198,6 @@ function VectorTestReport() {
                                 style={{
                                   color: isTop5 ? 'white' : isTop12 ? 'rgba(226,232,240,0.9)' : 'rgba(100,116,139,0.4)',
                                   fontWeight: isTop5 ? 700 : isTop12 ? 500 : 400,
-                                  whiteSpace: 'nowrap',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
                                 }}>
                                 {getTraitName(trait.name)}
                               </span>
