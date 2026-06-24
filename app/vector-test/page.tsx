@@ -14,7 +14,7 @@ import type { TestMode } from '@/store/vectorTestStore'
 
 const domains: Domain[] = ['vliyanie', 'realizacia', 'otnosenia', 'myshlenie']
 
-const FREE_TRIAL_END = new Date('2026-07-24T00:00:00')
+const FREE_TRIAL_END = new Date('2026-07-09T00:00:00')
 function getDaysLeft() {
   const now = new Date(); now.setHours(0, 0, 0, 0)
   return Math.max(0, Math.ceil((FREE_TRIAL_END.getTime() - now.getTime()) / 86_400_000))
