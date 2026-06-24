@@ -5,9 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useVectorTestStore } from '@/store/vectorTestStore'
 import { traitData, domainColors } from '@/data/vectorTraits'
-import { checkResultPaid } from '@/lib/supabase'
 import type { VectorAnalysis } from '@/lib/supabase'
-import { useSearchParams } from 'next/navigation'
 import { useLocaleStore } from '@/store/localeStore'
 import { ui } from '@/locales/ui'
 import { traitNamesI18n } from '@/locales/traitNames'
@@ -15,7 +13,6 @@ import { domainNamesI18n } from '@/locales/domainNames'
 import { traitDataEn } from '@/locales/traitData.en'
 import { traitDataKy } from '@/locales/traitData.ky'
 import LangSwitcher from '@/components/LangSwitcher'
-import { useAuth } from '@/components/LoginModal'
 import type { Domain } from '@/data/vectorTraits'
 
 const DOMAINS: Domain[] = ['realizacia', 'vliyanie', 'otnosenia', 'myshlenie']
@@ -255,8 +252,6 @@ function VectorTestReport() {
     }).slice(0, 5)
   }, [top5])
 
-  const searchParams = useSearchParams()
-  const { isSuperAdmin } = useAuth()
   const [copied, setCopied] = useState(false)
   const [analysis, setAnalysis] = useState<VectorAnalysis | null>(null)
   const [analysisLoading, setAnalysisLoading] = useState(false)
@@ -265,10 +260,8 @@ function VectorTestReport() {
   const progressRef = useRef(0)
   const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [resultId, setResultId] = useState<string | null>(null)
-  const [isPaid, setIsPaid] = useState(false)
 
   const isUnlocked = true
-  const [paymentLoading, setPaymentLoading] = useState(false)
   const profileUrl = shareToken ? `${typeof window !== 'undefined' ? window.location.origin : 'https://innervector.co'}/vector-profile/${shareToken}` : null
 
   const copyLink = () => {
@@ -276,23 +269,6 @@ function VectorTestReport() {
     navigator.clipboard.writeText(profileUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
-  }
-
-  const buyAnalysis = async () => {
-    if (!resultId) return
-    setPaymentLoading(true)
-    const sessionId = localStorage.getItem('vector-session-id') ?? ''
-    try {
-      const res = await fetch('/api/payments/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ result_id: resultId, session_id: sessionId }),
-      })
-      const data = await res.json()
-      if (data.url) window.location.href = data.url
-    } finally {
-      setPaymentLoading(false)
-    }
   }
 
   // Save to Supabase once per completed test
@@ -332,7 +308,6 @@ function VectorTestReport() {
         if (result?.share_token) setShareToken(result.share_token)
         if (result?.id) {
           setResultId(result.id)
-          checkResultPaid(result.id).then(paid => { if (paid) setIsPaid(true) })
         }
         if (result?.error) console.error('Save failed:', result.error)
       })
@@ -340,30 +315,6 @@ function VectorTestReport() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasResults, scores, top5, domainAverages])
 
-  // Handle return from Lemon Squeezy checkout (?paid=1&result_id=...)
-  useEffect(() => {
-    const paidParam = searchParams.get('paid')
-    const ridParam = searchParams.get('result_id')
-    if (paidParam !== '1' || !ridParam) return
-
-    setResultId(ridParam)
-    // Poll DB until webhook confirms payment (max 20s)
-    let attempts = 0
-    const poll = setInterval(async () => {
-      attempts++
-      const paid = await checkResultPaid(ridParam)
-      if (paid) {
-        clearInterval(poll)
-        setIsPaid(true)
-      } else if (attempts >= 10) {
-        // Webhook might be delayed — trust the redirect param after 10 attempts
-        clearInterval(poll)
-        setIsPaid(true)
-      }
-    }, 2000)
-    return () => clearInterval(poll)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   // Trigger analysis once paid
   useEffect(() => {
