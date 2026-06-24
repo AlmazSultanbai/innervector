@@ -61,7 +61,7 @@ export const questionsEn: { a: string; b: string }[] = [
   // Communication
   { a: 'I can explain complex things in simple language', b: 'Accuracy matters more than simplicity when I explain' },
   { a: 'I easily find the right words for any audience', b: 'I need time to find the right words' },
-  { a: 'A good story is more convincing than any argument', b: 'Facts and data are more convincing than stories' },
+  { a: 'I use stories and examples to get my point across', b: 'I prefer facts and data over stories when explaining' },
 
   // Competition
   { a: 'I need to know how I compare to others', b: 'I need to improve regardless of others' },
@@ -70,7 +70,7 @@ export const questionsEn: { a: string; b: string }[] = [
 
   // Maximizer
   { a: 'I\'m more interested in developing strengths than fixing weaknesses', b: 'It\'s important to work on weaknesses to improve' },
-  { a: 'A mediocre result doesn\'t satisfy me', b: 'I can stop at \'good enough\'' },
+  { a: 'I invest more time in what I\'m already good at than fixing weaknesses', b: 'I can stop at \'good enough\' when something works' },
   { a: 'I see how to make something good even better', b: 'I find ways to fix what was done poorly' },
 
   // Self-Assurance
@@ -161,7 +161,7 @@ export const questionsEn: { a: string; b: string }[] = [
   { a: 'I often become the source of needed information in the team', b: 'I turn to others when I need information' },
 
   // Intellection
-  { a: 'I enjoy thinking alone — it restores me', b: 'I enjoy thinking out loud together with others' },
+  { a: 'I return to the same idea repeatedly to understand it more deeply', b: 'I prefer to reach a conclusion and move on' },
   { a: 'I love diving deep into complex ideas and questions', b: 'I prefer to quickly arrive at a practical answer' },
   { a: 'Time for reflection is a necessity, not a luxury', b: 'I find it easiest to think while doing something' },
 
