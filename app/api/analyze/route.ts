@@ -56,12 +56,19 @@ export async function POST(req: NextRequest) {
     // ── Duplicate check before calling Claude ──────────────────────────────
     const existing = await findExistingAnalysis(full_name, strengths);
     if (existing) {
-      console.info(`ℹ Duplicate profile for "${full_name}" — returning cached analysis`);
       try {
         const cleaned = existing.analysis.trim()
           .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
         const cached: AnalysisResult = JSON.parse(cleaned);
-        return NextResponse.json({ ...cached, share_token: existing.share_token });
+        // If the new request includes lesser themes but the cached version doesn't have
+        // lesserTalents — bypass cache so we generate a richer analysis this time.
+        const cachedHasLesser = !!cached.lesserTalents;
+        if (hasLesser && !cachedHasLesser) {
+          console.info(`ℹ Cache miss for "${full_name}" — regenerating with lesser themes`);
+        } else {
+          console.info(`ℹ Duplicate profile for "${full_name}" — returning cached analysis`);
+          return NextResponse.json({ ...cached, share_token: existing.share_token });
+        }
       } catch {
         // If cached JSON is broken, fall through to re-generate
       }

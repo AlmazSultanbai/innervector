@@ -9,6 +9,7 @@ import StrengthCard from '@/components/StrengthCard';
 import FamousPersonCard from '@/components/FamousPersonCard';
 import CareerCard from '@/components/CareerCard';
 import CombinationCard from '@/components/CombinationCard';
+import IdealPartnerCard from '@/components/IdealPartnerCard';
 import Image from 'next/image';
 
 const DOMAIN_ICONS: Record<Domain, string> = {
@@ -63,7 +64,7 @@ export default function ClientProfilePage() {
       combinations: 'Talent Combinations',
       blindSpots: 'Blind Spots to Watch',
       famous: 'Famous Strengths Matches',
-      careers: 'Ideal Careers',
+      careers: 'Career Directions to Explore',
       dominantSuffix: 'Dominant',
       notFound: 'Profile not found',
       notFoundSub: 'This link may be invalid or expired.',
@@ -79,7 +80,7 @@ export default function ClientProfilePage() {
       combinations: 'Сочетания талантов',
       blindSpots: 'Слепые зоны',
       famous: 'Известные люди с похожим профилем',
-      careers: 'Идеальные карьеры',
+      careers: 'Карьерные направления для исследования',
       dominantSuffix: 'Доминирует',
       notFound: 'Профиль не найден',
       notFoundSub: 'Ссылка недействительна или устарела.',
@@ -95,7 +96,7 @@ export default function ClientProfilePage() {
       combinations: 'Талант айкалыштары',
       blindSpots: 'Байкалбаган жактар',
       famous: 'Окшош профилдеги белгилүү адамдар',
-      careers: 'Идеалдуу карьера',
+      careers: 'Изилдөө үчүн карьералык багыттар',
       dominantSuffix: 'Үстөмдүк кылат',
       notFound: 'Профил табылган жок',
       notFoundSub: 'Шилтеме жараксыз же эскирген.',
@@ -278,6 +279,39 @@ export default function ClientProfilePage() {
           </div>
         </section>
 
+        {/* Lesser Talents — managing zones (only when full-34 report provided bottom themes) */}
+        {result.lesserTalents && result.lesserTalents.themes?.length > 0 && (
+          <section>
+            <h2 className="font-serif text-xl text-white mb-4 flex items-center gap-3">
+              <span className="w-6 h-px bg-gold/40" />
+              {lang === 'ru' ? 'Зоны управления (нижние таланты)' : lang === 'ky' ? 'Башкаруу зоналары' : 'Managing Zones (lesser talents)'}
+              <span className="flex-1 h-px bg-white/5" />
+            </h2>
+            <div className="card p-5 mb-3">
+              <p className="text-slate-300 text-sm leading-relaxed">{result.lesserTalents.summary}</p>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3 mb-3">
+              {result.lesserTalents.themes.map((lt, i) => (
+                <div key={i} className="card p-4">
+                  <div className="font-serif text-white font-semibold text-sm mb-2">{lt.name}</div>
+                  <div className="mb-2">
+                    <div className="text-[10px] tracking-widest text-red-400/60 uppercase font-medium mb-1">{lang === 'ru' ? 'Риск' : lang === 'ky' ? 'Тобокел' : 'Risk'}</div>
+                    <p className="text-slate-400 text-xs leading-relaxed">{lt.risk}</p>
+                  </div>
+                  <div>
+                    <div className="text-[10px] tracking-widest text-emerald-400/60 uppercase font-medium mb-1">{lang === 'ru' ? 'Как управлять' : lang === 'ky' ? 'Кантип башкаруу' : 'How to manage'}</div>
+                    <p className="text-slate-400 text-xs leading-relaxed">{lt.manage}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="card p-5 border-gold/15">
+              <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-2">{lang === 'ru' ? 'Что это даёт твоим топ-талантам' : lang === 'ky' ? 'Топ-таланттарга эмне берет' : 'What this gives your top talents'}</div>
+              <p className="text-slate-300 text-sm leading-relaxed">{result.lesserTalents.forTopTalents}</p>
+            </div>
+          </section>
+        )}
+
         {/* Famous People */}
         <section>
           <h2 className="font-serif text-xl text-white mb-4 flex items-center gap-3">
@@ -294,17 +328,47 @@ export default function ClientProfilePage() {
 
         {/* Careers */}
         <section>
-          <h2 className="font-serif text-xl text-white mb-4 flex items-center gap-3">
+          <h2 className="font-serif text-xl text-white mb-1 flex items-center gap-3">
             <span className="w-6 h-px bg-gold/40" />
             {L.careers}
             <span className="flex-1 h-px bg-white/5" />
           </h2>
+          <p className="text-slate-500 text-sm mb-4 ml-9">
+            {lang === 'ru'
+              ? 'Таланты не определяют профессию — они показывают, в каких ролях и средах ты будешь в своей стихии. Это направления для исследования, не предписание.'
+              : lang === 'ky'
+              ? 'Таланттар кесипти аныктабайт — алар кайсы ролдордо жана чөйрөлөрдө өзүңдү толук ача аларыңды көрсөтөт. Бул изилдөө үчүн багыттар, буйрук эмес.'
+              : "Talents don't determine your profession — they show which roles and environments let you thrive. These are directions to explore, not a prescription."}
+          </p>
           <div className="grid sm:grid-cols-2 gap-4">
             {result.careers.map((career, i) => (
               <CareerCard key={career.title} career={career} rank={i + 1} animDelay={i * 100} />
             ))}
           </div>
         </section>
+
+        {/* Ideal Partners */}
+        {result.idealPartners?.length > 0 && (
+          <section>
+            <h2 className="font-serif text-xl text-white mb-1 flex items-center gap-3">
+              <span className="w-6 h-px bg-gold/40" />
+              {lang === 'ru' ? 'Кто дополнит тебя' : lang === 'ky' ? 'Сени ким толуктайт' : 'Who Complements You'}
+              <span className="flex-1 h-px bg-white/5" />
+            </h2>
+            <p className="text-slate-500 text-sm mb-4 ml-9">
+              {lang === 'ru'
+                ? 'Типы людей, которые закрывают твои слабые зоны — по принципу Gallup: сильное в тебе + сильное в них. Это описание архетипа, а не конкретного человека.'
+                : lang === 'ky'
+                ? 'Алсыз жактарыңды жабуучу адам типтери — Gallup принциби боюнча: сендеги күч + алардагы күч. Бул архетиптин сүрөттөмөсү, конкреттүү адам эмес.'
+                : "Types of people who cover your weak zones — Gallup’s principle: your strength + theirs. A description of an archetype, not a specific person."}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {result.idealPartners.map((partner, i) => (
+                <IdealPartnerCard key={partner.type} partner={partner} index={i} />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Telegram CTA — main action */}
         <section className="py-4">
