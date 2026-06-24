@@ -56,7 +56,7 @@ export default function VectorTestIntro() {
     // Generate fresh session_id for each new test attempt
     localStorage.setItem('vector-session-id', crypto.randomUUID())
     setUserInfo({ fullName: fullName.trim(), phone: phone.trim(), email: email.trim() })
-    router.push('/vector-test/test')
+    router.push('/vector-test/rules')
   }
 
   return (
