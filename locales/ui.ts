@@ -163,7 +163,7 @@ export const ui: Record<Locale, {
     modeFull: 'Full',
     subtitleExpress: '34 суроо · 34 талант · ~10 мин',
     subtitleFull: '102 суроо · 34 талант · ~25 мин',
-    formTitle: 'Тестти баштоо үчүн формуну толтур',
+    formTitle: 'Тестти баштоо үчүн форманы толтуруңуз',
     namePlaceholder: 'Аты-жөнү',
     phonePlaceholder: 'Телефон',
     emailPlaceholder: 'Email',
