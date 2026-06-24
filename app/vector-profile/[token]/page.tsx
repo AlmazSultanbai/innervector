@@ -427,12 +427,12 @@ function VectorProfilePage() {
                     {fields && (
                       <div className="space-y-3">
                         <p className="text-slate-400 text-sm leading-relaxed">{fields.positive}</p>
-                        <div className="flex gap-3">
-                          <div className="flex-1 bg-white/3 border border-white/6 rounded-xl px-3 py-2.5">
+                        <div className="flex flex-col gap-2">
+                          <div className="bg-white/3 border border-white/6 rounded-xl px-3 py-2.5">
                             <div className="text-[9px] tracking-widest text-slate-600 uppercase mb-1.5">{t.strengthLabel}</div>
                             <p className="text-slate-300 text-xs leading-relaxed">{fields.short}</p>
                           </div>
-                          <div className="flex-1 bg-red-500/4 border border-red-500/12 rounded-xl px-3 py-2.5">
+                          <div className="bg-red-500/4 border border-red-500/12 rounded-xl px-3 py-2.5">
                             <div className="text-[9px] tracking-widest text-slate-600 uppercase mb-1.5">{t.darkLabel}</div>
                             <p className="text-slate-400 text-xs leading-relaxed">{fields.dark}</p>
                           </div>
