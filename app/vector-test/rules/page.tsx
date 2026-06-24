@@ -9,13 +9,16 @@ import { ui } from '@/locales/ui'
 import { domainColors } from '@/data/vectorTraits'
 import LangSwitcher from '@/components/LangSwitcher'
 
+const GOLD = '#d4a843'
+const SCALE_VALUES = [2, 1, 0, 1, 2]
+const DEMO_SELECTED = 1 // "Скорее А / Lean A" highlighted
+
 export default function VectorTestRules() {
   const router = useRouter()
   const { userInfo, testMode } = useVectorTestStore()
   const locale = useLocaleStore(s => s.locale)
   const t = ui[locale]
 
-  // Guard: if no userInfo, redirect back to /vector-test
   useEffect(() => {
     if (!userInfo) router.replace('/vector-test')
   }, [userInfo, router])
@@ -23,9 +26,7 @@ export default function VectorTestRules() {
   if (!userInfo) return null
 
   const modeColor = testMode === 'express' ? domainColors.vliyanie : domainColors.myshlenie
-  const modeLabel = testMode === 'express'
-    ? t.expressResultBadge
-    : t.fullResultBadge
+  const modeLabel = testMode === 'express' ? t.expressResultBadge : t.fullResultBadge
 
   return (
     <div className="min-h-screen bg-radial flex flex-col">
@@ -49,7 +50,7 @@ export default function VectorTestRules() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-10 max-w-2xl mx-auto w-full">
+      <div className="flex-1 flex flex-col items-center px-4 py-8 max-w-2xl mx-auto w-full">
 
         {/* Mode badge */}
         <div
@@ -64,11 +65,93 @@ export default function VectorTestRules() {
         <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white text-center mb-2">
           {t.rulesTitle}
         </h1>
-        <p className="text-slate-500 text-sm text-center mb-10">
+        <p className="text-slate-500 text-sm text-center mb-8">
           {t.rulesSubtitle}
         </p>
 
-        {/* Rules cards */}
+        {/* ── HOW IT WORKS VISUAL ─────────────────────────── */}
+        <div className="w-full mb-8">
+          <p className="text-[11px] font-semibold tracking-widest uppercase text-slate-400 text-center mb-1">
+            {t.howItWorksTitle}
+          </p>
+          <p className="text-slate-500 text-xs text-center mb-4">
+            {t.howItWorksDesc}
+          </p>
+
+          <div className="bg-white/3 border border-white/8 rounded-2xl px-4 py-5 sm:px-7 sm:py-6">
+
+            {/* A | scale | B */}
+            <div className="grid grid-cols-[1fr_auto_1fr] gap-3 sm:gap-7 items-center mb-5">
+
+              {/* Statement A — bright (demo leans A) */}
+              <p className="font-serif text-sm sm:text-base text-white text-right leading-relaxed">
+                {t.exampleA}
+              </p>
+
+              {/* Scale circles */}
+              <div className="flex flex-col items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  {SCALE_VALUES.map((label, i) => {
+                    const selected = i === DEMO_SELECTED
+                    return (
+                      <div
+                        key={i}
+                        className="w-8 h-8 rounded-full border flex items-center justify-center text-[10px] font-semibold"
+                        style={selected ? {
+                          borderColor: GOLD,
+                          background: GOLD + '28',
+                          boxShadow: `0 0 18px ${GOLD}55`,
+                          color: GOLD,
+                        } : {
+                          borderColor: GOLD + '30',
+                          background: GOLD + '08',
+                          color: GOLD + '45',
+                        }}
+                      >
+                        {label}
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="flex justify-between w-full px-0.5">
+                  <span className="text-[9px] tracking-wide text-slate-600">{t.optionA}</span>
+                  <span className="text-[9px] tracking-wide text-slate-600">{t.optionB}</span>
+                </div>
+              </div>
+
+              {/* Statement B — dimmed */}
+              <p className="font-serif text-sm sm:text-base text-slate-600 leading-relaxed">
+                {t.exampleB}
+              </p>
+            </div>
+
+            {/* Scale legend */}
+            <div className="flex items-start justify-between border-t border-white/6 pt-4">
+              {t.scaleLabels.map((lbl, i) => (
+                <div key={i} className="flex flex-col items-center gap-1 flex-1">
+                  <div
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ background: i === DEMO_SELECTED ? GOLD : 'rgba(100,116,139,0.3)' }}
+                  />
+                  <span
+                    className="text-center leading-tight"
+                    style={{
+                      fontSize: '9px',
+                      color: i === DEMO_SELECTED ? GOLD : 'rgba(100,116,139,0.55)',
+                      fontWeight: i === DEMO_SELECTED ? 600 : 400,
+                    }}
+                  >
+                    {lbl}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        </div>
+        {/* ── END HOW IT WORKS ────────────────────────────── */}
+
+        {/* Rule cards */}
         <div className="w-full space-y-3 mb-10">
           {t.rules.map((rule, i) => (
             <div

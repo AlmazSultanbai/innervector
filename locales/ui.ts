@@ -57,6 +57,12 @@ export const ui: Record<Locale, {
   rulesSubtitle: string
   rulesStartBtn: string
   rules: { icon: string; title: string; desc: string }[]
+  // how-it-works demo
+  howItWorksTitle: string
+  howItWorksDesc: string
+  exampleA: string
+  exampleB: string
+  scaleLabels: [string, string, string, string, string]
 }> = {
   ru: {
     back: 'Назад',
@@ -117,6 +123,11 @@ export const ui: Record<Locale, {
       { icon: '🔇', title: 'Убери отвлекающие факторы', desc: 'Найди тихое место. Не отвлекайся на телефон и разговоры — каждый вопрос требует полного внимания.' },
       { icon: '⏱️', title: 'Таймер не враг', desc: 'Если время вышло — вопрос засчитывается как нейтральный. Не переживай: это тоже информация о тебе.' },
     ],
+    howItWorksTitle: 'Как устроен каждый вопрос',
+    howItWorksDesc: 'Два утверждения — выбери, какое из них ближе к тебе, и насколько',
+    exampleA: 'Я предпочитаю действовать сразу',
+    exampleB: 'Я сначала думаю, потом делаю',
+    scaleLabels: ['Точно А', 'Скорее А', 'Нейтрально', 'Скорее Б', 'Точно Б'],
   },
   en: {
     back: 'Back',
@@ -177,6 +188,11 @@ export const ui: Record<Locale, {
       { icon: '🔇', title: 'Remove distractions', desc: 'Find a quiet place. Put your phone away and focus — each question deserves your full attention.' },
       { icon: '⏱️', title: 'The timer is not your enemy', desc: 'If time runs out, the question is counted as neutral. That\'s fine — it\'s also information about you.' },
     ],
+    howItWorksTitle: 'How each question works',
+    howItWorksDesc: 'Two statements — pick which one is closer to you, and how much',
+    exampleA: 'I prefer to act immediately',
+    exampleB: 'I think first, then act',
+    scaleLabels: ['Strongly A', 'Lean A', 'Neutral', 'Lean B', 'Strongly B'],
   },
   ky: {
     back: 'Артка',
@@ -237,5 +253,10 @@ export const ui: Record<Locale, {
       { icon: '🔇', title: 'Алаксыткан нерселерди алып кет', desc: 'Тынч жер тап. Телефонду жана сүйлөшүүлөрдү токтот — ар бир суроо толук көңүл буруунду талап кылат.' },
       { icon: '⏱️', title: 'Таймер душман эмес', desc: 'Убакыт бүтсө, суроо бейтарап деп эсептелет. Кабатырланба — бул да сен жөнүндө маалымат.' },
     ],
+    howItWorksTitle: 'Ар бир суроо кантип иштейт',
+    howItWorksDesc: 'Эки ырастоо — кайсынысы сага жакыныраак экенин жана канчалык деп тандап ал',
+    exampleA: 'Мен дароо аракет кылганды жакшы көрөм',
+    exampleB: 'Мен алдын ала ойлонуп, андан кийин жасайм',
+    scaleLabels: ['Так А', 'Дээрлик А', 'Бейтарап', 'Дээрлик Б', 'Так Б'],
   },
 }
