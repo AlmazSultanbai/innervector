@@ -63,6 +63,9 @@ export const ui: Record<Locale, {
   exampleA: string
   exampleB: string
   scaleLabels: [string, string, string, string, string]
+  // free trial banner
+  freeBadge: string
+  freeDaysLeft: (n: number) => string
 }> = {
   ru: {
     back: 'Назад',
@@ -128,6 +131,12 @@ export const ui: Record<Locale, {
     exampleA: 'Я предпочитаю действовать сразу',
     exampleB: 'Я сначала думаю, потом делаю',
     scaleLabels: ['Точно А', 'Скорее А', 'Нейтрально', 'Скорее Б', 'Точно Б'],
+    freeBadge: '30 ДНЕЙ БЕСПЛАТНО',
+    freeDaysLeft: (n) => {
+      const mod10 = n % 10; const mod100 = n % 100
+      const word = (mod10 === 1 && mod100 !== 11) ? 'день' : (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) ? 'дня' : 'дней'
+      return `Осталось ${n} ${word}`
+    },
   },
   en: {
     back: 'Back',
@@ -193,6 +202,8 @@ export const ui: Record<Locale, {
     exampleA: 'I prefer to act immediately',
     exampleB: 'I think first, then act',
     scaleLabels: ['Strongly A', 'Lean A', 'Neutral', 'Lean B', 'Strongly B'],
+    freeBadge: '30 DAYS FREE',
+    freeDaysLeft: (n) => `${n} day${n === 1 ? '' : 's'} left`,
   },
   ky: {
     back: 'Артка',
@@ -258,5 +269,7 @@ export const ui: Record<Locale, {
     exampleA: 'Мен дароо аракет кылганды жакшы көрөм',
     exampleB: 'Мен алдын ала ойлонуп, андан кийин жасайм',
     scaleLabels: ['Так А', 'Дээрлик А', 'Бейтарап', 'Дээрлик Б', 'Так Б'],
+    freeBadge: '30 КҮН БЕКЕР',
+    freeDaysLeft: (n) => `${n} күн калды`,
   },
 }

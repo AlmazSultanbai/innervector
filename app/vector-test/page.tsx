@@ -14,6 +14,12 @@ import type { TestMode } from '@/store/vectorTestStore'
 
 const domains: Domain[] = ['vliyanie', 'realizacia', 'otnosenia', 'myshlenie']
 
+const FREE_TRIAL_END = new Date('2026-07-24T00:00:00')
+function getDaysLeft() {
+  const now = new Date(); now.setHours(0, 0, 0, 0)
+  return Math.max(0, Math.ceil((FREE_TRIAL_END.getTime() - now.getTime()) / 86_400_000))
+}
+
 export default function VectorTestIntro() {
   const router = useRouter()
   const { setUserInfo, testMode, setTestMode, reset } = useVectorTestStore()
@@ -78,6 +84,27 @@ export default function VectorTestIntro() {
         </div>
         <LangSwitcher />
       </div>
+
+      {/* Free trial banner */}
+      {(() => { const d = getDaysLeft(); return d > 0 ? (
+        <div className="w-full flex justify-center px-4 pb-2">
+          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide"
+            style={{
+              background: 'linear-gradient(90deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.08) 100%)',
+              border: '1px solid rgba(16,185,129,0.3)',
+              color: '#34d399',
+            }}>
+            <span className="flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {t.freeBadge}
+            </span>
+            <span className="w-px h-3 bg-emerald-500/30" />
+            <span style={{ color: '#6ee7b7' }}>{t.freeDaysLeft(d)}</span>
+          </div>
+        </div>
+      ) : null })()}
 
       {/* Hero */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
