@@ -267,8 +267,7 @@ function VectorTestReport() {
   const [resultId, setResultId] = useState<string | null>(null)
   const [isPaid, setIsPaid] = useState(false)
 
-  // Superadmin bypass — always unlocked
-  const isUnlocked = isPaid || isSuperAdmin
+  const isUnlocked = true
   const [paymentLoading, setPaymentLoading] = useState(false)
   const profileUrl = shareToken ? `${typeof window !== 'undefined' ? window.location.origin : 'https://innervector.co'}/vector-profile/${shareToken}` : null
 
@@ -426,122 +425,6 @@ function VectorTestReport() {
         <Link href="/vector-test" className="px-8 py-3 rounded-xl border border-gold/30 text-gold text-xs tracking-widest uppercase hover:bg-gold/10 transition-all duration-200">
           {t.toStart}
         </Link>
-      </div>
-    )
-  }
-
-  // ── PAYWALL ── show free top-5 + unlock button until paid
-  if (!isUnlocked) {
-    const topTr = top5[0]
-    const topCol = domainColors[topTr?.d ?? 'vliyanie']
-    const includedItems = locale === 'ru'
-      ? ['Портрет личности — литературный, точный', 'Карьера: роли, среды, чего избегать', 'Бизнес: что приносишь команде и кто нужен рядом', 'Любовь и отношения — сильные стороны и тени', 'Комбинации векторов: Подпись, Скрытая сила, Напряжение', 'Знаменитые люди с похожим профилем', 'Слепые зоны — что может тормозить']
-      : locale === 'ky'
-      ? ['Инсандык портрет — так жана так', 'Карьера: ролдор, чөйрөлөр, эмнеден качуу керек', 'Бизнес: командага эмне берет жана ким керек', 'Сүйүү жана мамилелер', 'Вектор комбинациялары', 'Окшош профилдеги белгилүү адамдар', 'Сокур зоналар']
-      : ['Personal portrait — literary and precise', 'Career: roles, environments, what to avoid', 'Business: what you bring and who you need', 'Love & relationships — strengths and shadows', 'Vector combinations: Signature, Hidden Power, Tension', 'Famous people with a similar profile', 'Blind spots — what might hold you back']
-
-    return (
-      <div className="min-h-screen bg-radial">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12 pb-24">
-
-          {/* Nav */}
-          <div className="flex items-center justify-between mb-10">
-            <Link href="/vector-test" className="flex items-center gap-2 text-slate-500 hover:text-gold text-xs font-medium tracking-wide transition-colors">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-              </svg>
-              {locale === 'ru' ? 'Пройти заново' : locale === 'ky' ? 'Кайра тапшыруу' : 'Retake'}
-            </Link>
-            <span className="text-slate-600 text-xs tracking-widest uppercase">Inner Vector</span>
-          </div>
-
-          {/* Free result: top vector */}
-          <div className="text-center mb-10">
-            <p className="text-slate-500 text-xs tracking-[0.2em] uppercase mb-3">
-              {locale === 'ru' ? 'Доминирующая сила' : locale === 'ky' ? 'Башкы вектор' : 'Dominant vector'}
-            </p>
-            <h1 className="font-serif font-bold mb-4" style={{ fontSize: 'clamp(2.5rem,8vw,4rem)', color: topCol }}>
-              {topTr?.name}
-            </h1>
-            <div className="flex flex-wrap justify-center gap-2 mb-6">
-              {top5.map((tr, i) => {
-                const c = domainColors[tr.d]
-                return (
-                  <span key={tr.name} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border"
-                    style={{ color: c, borderColor: c + '40', background: c + '12' }}>
-                    <span className="text-[11px] opacity-50 font-bold">{i + 1}</span>
-                    {tr.name}
-                  </span>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Paywall card */}
-          <div className="rounded-2xl border border-gold/20 overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, rgba(212,168,67,0.06) 0%, rgba(255,255,255,0.02) 100%)' }}>
-
-            {/* Header */}
-            <div className="px-6 py-5 border-b border-white/6 text-center">
-              <p className="text-gold text-xs tracking-[0.2em] uppercase font-semibold mb-1">
-                {locale === 'ru' ? 'Полный анализ профиля' : locale === 'ky' ? 'Толук профиль анализи' : 'Full profile analysis'}
-              </p>
-              <p className="text-slate-400 text-sm">
-                {locale === 'ru' ? '7 разделов · Генерируется персонально для тебя' : locale === 'ky' ? '7 бөлүм · Жеке генерацияланат' : '7 sections · Generated personally for you'}
-              </p>
-            </div>
-
-            {/* Included items */}
-            <div className="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {includedItems.map((item, i) => (
-                <div key={i} className="flex items-start gap-2.5">
-                  <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                    style={{ background: 'rgba(212,168,67,0.15)', border: '1px solid rgba(212,168,67,0.3)' }}>
-                    <svg className="w-2 h-2 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <span className="text-slate-300 text-sm leading-snug">{item}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* CTA */}
-            <div className="px-6 py-5 border-t border-white/6 flex flex-col items-center gap-3">
-              {/* Price with strikethrough */}
-              <div className="flex items-center gap-3">
-                <span className="text-slate-500 text-lg line-through">$49</span>
-                <span className="text-gold text-2xl font-bold">$19</span>
-                <span className="text-xs text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded-full font-medium">-61%</span>
-              </div>
-              <button
-                onClick={buyAnalysis}
-                disabled={paymentLoading || !resultId}
-                className="w-full max-w-xs flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-semibold text-navy-900 transition-all duration-200 disabled:opacity-50"
-                style={{ background: paymentLoading ? 'rgba(212,168,67,0.6)' : '#d4a843',
-                         boxShadow: '0 0 24px rgba(212,168,67,0.3)' }}>
-                {paymentLoading ? (
-                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                ) : (
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                )}
-                <span className="text-base">
-                  {paymentLoading
-                    ? (locale === 'ru' ? 'Переходим к оплате...' : 'Redirecting...')
-                    : (locale === 'ru' ? 'Разблокировать за $19' : locale === 'ky' ? '$19 га ачуу' : 'Unlock for $19')}
-                </span>
-              </button>
-              <p className="text-slate-600 text-xs text-center">
-                {locale === 'ru' ? 'Разовый платёж · Безопасная оплата через Lemon Squeezy' : locale === 'ky' ? 'Бир жолку төлөм · Lemon Squeezy аркылуу' : 'One-time payment · Secure checkout via Lemon Squeezy'}
-              </p>
-            </div>
-          </div>
-
-        </div>
       </div>
     )
   }
