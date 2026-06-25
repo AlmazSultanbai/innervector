@@ -133,6 +133,7 @@ function VectorProfilePage() {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [selectedTrait, setSelectedTrait] = useState<string | null>(null)
 
   useEffect(() => {
     if (!token) return
@@ -824,7 +825,8 @@ function VectorProfilePage() {
                             const isTop12 = rank <= 12
                             return (
                               <div key={trait.name}
-                                className="flex flex-col items-start gap-1 px-2.5 py-2 rounded-xl w-full"
+                                onClick={() => setSelectedTrait(trait.name)}
+                                className="flex flex-col items-start gap-1 px-2.5 py-2 rounded-xl w-full cursor-pointer transition-opacity hover:opacity-80 active:opacity-60"
                                 style={isTop5 ? {
                                   background: color + '1a',
                                   border: `1px solid ${color}55`,
@@ -947,6 +949,79 @@ function VectorProfilePage() {
         </div>
 
       </div>
+
+      {/* Trait detail modal */}
+      {selectedTrait && (() => {
+        const fields = getTraitFields(selectedTrait)
+        const color = domainColors[traitData[selectedTrait]?.d ?? 'myshlenie']
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+            onClick={() => setSelectedTrait(null)}
+          >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <div
+              className="relative w-full max-w-lg rounded-2xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto"
+              style={{ background: '#111827', border: `1px solid ${color}40` }}
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Close */}
+              <button
+                onClick={() => setSelectedTrait(null)}
+                className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-slate-400 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              {/* Header */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ background: color + '25', border: `1px solid ${color}50` }}>
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ background: color }} />
+                </div>
+                <div>
+                  <div className="text-[9px] font-semibold tracking-widest uppercase mb-0.5" style={{ color }}>{getDomainName(traitData[selectedTrait]?.d ?? 'myshlenie')}</div>
+                  <h3 className="font-serif text-xl font-bold text-white">{getTraitName(selectedTrait)}</h3>
+                </div>
+              </div>
+
+              {/* Short */}
+              <p className="text-slate-400 text-sm leading-relaxed mb-4 italic border-l-2 pl-3" style={{ borderColor: color + '60' }}>
+                {fields?.short}
+              </p>
+
+              {/* Positive */}
+              <div className="bg-white/3 border border-white/6 rounded-xl px-4 py-3 mb-3">
+                <div className="text-[9px] tracking-widest font-semibold uppercase mb-2" style={{ color }}>
+                  {locale === 'en' ? 'Strength' : locale === 'ky' ? 'Күчтүү жагы' : 'Сильная сторона'}
+                </div>
+                <p className="text-slate-300 text-sm leading-relaxed">{fields?.positive}</p>
+              </div>
+
+              {/* Dark */}
+              <div className="bg-red-500/4 border border-red-500/12 rounded-xl px-4 py-3 mb-3">
+                <div className="text-[9px] tracking-widest font-semibold uppercase text-red-400/70 mb-2">
+                  {locale === 'en' ? 'Shadow side' : locale === 'ky' ? 'Көлөкө жагы' : 'Теневая сторона'}
+                </div>
+                <p className="text-slate-400 text-sm leading-relaxed">{fields?.dark}</p>
+              </div>
+
+              {/* Team */}
+              {fields?.team && (
+                <div className="flex items-start gap-2 mt-3">
+                  <span className="text-[9px] tracking-widest font-semibold uppercase text-slate-600 pt-0.5 flex-shrink-0">
+                    {locale === 'en' ? 'Best roles' : locale === 'ky' ? 'Эң жакшы ролдор' : 'Лучшие роли'}
+                  </span>
+                  <span className="text-slate-500 text-xs leading-relaxed">{fields.team}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })()}
+
     </div>
   )
 }
