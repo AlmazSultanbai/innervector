@@ -12,7 +12,7 @@ function getSupabaseAdmin() {
 
 const client = new Anthropic();
 
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
@@ -77,8 +77,9 @@ Respond ONLY with a valid JSON object, no markdown fences:
 - "lesserStrengths": only fill if all 34 are visible in rank order; otherwise return []. Never invent bottom themes.`;
 
     let messageContent: Anthropic.MessageParam['content'];
+    const isPdf = file.type === 'application/pdf';
 
-    if (file.type === 'application/pdf') {
+    if (isPdf) {
       messageContent = [
         {
           type: 'document',
@@ -97,12 +98,23 @@ Respond ONLY with a valid JSON object, no markdown fences:
       ];
     }
 
-    const message = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 256,
-      system: 'You are a precise document parser. Extract CliftonStrengths theme names from Gallup reports in strict rank order. Respond with valid JSON only — no markdown, no explanation.',
-      messages: [{ role: 'user', content: messageContent }],
-    });
+    const model = 'claude-opus-4-8';
+    const systemPrompt = 'You are a precise document parser. Extract CliftonStrengths theme names from Gallup reports in strict rank order. Respond with valid JSON only — no markdown, no explanation.';
+
+    const message = isPdf
+      ? await client.beta.messages.create({
+          betas: ['pdfs-2024-09-25'],
+          model,
+          max_tokens: 512,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: messageContent as Anthropic.Beta.BetaContentBlockParam[] }],
+        })
+      : await client.messages.create({
+          model,
+          max_tokens: 512,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: messageContent }],
+        });
 
     const content = message.content[0];
     if (content.type !== 'text') {
@@ -162,7 +174,8 @@ Respond ONLY with a valid JSON object, no markdown fences:
     // Always return up to 10, in the ranked order extracted (+ bottom 5 if a full-34 report)
     return NextResponse.json({ strengths: valid.slice(0, 10), lesserStrengths: lesserValid, full_name: fullName, gallup_file_url });
   } catch (err) {
-    console.error('Extract error:', err);
-    return NextResponse.json({ error: 'Failed to read the file. Please try again.' }, { status: 500 });
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('Extract error:', msg);
+    return NextResponse.json({ error: 'Failed to read the file. Please try again.', detail: msg }, { status: 500 });
   }
 }
