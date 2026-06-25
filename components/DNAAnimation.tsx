@@ -189,20 +189,6 @@ export default function DNAAnimation() {
 
       </div>
 
-      {/* Domain legend — 2x2 grid */}
-      <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-1.5">
-        {[
-          { label: 'Executing', color: '#60a5fa' },
-          { label: 'Influencing', color: '#fb923c' },
-          { label: 'Relationship', color: '#34d399' },
-          { label: 'Strategic', color: '#a78bfa' },
-        ].map(({ label, color }) => (
-          <div key={label} className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color, boxShadow: `0 0 6px ${color}80` }} />
-            <span className="text-slate-500 text-xs">{label}</span>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
