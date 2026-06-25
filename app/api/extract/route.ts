@@ -98,7 +98,7 @@ Respond ONLY with a valid JSON object, no markdown fences:
       ];
     }
 
-    const model = 'claude-opus-4-8';
+    const model = 'claude-3-5-sonnet-20241022';
     const systemPrompt = 'You are a precise document parser. Extract CliftonStrengths theme names from Gallup reports in strict rank order. Respond with valid JSON only — no markdown, no explanation.';
 
     const message = isPdf
