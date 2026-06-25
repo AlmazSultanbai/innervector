@@ -175,7 +175,12 @@ Respond ONLY with a valid JSON object, no markdown fences:
     return NextResponse.json({ strengths: valid.slice(0, 10), lesserStrengths: lesserValid, full_name: fullName, gallup_file_url });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error('Extract error:', msg);
+    // Log in chunks so Vercel doesn't truncate
+    console.error('Extract error [1/2]:', msg.slice(0, 200));
+    console.error('Extract error [2/2]:', msg.slice(200, 600));
+    if (err && typeof err === 'object' && 'status' in err) {
+      console.error('Extract status:', (err as {status: unknown}).status);
+    }
     return NextResponse.json({ error: 'Failed to read the file. Please try again.', detail: msg }, { status: 500 });
   }
 }
