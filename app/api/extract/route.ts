@@ -174,13 +174,12 @@ Respond ONLY with a valid JSON object, no markdown fences:
     // Always return up to 10, in the ranked order extracted (+ bottom 5 if a full-34 report)
     return NextResponse.json({ strengths: valid.slice(0, 10), lesserStrengths: lesserValid, full_name: fullName, gallup_file_url });
   } catch (err) {
+    const e = err as Record<string, unknown>;
+    console.error('EXT_STATUS:', e?.status);
+    const errBody = e?.error as Record<string, unknown> | undefined;
+    console.error('EXT_TYPE:', errBody?.type);
+    console.error('EXT_MSG:', errBody?.message);
     const msg = err instanceof Error ? err.message : String(err);
-    // Log in chunks so Vercel doesn't truncate
-    console.error('Extract error [1/2]:', msg.slice(0, 200));
-    console.error('Extract error [2/2]:', msg.slice(200, 600));
-    if (err && typeof err === 'object' && 'status' in err) {
-      console.error('Extract status:', (err as {status: unknown}).status);
-    }
-    return NextResponse.json({ error: 'Failed to read the file. Please try again.', detail: msg }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to read the file. Please try again.', detail: String(errBody?.message ?? msg) }, { status: 500 });
   }
 }
