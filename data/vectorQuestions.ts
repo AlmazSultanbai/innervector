@@ -184,8 +184,8 @@ export const questions: VectorQuestion[] = [
 
 ]
 
-// Full set = all questions (3 per trait)
-export const fullQuestions = questions
+// Full set = 2 questions per trait (first two of each group of 3)
+export const fullQuestions = questions.filter((_, i) => i % 3 !== 2)
 
 // Express set = 1 question per trait (every 3rd, the most discriminating one)
 export const expressQuestions = questions
