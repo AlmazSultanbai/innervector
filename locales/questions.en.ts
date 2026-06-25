@@ -1,4 +1,4 @@
-// English translations of all 102 questions — same order as vectorQuestions.ts
+// English translations of all 102 questions — same order as vectorQuestions.ts (full test uses first 68)
 export const questionsEn: { a: string; b: string }[] = [
 
   // ── EXECUTION ──────────────────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-// Kyrgyz translations of all 102 questions — same order as vectorQuestions.ts
+// Kyrgyz translations of all 102 questions — same order as vectorQuestions.ts (full test uses first 68)
 export const questionsKy: { a: string; b: string }[] = [
 
   // ── ИШКЕ АШЫРУУ ────────────────────────────────────────────────────────────
