@@ -386,14 +386,6 @@ export default function HomePage() {
         {/* Profile counter */}
         {profileCount !== null && profileCount > 0 && (
           <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="flex -space-x-1.5">
-              {[
-                'bg-gold/80', 'bg-blue-400/70', 'bg-emerald-400/70',
-                'bg-purple-400/70', 'bg-rose-400/70',
-              ].map((c, i) => (
-                <div key={i} className={`w-6 h-6 rounded-full border-2 border-white/10 ${c}`} />
-              ))}
-            </div>
             <p className="text-slate-400 text-lg">
               <span className="text-white font-semibold">
                 {(profileCount + 36).toLocaleString()}+
