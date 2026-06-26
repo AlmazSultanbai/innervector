@@ -446,7 +446,6 @@ function VectorProfilePage() {
                           <div className="text-[10px] tracking-widest font-medium mt-0.5" style={{ color }}>{getDomainName(trait.d)}</div>
                         </div>
                       </div>
-                      <span className="font-serif text-2xl font-light" style={{ color }}>{trait.pct}%</span>
                     </div>
                     {fields && (
                       <div className="space-y-3">
