@@ -237,11 +237,13 @@ function VectorProfilePage() {
   }, [top5])
 
   const [generating, setGenerating] = useState(false)
+  const [generateError, setGenerateError] = useState(false)
   const autoGenerateFired = useState(false)
 
   const generateAnalysis = async (r: VectorResult) => {
     if (generating) return
     setGenerating(true)
+    setGenerateError(false)
     try {
       const scores = (r as unknown as Record<string, unknown>).scores as Record<string, { a: number; b: number }> | undefined ?? {}
       const allScores = Object.keys(scores)
@@ -258,7 +260,11 @@ function VectorProfilePage() {
       const data = await res.json()
       if (!data.error) {
         setResult(prev => prev ? { ...prev, analysis: data } : prev)
+      } else {
+        setGenerateError(true)
       }
+    } catch {
+      setGenerateError(true)
     } finally {
       setGenerating(false)
     }
@@ -374,9 +380,27 @@ function VectorProfilePage() {
             </p>
           )}
           {!analysis && generating && (
-            <div className="mt-6 flex items-center justify-center gap-2 text-violet-400 text-xs font-semibold tracking-widest uppercase">
-              <span className="w-3.5 h-3.5 border-2 border-violet-400/30 border-t-violet-400 rounded-full animate-spin" />
-              Генерирую анализ...
+            <div className="mt-6 flex flex-col items-center gap-3">
+              <div className="flex items-center gap-2 text-violet-400 text-xs font-semibold tracking-widest uppercase">
+                <span className="w-3.5 h-3.5 border-2 border-violet-400/30 border-t-violet-400 rounded-full animate-spin" />
+                {locale === 'en' ? 'Generating AI analysis...' : locale === 'ky' ? 'AI анализ даярдалууда...' : 'Генерирую AI анализ...'}
+              </div>
+              <p className="text-slate-600 text-[11px]">
+                {locale === 'en' ? 'Takes about 30–60 seconds' : locale === 'ky' ? '30–60 секунд кетет' : 'Это займёт около 30–60 секунд'}
+              </p>
+            </div>
+          )}
+          {!analysis && !generating && generateError && (
+            <div className="mt-6 flex flex-col items-center gap-3">
+              <p className="text-red-400/70 text-xs">
+                {locale === 'en' ? 'Analysis failed. Please try again.' : locale === 'ky' ? 'Анализ ишке ашкан жок. Кайталап көрүңүз.' : 'Не удалось сгенерировать анализ.'}
+              </p>
+              <button
+                onClick={() => result && generateAnalysis(result)}
+                className="px-5 py-2 rounded-lg border border-violet-500/30 text-violet-400 text-xs font-semibold tracking-wide hover:bg-violet-500/10 transition-colors"
+              >
+                {locale === 'en' ? 'Retry' : locale === 'ky' ? 'Кайталоо' : 'Повторить'}
+              </button>
             </div>
           )}
         </div>
