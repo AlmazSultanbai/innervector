@@ -156,7 +156,7 @@ function VectorProfilePage() {
 
   const traitScores: TraitScore[] = useMemo(() => {
     if (!result?.scores) return []
-    const maxNet = result.test_mode === 'express' ? 2 : 6
+    const maxNet = result.test_mode === 'express' ? 2 : 4
     return Object.keys(result.scores)
       .map(name => {
         const a = result.scores[name].a
@@ -176,15 +176,7 @@ function VectorProfilePage() {
   const maxPct = traitScores[0]?.pct || 1
   const normPct = (p: number) => Math.round((p / maxPct) * 100)
 
-  // Use stored top5 from DB (preserves order from test time, avoids re-sort ties)
-  const top5: TraitScore[] = useMemo(() => {
-    if (!result?.top5?.length) return traitScores.slice(0, 5)
-    return result.top5.map(t => ({
-      name: t.name,
-      pct: t.pct,
-      d: (t.d as Domain) ?? (traitData[t.name]?.d ?? 'myshlenie') as Domain,
-    }))
-  }, [result, traitScores])
+  const top5: TraitScore[] = useMemo(() => traitScores.slice(0, 5), [traitScores])
 
   const testMode = result?.test_mode ?? 'full'
 

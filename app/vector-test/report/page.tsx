@@ -168,8 +168,8 @@ function VectorTestReport() {
     Object.values(scores).some(s => s.a > 0 || s.b > 0)
 
   const traitScores: TraitScore[] = useMemo(() => {
-    // Max net points per trait depends on # questions: full=3 (max a-b = 6), express=1 (max = 2)
-    const maxNet = testMode === 'express' ? 2 : 6
+    // Max net points per trait: full=2 questions (max a-b = 4), express=1 question (max = 2)
+    const maxNet = testMode === 'express' ? 2 : 4
     return Object.keys(scores)
       .map(name => {
         const a = scores[name].a
