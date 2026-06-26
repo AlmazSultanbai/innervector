@@ -31,7 +31,6 @@ export default function VectorTestPage() {
   const progress = (current / activeQuestions.length) * 100
   const domainColor = domainColors[currentQuestion.d]
 
-  // Get question text in current locale using full-array index for translations
   const fullIdx = currentQuestion._fullIdx ?? safeIdx
   const qLocale = locale === 'en'
     ? questionsEn[fullIdx]
@@ -73,23 +72,17 @@ export default function VectorTestPage() {
   return (
     <div className="min-h-screen bg-radial flex flex-col">
 
-      {/* Top progress bar — domain color */}
+      {/* Top progress bar */}
       <div className="w-full h-0.5 bg-white/5">
         <div
           className="h-full transition-all duration-500"
-          style={{
-            width: `${progress}%`,
-            background: domainColor,
-            boxShadow: `0 0 12px ${domainColor}66`,
-          }}
+          style={{ width: `${progress}%`, background: domainColor, boxShadow: `0 0 12px ${domainColor}66` }}
         />
       </div>
 
       {/* Header bar */}
       <div className="flex items-center justify-between px-4 sm:px-6 py-3 max-w-4xl mx-auto w-full">
         <div />
-
-        {/* Counter + timer */}
         <div className="flex items-center gap-3">
           <span className="text-slate-500 text-xs tracking-widest">
             {t.questionOf(current + 1, activeQuestions.length)}
@@ -111,27 +104,74 @@ export default function VectorTestPage() {
         </div>
       </div>
 
-      {/* Question card */}
+      {/* Question area */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-6">
         <div className="w-full max-w-3xl">
-          <div className="bg-white/3 border border-white/8 backdrop-blur-sm rounded-2xl p-8 md:p-12">
 
-            {/* Statements grid */}
-            <div className="grid grid-cols-[1fr_auto_1fr] gap-6 md:gap-10 items-center">
+          {/* Desktop: 3-column grid | Mobile: vertical stack */}
+          <div className="hidden sm:grid sm:grid-cols-[1fr_auto_1fr] sm:gap-10 sm:items-center">
+            <p className="font-serif text-xl text-white text-right leading-relaxed">{qLocale.a}</p>
+            <ScaleRadio onAnswer={handleAnswer} optionA={t.optionA} optionB={t.optionB} domainColor={domainColor} />
+            <p className="font-serif text-xl text-white leading-relaxed">{qLocale.b}</p>
+          </div>
 
-              {/* Statement A */}
-              <p className="font-serif text-lg md:text-xl text-white text-right leading-relaxed">
-                {qLocale.a}
-              </p>
+          {/* Mobile: vertical layout */}
+          <div className="sm:hidden flex flex-col gap-4">
+            {/* Statement A */}
+            <button
+              onClick={() => handleAnswer(1)}
+              className="w-full text-left px-5 py-4 rounded-2xl border transition-all duration-150 active:scale-[0.98]"
+              style={{ borderColor: domainColor + '40', background: domainColor + '08' }}
+            >
+              <div className="text-[10px] font-bold tracking-widest uppercase mb-2" style={{ color: domainColor }}>
+                {t.optionA}
+              </div>
+              <p className="font-serif text-base text-white leading-relaxed">{qLocale.a}</p>
+            </button>
 
-              {/* Scale */}
-              <ScaleRadio onAnswer={handleAnswer} optionA={t.optionA} optionB={t.optionB} />
-
-              {/* Statement B */}
-              <p className="font-serif text-lg md:text-xl text-white leading-relaxed">
-                {qLocale.b}
-              </p>
+            {/* Middle scale */}
+            <div className="flex flex-col items-center gap-2 py-1">
+              <span className="text-slate-600 text-[10px] tracking-widest uppercase mb-1">
+                {locale === 'ru' ? 'или степень согласия' : locale === 'ky' ? 'же макулдук даражасы' : 'or degree of agreement'}
+              </span>
+              <div className="flex items-center gap-2">
+                {[1, 2, 3, 4, 5].map((value, i) => {
+                  const labels = [2, 1, 0, 1, 2]
+                  const GOLD = '#d4a843'
+                  return (
+                    <button
+                      key={value}
+                      onClick={() => handleAnswer(value)}
+                      className="w-11 h-11 rounded-full border text-xs font-medium flex items-center justify-center transition-all duration-150 active:scale-95"
+                      style={{ borderColor: GOLD + '40', background: GOLD + '0a', color: GOLD + '80' }}
+                      onTouchStart={e => {
+                        e.currentTarget.style.borderColor = GOLD
+                        e.currentTarget.style.background = GOLD + '22'
+                        e.currentTarget.style.color = GOLD
+                      }}
+                    >
+                      {labels[i]}
+                    </button>
+                  )
+                })}
+              </div>
+              <div className="flex justify-between w-full px-1 mt-0.5">
+                <span className="text-slate-600 text-[9px] tracking-wide">{t.optionA}</span>
+                <span className="text-slate-600 text-[9px] tracking-wide">{t.optionB}</span>
+              </div>
             </div>
+
+            {/* Statement B */}
+            <button
+              onClick={() => handleAnswer(5)}
+              className="w-full text-left px-5 py-4 rounded-2xl border transition-all duration-150 active:scale-[0.98]"
+              style={{ borderColor: domainColor + '40', background: domainColor + '08' }}
+            >
+              <div className="text-[10px] font-bold tracking-widest uppercase mb-2" style={{ color: domainColor }}>
+                {t.optionB}
+              </div>
+              <p className="font-serif text-base text-white leading-relaxed">{qLocale.b}</p>
+            </button>
           </div>
 
           {/* Skip */}
@@ -157,9 +197,9 @@ function ScaleRadio({
   onAnswer: (v: number) => void
   optionA: string
   optionB: string
+  domainColor: string
 }) {
   const sizes = [36, 36, 36, 36, 36]
-
   const GOLD = '#d4a843'
   const labels = [2, 1, 0, 1, 2]
 
