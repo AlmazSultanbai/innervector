@@ -328,7 +328,7 @@ export const traitData: Record<string, VectorTrait> = {
 }
 
 export const domainColors: Record<Domain, string> = {
-  realizacia: '#e05c5c',
+  realizacia: '#e0a040',
   vliyanie:   '#f0a500',
   otnosenia:  '#5bc8af',
   myshlenie:  '#7b9fff',
