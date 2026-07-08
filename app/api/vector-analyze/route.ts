@@ -267,14 +267,17 @@ Rules:
 - Every insight must feel personal and non-generic`
 
     const message = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 8192,
+      model: 'claude-sonnet-5',
+      // Sonnet 5 runs adaptive thinking by default; thinking tokens count
+      // toward max_tokens, so leave headroom above the ~6K JSON payload.
+      max_tokens: 16000,
       system: 'You are a master Inner Vector coach. You give deeply personalized, rich analysis based on the Inner Vector model: 4 talent domains (Influence, Execution, Relationships, Thinking) with 34 talents total. Always respond with valid JSON only — no markdown fences, no text before or after.',
       messages: [{ role: 'user', content: prompt }],
     })
 
-    const content = message.content[0]
-    if (content.type !== 'text') {
+    // Adaptive thinking may prepend a thinking block — take the text block
+    const content = message.content.find(b => b.type === 'text')
+    if (!content || content.type !== 'text') {
       return NextResponse.json({ error: 'Unexpected response type' }, { status: 500 })
     }
 
