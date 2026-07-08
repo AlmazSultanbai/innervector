@@ -317,10 +317,13 @@ function VectorTestReport() {
 
 
   // Trigger analysis once paid
+  const [analysisError, setAnalysisError] = useState(false)
+  const [analysisAttempt, setAnalysisAttempt] = useState(0)
   useEffect(() => {
     if (!isUnlocked || !resultId || analysisLoading || analysis) return
     const sessionId = localStorage.getItem('vector-session-id') ?? ''
     setAnalysisLoading(true)
+    setAnalysisError(false)
     // 3-layer model: talents = WHAT, energy = FUEL, growth = trajectory
     fetch('/api/vector-analyze', {
       method: 'POST',
@@ -344,11 +347,14 @@ function VectorTestReport() {
             setShowConfetti(true)
             setTimeout(() => setShowConfetti(false), 5000)
           }
+        } else {
+          setAnalysisError(true)
         }
       })
+      .catch(() => setAnalysisError(true))
       .finally(() => setAnalysisLoading(false))
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isUnlocked, resultId])
+  }, [isUnlocked, resultId, analysisAttempt])
 
   // Simulated progress: eases toward 92%, snaps to 100 when analysis arrives
   useEffect(() => {
@@ -384,6 +390,32 @@ function VectorTestReport() {
   if (analysisLoading || !analysis) {
     const topColor = domainColors[top5[0]?.d ?? 'vliyanie']
     const firstName = userInfo?.fullName?.trim().split(' ')[0] ?? ''
+
+    // Generation failed — show error with retry instead of a stuck loader
+    if (analysisError && !analysisLoading) {
+      return (
+        <div className="min-h-screen bg-radial flex flex-col items-center justify-center px-6 text-center">
+          <p className="text-slate-600 text-[11px] tracking-[0.25em] uppercase font-medium mb-10">INNER VECTOR</p>
+          <h1 className="font-serif text-2xl text-white mb-3">
+            {locale === 'ru' ? 'Не удалось сгенерировать анализ'
+              : locale === 'ky' ? 'Анализ жаралган жок'
+              : 'Analysis generation failed'}
+          </h1>
+          <p className="text-slate-500 text-sm mb-8 max-w-xs">
+            {locale === 'ru' ? 'Твои ответы сохранены. Попробуй ещё раз — это займёт около минуты.'
+              : locale === 'ky' ? 'Жоопторуң сакталды. Кайра аракет кыл.'
+              : 'Your answers are saved. Try again — it takes about a minute.'}
+          </p>
+          <button
+            onClick={() => setAnalysisAttempt(a => a + 1)}
+            className="px-8 py-3 rounded-xl text-xs font-semibold tracking-widest uppercase transition-all duration-200"
+            style={{ background: 'linear-gradient(135deg, #d4a843 0%, #b8922e 100%)', color: '#0e1120' }}
+          >
+            {locale === 'ru' ? 'Попробовать снова' : locale === 'ky' ? 'Кайра аракет' : 'Try again'}
+          </button>
+        </div>
+      )
+    }
 
     // Steps with progress thresholds
     const steps = locale === 'ru'

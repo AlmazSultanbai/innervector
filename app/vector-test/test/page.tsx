@@ -52,7 +52,7 @@ export default function VectorTestPage() {
         skip()
       }
     }, 1000)
-  }, [skip])
+  }, [skip, TIMER_DURATION])
 
   useEffect(() => {
     if (isComplete) {

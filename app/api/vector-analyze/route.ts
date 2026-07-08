@@ -39,6 +39,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '5 vectors required' }, { status: 400 });
     }
 
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    )
+
+    // Analysis already generated for this result (page refresh, duplicate
+    // request, race between report and profile pages) — return it instead of
+    // paying for a second generation.
+    if (result_id) {
+      const { data: existing } = await supabase
+        .from('vector_test_results')
+        .select('analysis')
+        .eq('id', result_id)
+        .maybeSingle()
+      if (existing?.analysis) {
+        return NextResponse.json(existing.analysis)
+      }
+    }
+
     const vectors10 = top10 ?? top5;
 
     // Build vector list for prompt (use English names in prompt for better Claude output)
@@ -261,14 +280,19 @@ Rules:
 
     const cleaned = content.text.trim()
       .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '')
-    const analysis = JSON.parse(cleaned)
+    let analysis
+    try {
+      analysis = JSON.parse(cleaned)
+    } catch {
+      // Model occasionally wraps JSON in prose — extract the outermost object
+      const start = cleaned.indexOf('{')
+      const end = cleaned.lastIndexOf('}')
+      if (start === -1 || end <= start) throw new Error('No JSON object in model response')
+      analysis = JSON.parse(cleaned.slice(start, end + 1))
+    }
 
     // Save analysis to vector_test_results row
     if (result_id) {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      )
       await supabase
         .from('vector_test_results')
         .update({ analysis })

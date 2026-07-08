@@ -237,12 +237,10 @@ function VectorProfilePage() {
     setGenerating(true)
     setGenerateError(false)
     try {
-      const scores = (r as unknown as Record<string, unknown>).scores as Record<string, { a: number; b: number }> | undefined ?? {}
-      const allScores = Object.keys(scores)
-        .map(name => ({ name, pct: Math.round((scores[name].a / 10) * 100), d: '' }))
-        .sort((a, b) => b.pct - a.pct)
-      const top5 = r.top5 ?? allScores.slice(0, 5)
-      const top10 = allScores.slice(0, 10).length >= 10 ? allScores.slice(0, 10) : top5
+      // traitScores is the canonical ranking (net a-b, same as the grid and top5 cards)
+      const allScores = traitScores.map(t => ({ name: t.name, pct: t.pct, d: t.d }))
+      const top5 = allScores.slice(0, 5)
+      const top10 = allScores.length >= 10 ? allScores.slice(0, 10) : top5
       const bottom5 = allScores.slice(-5)
       const res = await fetch('/api/vector-analyze', {
         method: 'POST',
