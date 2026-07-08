@@ -3,16 +3,11 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { domainColors } from '@/data/vectorTraits'
 import { useVectorTestStore } from '@/store/vectorTestStore'
 import { useLocaleStore } from '@/store/localeStore'
 import { ui } from '@/locales/ui'
-import { domainNamesI18n } from '@/locales/domainNames'
 import LangSwitcher from '@/components/LangSwitcher'
-import type { Domain } from '@/data/vectorTraits'
 import type { TestMode } from '@/store/vectorTestStore'
-
-const domains: Domain[] = ['vliyanie', 'realizacia', 'otnosenia', 'myshlenie']
 
 const FREE_TRIAL_END = new Date('2026-07-09T00:00:00')
 function getDaysLeft() {
@@ -33,19 +28,6 @@ export default function VectorTestIntro() {
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   useEffect(() => { setDaysLeft(getDaysLeft()) }, [])
-
-  const getDomainLabel = (d: Domain) => {
-    if (locale === 'en') return domainNamesI18n[d]?.en ?? d
-    if (locale === 'ky') return domainNamesI18n[d]?.ky ?? d
-    // Russian — use the domain key to get original Russian labels
-    const ruLabels: Record<Domain, string> = {
-      vliyanie:   'ВЛИЯНИЕ',
-      realizacia: 'РЕАЛИЗАЦИЯ',
-      otnosenia:  'ОТНОШЕНИЯ',
-      myshlenie:  'МЫШЛЕНИЕ',
-    }
-    return ruLabels[d]
-  }
 
   const validate = () => {
     const e: Record<string, string> = {}
@@ -105,42 +87,16 @@ export default function VectorTestIntro() {
       {/* Hero */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
 
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-xs font-medium tracking-widest uppercase animate-fade-in">
-          <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse-gold" />
-          {t.testBadge}
-        </div>
-
         {/* Headline */}
-        <h1 className="font-serif text-5xl md:text-6xl font-bold text-white mb-4 leading-tight animate-slide-in delay-100 text-center">
+        <h1 className="font-serif text-5xl md:text-6xl font-bold text-white mb-4 leading-tight text-center">
           {t.headline1}{' '}
           <span className="text-gold-light italic">{t.headline2}</span>
         </h1>
 
         {/* Subtitle */}
-        <p className="text-slate-400 text-base mb-8 animate-fade-in delay-200 text-center">
+        <p className="text-slate-400 text-base mb-10 text-center">
           {testMode === 'express' ? t.subtitleExpress : t.subtitleFull}
         </p>
-
-        {/* Domain pills */}
-        <div className="flex flex-wrap gap-2 justify-center mb-10 max-w-lg animate-fade-in delay-300">
-          {domains.map(d => (
-            <span
-              key={d}
-              className="px-3 py-1 rounded-full text-xs font-medium tracking-wide border"
-              style={{
-                color: domainColors[d],
-                borderColor: domainColors[d] + '55',
-                background: domainColors[d] + '12',
-              }}
-            >
-              {getDomainLabel(d)}
-            </span>
-          ))}
-        </div>
-
-        {/* Divider */}
-        <div className="w-12 h-px bg-gold/20 mb-10" />
 
         {/* Mode tabs */}
         <div className="flex w-full max-w-sm mb-4 rounded-xl overflow-hidden border border-white/10 animate-fade-in delay-350">

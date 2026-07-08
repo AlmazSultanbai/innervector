@@ -26,7 +26,7 @@ body {
 
 /* Radial gradient background */
 .bg-radial {
-  background: radial-gradient(ellipse at top, #223058 0%, #171f3a 65%);
+  background: radial-gradient(ellipse at top, #1c2848 0%, #171f3a 55%);
 }
 
 /* Gold accent text */
@@ -65,25 +65,8 @@ body {
   background: rgba(16, 185, 129, 0.5);
 }
 
-/* Glow utilities */
-.glow-blue {
-  box-shadow: 0 0 30px rgba(59, 130, 246, 0.15), 0 0 60px rgba(59, 130, 246, 0.05);
-}
-
-.glow-orange {
-  box-shadow: 0 0 30px rgba(249, 115, 22, 0.15), 0 0 60px rgba(249, 115, 22, 0.05);
-}
-
-.glow-emerald {
-  box-shadow: 0 0 30px rgba(16, 185, 129, 0.15), 0 0 60px rgba(16, 185, 129, 0.05);
-}
-
-.glow-purple {
-  box-shadow: 0 0 30px rgba(139, 92, 246, 0.15), 0 0 60px rgba(139, 92, 246, 0.05);
-}
-
 .glow-gold {
-  box-shadow: 0 0 40px rgba(212, 168, 67, 0.2), 0 0 80px rgba(212, 168, 67, 0.08);
+  box-shadow: 0 0 30px rgba(212, 168, 67, 0.15);
 }
 
 /* Card base */
@@ -142,10 +125,6 @@ body {
 .delay-300 { animation-delay: 300ms; }
 .delay-400 { animation-delay: 400ms; }
 .delay-500 { animation-delay: 500ms; }
-.delay-600 { animation-delay: 600ms; }
-.delay-700 { animation-delay: 700ms; }
-.delay-800 { animation-delay: 800ms; }
-.delay-900 { animation-delay: 900ms; }
 
 /* DNA helix scroll animation */
 @keyframes scrollDNA {

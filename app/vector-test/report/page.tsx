@@ -412,131 +412,59 @@ function VectorTestReport() {
 
     const activeStep = steps.reduce((acc, s, i) => progress >= s.threshold ? i : acc, -1)
 
-    // SVG circular progress ring
-    const R = 72
-    const circ = 2 * Math.PI * R
-    const offset = circ * (1 - progress / 100)
-
     return (
-      <div className="min-h-screen bg-radial flex flex-col items-center justify-center px-6 relative overflow-hidden">
-
-        {/* Background glow blobs */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full opacity-10 blur-3xl"
-            style={{ background: topColor }} />
-          <div className="absolute bottom-1/4 left-1/3 w-64 h-64 rounded-full opacity-5 blur-3xl"
-            style={{ background: topColor }} />
-        </div>
+      <div className="min-h-screen bg-radial flex flex-col items-center justify-center px-6">
 
         {/* IV wordmark */}
-        <p className="text-slate-600 text-[11px] tracking-[0.25em] uppercase font-medium mb-12">
+        <p className="text-slate-600 text-[11px] tracking-[0.25em] uppercase font-medium mb-14">
           INNER VECTOR
         </p>
 
-        {/* Circular progress ring */}
-        <div className="relative flex items-center justify-center mb-8">
-          <svg width="180" height="180" viewBox="0 0 180 180" className="-rotate-90">
-            {/* Track */}
-            <circle cx="90" cy="90" r={R} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="6" />
-            {/* Glow circle (blurred duplicate) */}
-            <circle cx="90" cy="90" r={R} fill="none" stroke={topColor} strokeWidth="6"
-              strokeDasharray={circ} strokeDashoffset={offset}
-              strokeLinecap="round" opacity="0.25"
-              style={{ filter: 'blur(6px)', transition: 'stroke-dashoffset 0.4s ease' }} />
-            {/* Progress arc */}
-            <circle cx="90" cy="90" r={R} fill="none" stroke={topColor} strokeWidth="3"
-              strokeDasharray={circ} strokeDashoffset={offset}
-              strokeLinecap="round"
-              style={{ transition: 'stroke-dashoffset 0.4s ease' }} />
-          </svg>
-
-          {/* Center content */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center mb-0.5"
-              style={{ background: `radial-gradient(circle, ${topColor}18 0%, transparent 70%)`,
-                       border: `1px solid ${topColor}20` }}>
-              <span className="font-serif font-bold text-3xl tabular-nums" style={{ color: topColor }}>
-                {progress}
-              </span>
-            </div>
-            <span className="text-slate-600 text-[10px] tracking-widest uppercase">%</span>
-          </div>
-        </div>
-
-        {/* Agents ticker */}
-        <AgentsTicker progress={progress} topColor={topColor} locale={locale} />
-
         {/* Headline */}
-        <h1 className="font-serif text-2xl sm:text-3xl text-white text-center mb-1">
+        <h1 className="font-serif text-2xl sm:text-3xl text-white text-center mb-2">
           {locale === 'ru'
             ? (firstName ? `Анализируем тебя, ${firstName}` : 'Анализируем твой профиль')
             : locale === 'ky'
             ? (firstName ? `${firstName}, профилиңди талдоодобуз` : 'Профилиңди талдоодобуз')
             : (firstName ? `Analysing you, ${firstName}` : 'Analysing your profile')}
         </h1>
-        <p className="text-slate-500 text-sm text-center mb-8">
-          {locale === 'ru' ? 'Не закрывай страницу — это займёт несколько минут'
+        <p className="text-slate-500 text-sm text-center mb-10">
+          {locale === 'ru' ? 'Не закрывай страницу — займёт несколько минут'
             : locale === 'ky' ? 'Барактан чыкпаңыз — бир нече мүнөт созулат'
             : 'Keep this page open — takes a few minutes'}
         </p>
 
-        {/* Thin progress bar */}
-        <div className="w-full max-w-sm h-px bg-white/8 rounded-full mb-8 relative overflow-hidden">
-          <div className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
-            style={{ width: `${progress}%`, background: `linear-gradient(90deg, ${topColor}80, ${topColor})`,
-                     boxShadow: `0 0 8px ${topColor}60` }} />
+        {/* Progress bar */}
+        <div className="w-full max-w-sm h-0.5 bg-white/8 rounded-full mb-8 overflow-hidden">
+          <div className="h-full rounded-full transition-all duration-500"
+            style={{ width: `${progress}%`, background: topColor }} />
         </div>
 
         {/* Steps */}
-        <div className="flex flex-col gap-2 w-full max-w-sm">
+        <div className="flex flex-col gap-1.5 w-full max-w-sm">
           {steps.map((step, i) => {
             const done = i < activeStep
             const active = i === activeStep
             return (
-              <div key={i}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500"
-                style={{
-                  background: active ? `${topColor}0d` : done ? 'rgba(255,255,255,0.02)' : 'transparent',
-                  border: `1px solid ${active ? topColor + '25' : done ? 'rgba(255,255,255,0.05)' : 'transparent'}`,
-                }}>
-                {/* Icon */}
-                <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500"
-                  style={{
-                    background: done ? `${topColor}25` : active ? `${topColor}18` : 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${done ? topColor + '50' : active ? topColor + '30' : 'rgba(255,255,255,0.08)'}`,
-                  }}>
+              <div key={i} className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors duration-300"
+                style={{ background: active ? `${topColor}0a` : 'transparent' }}>
+                <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: done ? `${topColor}20` : active ? `${topColor}15` : 'rgba(255,255,255,0.04)' }}>
                   {done ? (
-                    <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                      strokeWidth={2.5} style={{ color: topColor }}>
+                    <svg className="w-2 h-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      strokeWidth={3} style={{ color: topColor }}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   ) : active ? (
-                    <svg className="w-2.5 h-2.5 animate-spin" fill="none" viewBox="0 0 24 24"
-                      stroke="currentColor" strokeWidth={2} style={{ color: topColor, animationDuration: '1.2s' }}>
-                      <path strokeLinecap="round" strokeLinejoin="round"
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
+                    <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: topColor }} />
                   ) : (
-                    <div className="w-1.5 h-1.5 rounded-full bg-white/15" />
+                    <div className="w-1 h-1 rounded-full bg-white/15" />
                   )}
                 </div>
-
-                {/* Label */}
-                <span className="text-xs transition-all duration-500"
-                  style={{
-                    color: done ? 'rgba(148,163,184,0.7)' : active ? '#e2e8f0' : 'rgba(100,116,139,0.5)',
-                    fontWeight: active ? 500 : 400,
-                  }}>
+                <span className="text-xs"
+                  style={{ color: done ? 'rgba(100,116,139,0.6)' : active ? '#e2e8f0' : 'rgba(100,116,139,0.4)', fontWeight: active ? 500 : 400 }}>
                   {step.label}
-                  {done && <span className="ml-2 opacity-50">✓</span>}
                 </span>
-
-                {/* Active pulse dot */}
-                {active && (
-                  <div className="ml-auto flex-shrink-0">
-                    <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: topColor }} />
-                  </div>
-                )}
               </div>
             )
           })}
@@ -1250,62 +1178,11 @@ function VectorTestReport() {
   )
 }
 
-const AGENTS_RU = [
-  'Агент Профиля', 'Агент Карьеры', 'Агент Бизнеса', 'Агент Отношений',
-  'Агент Слепых зон', 'Агент Комбинаций', 'Агент Личности', 'Агент Векторов',
-  'Агент Среды', 'Агент Знаменитостей', 'Агент Партнёрства', 'Агент Синтеза',
-]
-const AGENTS_EN = [
-  'Profile Agent', 'Career Agent', 'Business Agent', 'Relationship Agent',
-  'Blind Spot Agent', 'Combination Agent', 'Personality Agent', 'Vector Agent',
-  'Environment Agent', 'Famous Match Agent', 'Partnership Agent', 'Synthesis Agent',
-]
-const AGENTS_KY = [
-  'Профиль Агенти', 'Карьера Агенти', 'Бизнес Агенти', 'Мамиле Агенти',
-  'Көр Жак Агенти', 'Айкалыш Агенти', 'Инсан Агенти', 'Вектор Агенти',
-  'Чөйрө Агенти', 'Белгилүү Адам Агенти', 'Өнөктүк Агенти', 'Синтез Агенти',
-]
-
-function AgentsTicker({ progress, topColor, locale }: { progress: number; topColor: string; locale: string }) {
-  const agents = locale === 'ru' ? AGENTS_RU : locale === 'ky' ? AGENTS_KY : AGENTS_EN
-  const activeCount = Math.max(1, Math.min(12, Math.ceil((progress / 92) * 12)))
-  const currentAgent = agents[activeCount - 1]
-
-  return (
-    <div className="flex flex-col items-center gap-2 mb-6">
-      {/* Active agents count */}
-      <div className="flex items-center gap-2 px-4 py-2 rounded-full border"
-        style={{ borderColor: topColor + '30', background: topColor + '08' }}>
-        <div className="flex gap-1">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="w-1.5 h-1.5 rounded-full transition-all duration-500"
-              style={{
-                background: i < activeCount ? topColor : 'rgba(255,255,255,0.08)',
-                boxShadow: i < activeCount ? `0 0 4px ${topColor}80` : 'none',
-                transform: i === activeCount - 1 ? 'scale(1.4)' : 'scale(1)',
-              }} />
-          ))}
-        </div>
-        <span className="text-xs font-medium" style={{ color: topColor }}>
-          {activeCount} / 12
-        </span>
-      </div>
-      {/* Current agent name */}
-      <div className="flex items-center gap-1.5">
-        <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: topColor }} />
-        <span className="text-slate-500 text-xs">{currentAgent}</span>
-      </div>
-    </div>
-  )
-}
 
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mb-12">
-      <div className="flex items-center gap-3 mb-6">
-        <span className="text-[10px] text-gold/60 tracking-widest uppercase font-medium">{label}</span>
-        <div className="flex-1 h-px bg-white/5" />
-      </div>
+      <p className="text-[10px] text-slate-500 tracking-widest uppercase font-medium mb-5">{label}</p>
       {children}
     </div>
   )
