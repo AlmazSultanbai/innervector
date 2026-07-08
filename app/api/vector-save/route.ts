@@ -17,7 +17,21 @@ export async function POST(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
     )
 
-    // Always insert — every test completion is a new row
+    // One row per session: intro page generates a fresh session_id for each
+    // new test, so a repeat POST (page refresh / revisit of the report) must
+    // return the existing row instead of inserting a duplicate.
+    const { data: existing } = await supabase
+      .from('vector_test_results')
+      .select('id, share_token')
+      .eq('session_id', session_id)
+      .order('completed_at', { ascending: true })
+      .limit(1)
+      .maybeSingle()
+
+    if (existing) {
+      return NextResponse.json({ id: existing.id, share_token: existing.share_token })
+    }
+
     const { data: row, error } = await supabase
       .from('vector_test_results')
       .insert({
