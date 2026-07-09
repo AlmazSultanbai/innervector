@@ -127,11 +127,17 @@ Respond ONLY with a valid JSON object (no markdown, no code fences):
   "career": {
     "summary": "3–4 sentences painting the picture of where this person will feel most alive professionally. Reference their specific talents. Explain WHY certain environments suit them and why others will drain them.",
     "roles": [
-      { "title": "Specific job title or role archetype", "why": "2 sentences: exactly why this person's talent combination creates a natural fit for this role" },
-      { "title": "Specific job title or role archetype", "why": "2 sentences" },
-      { "title": "Specific job title or role archetype", "why": "2 sentences" },
-      { "title": "Specific job title or role archetype", "why": "2 sentences" },
-      { "title": "Specific job title or role archetype", "why": "2 sentences" }
+      { "title": "REAL modern job title with industry (e.g. 'Продакт-менеджер в IT', 'Врач-диагност', 'Руководитель отдела продаж B2B') — never a vague archetype", "why": "2 sentences: exactly why this person's talent combination creates a natural fit for this role — name the talents" },
+      { "title": "Real job title with industry", "why": "2 sentences" },
+      { "title": "Real job title with industry", "why": "2 sentences" },
+      { "title": "Real job title with industry", "why": "2 sentences" },
+      { "title": "Real job title with industry", "why": "2 sentences" }
+    ],
+    "fieldsOfStudy": [
+      { "field": "University major / field of study (e.g. 'Программная инженерия', 'Клиническая психология', 'Международные отношения')", "why": "1-2 sentences: why studying THIS field fits how their mind naturally works — reference talents" },
+      { "field": "Field of study", "why": "1-2 sentences" },
+      { "field": "Field of study", "why": "1-2 sentences" },
+      { "field": "Field of study", "why": "1-2 sentences" }
     ],
     "environments": [
       "Environment type 1 where they thrive",
@@ -255,7 +261,8 @@ Rules:
 - Be specific — mention actual talent names from the profile throughout
 - "essence" must be written like a masterful character study — literary, warm, precise. No generic phrases.
 - "whereYouShine.contexts" must have exactly 6 items
-- "career.roles" must have exactly 5 items — real specific roles coherent with this profile. Never mix radically different fields.
+- "career.roles" must have exactly 5 items — REAL job titles that exist on the market today, each tied to an industry. All 5 must form 1-2 coherent career directions, never a random mix of fields.
+- "career.fieldsOfStudy" must have exactly 4 items — real university majors / study directions. Pick fields a school graduate or student could actually enroll in. They must be consistent with the recommended roles (the study paths should lead toward those careers).
 - "career.environments" must have exactly 4 items
 - "business.contributions" must have exactly 3 items (use top 3 talents)
 - "love.dynamics" must have exactly 3 items (use top 3 talents)

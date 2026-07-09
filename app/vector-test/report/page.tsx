@@ -755,6 +755,27 @@ function VectorTestReport() {
                 </div>
               </div>
 
+              {/* Fields of study (newer analyses only) */}
+              {analysis.career.fieldsOfStudy && analysis.career.fieldsOfStudy.length > 0 && (
+                <div className="bg-white/2 border border-white/7 rounded-2xl p-6">
+                  <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-4">
+                    {locale === 'en' ? 'Fields of study to consider' : locale === 'ky' ? 'Окуу багыттары' : 'Направления обучения'}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {analysis.career.fieldsOfStudy.map((f, i) => {
+                      const color = domainColors[top5[i % top5.length]?.d ?? 'myshlenie']
+                      return (
+                        <div key={i} className="rounded-xl border p-4"
+                          style={{ borderColor: color + '25', background: color + '06' }}>
+                          <div className="font-serif text-sm text-white font-semibold mb-1">{f.field}</div>
+                          <p className="text-slate-400 text-xs leading-relaxed">{f.why}</p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Environments + Avoid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-emerald-500/4 border border-emerald-500/15 rounded-2xl p-5">

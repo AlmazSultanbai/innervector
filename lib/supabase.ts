@@ -193,6 +193,8 @@ export interface VectorAnalysis {
     roles: Array<{ title: string; why: string }>
     environments: string[]
     avoid: string
+    // Optional — newer analyses only: university majors / fields of study
+    fieldsOfStudy?: Array<{ field: string; why: string }>
   }
   business: {
     whatYouBring: string
