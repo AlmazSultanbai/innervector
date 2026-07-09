@@ -184,8 +184,12 @@ export const questions: VectorQuestion[] = [
 
 ]
 
-// Full set = 2 questions per trait (first two of each group of 3)
-export const fullQuestions = questions.filter((_, i) => i % 3 !== 2)
+// Full set = 2 questions per trait (first two of each group of 3).
+// _fullIdx maps back to the 102-question index — translation files
+// (questions.en.ts / questions.ky.ts) are indexed by the full list.
+export const fullQuestions = questions
+  .map((q, i) => ({ ...q, _fullIdx: i }))
+  .filter((_, i) => i % 3 !== 2)
 
 // Express set = 1 question per trait (every 3rd, the most discriminating one)
 export const expressQuestions = questions
