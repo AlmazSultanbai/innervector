@@ -20,7 +20,7 @@ export const questionsEn: { a: string; b: string }[] = [
   // Consistency
   { a: 'The same rules for everyone — otherwise it\'s unfair', b: 'Rules should adapt to the situation' },
   { a: 'I\'m uncomfortable when different people are treated differently', b: 'Different people require different approaches — that\'s normal' },
-  { a: 'Predictability and stability matter more than flexibility', b: 'Flexibility and adaptation matter more than rigid rules' },
+  { a: 'Fairness means applying the rules equally even to top performers', b: 'Fairness means taking each person\'s circumstances into account' },
 
   // Deliberative
   { a: 'I weigh a decision before acting', b: 'I act quickly and adjust as I go' },
@@ -45,7 +45,7 @@ export const questionsEn: { a: string; b: string }[] = [
   // Restorative
   { a: 'I get energized when I need to find what\'s broken and fix it', b: 'I prefer to create something new rather than fix what\'s old' },
   { a: 'I\'m good at finding the root of a problem', b: 'I prefer to prevent problems rather than solve them' },
-  { a: 'A crisis mobilizes me rather than scares me', b: 'In a crisis I need time to gather myself' },
+  { a: 'Bringing something broken back to life is deeply satisfying to me', b: 'I\'d rather start from scratch than fix what\'s broken' },
 
   // ── INFLUENCE ──────────────────────────────────────────────────────────────
   // Activator
@@ -106,7 +106,7 @@ export const questionsEn: { a: string; b: string }[] = [
 
   // Empathy
   { a: 'I sense a person\'s state before they say a word', b: 'I need words or actions to understand someone\'s state' },
-  { a: 'Others\' pain affects me personally', b: 'I empathize without taking others\' emotions to heart' },
+  { a: 'I almost feel other people\'s emotions as if they were my own', b: 'I understand others\' feelings with my head more than my heart' },
   { a: 'People say I understand them very well', b: 'People value me for logical and practical advice' },
 
   // Harmony
