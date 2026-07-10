@@ -8,7 +8,7 @@ export const questionsEn: { a: string; b: string }[] = [
   { a: 'A day without results feels wasted to me', b: 'A good day is time well spent, not necessarily productive' },
 
   // Arranger
-  { a: 'When plans change I quickly restructure the approach', b: 'When plans change I stick to the original decision' },
+  { a: 'I find it easy to juggle many tasks and people at once', b: 'I prefer to handle things one at a time, in sequence' },
   { a: 'I enjoy coordinating people and resources', b: 'I prefer to focus on my own task' },
   { a: 'I instinctively see who should do what', b: 'I prefer not to get involved in others\' tasks' },
 
@@ -70,7 +70,7 @@ export const questionsEn: { a: string; b: string }[] = [
 
   // Maximizer
   { a: 'I\'m more interested in developing strengths than fixing weaknesses', b: 'It\'s important to work on weaknesses to improve' },
-  { a: 'I invest more time in what I\'m already good at than fixing weaknesses', b: 'I can stop at \'good enough\' when something works' },
+  { a: '\'Good\' is not the finish line for me — I push it to excellent', b: 'I can stop at \'good enough\' when something works' },
   { a: 'I see how to make something good even better', b: 'I find ways to fix what was done poorly' },
 
   // Self-Assurance
