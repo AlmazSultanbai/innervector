@@ -51,6 +51,20 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (error) {
+      // 23505 = unique violation: a concurrent request inserted this
+      // session's result between our check and insert — return that row.
+      if (error.code === '23505') {
+        const { data: winner } = await supabase
+          .from('vector_test_results')
+          .select('id, share_token')
+          .eq('session_id', session_id)
+          .order('completed_at', { ascending: true })
+          .limit(1)
+          .maybeSingle()
+        if (winner) {
+          return NextResponse.json({ id: winner.id, share_token: winner.share_token })
+        }
+      }
       console.error('vector-save error:', error.message)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
