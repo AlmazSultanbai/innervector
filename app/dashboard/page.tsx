@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/components/LoginModal';
+import LoginModal, { useAuth } from '@/components/LoginModal';
 import { DOMAIN_COLORS, getDomainForStrength } from '@/lib/strengths';
 import { Domain } from '@/lib/types';
 
@@ -135,7 +135,7 @@ function SectionHeader({ icon, title, sub }: { icon: React.ReactNode; title: str
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { isAuthed, authed: authRole, authLoading } = useAuth();
+  const { isAuthed, authed: authRole, authLoading, login, logout } = useAuth();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -148,6 +148,12 @@ export default function DashboardPage() {
     setError('');
     try {
       const res = await fetch('/api/superadmin/stats');
+      if (res.status === 401) {
+        // Server cookie expired (8h) while sessionStorage still says
+        // logged in — drop client auth so the login modal reappears.
+        logout();
+        return;
+      }
       if (!res.ok) throw new Error('Failed');
       const data = await res.json();
       setStats(data);
@@ -157,15 +163,41 @@ export default function DashboardPage() {
       setLoading(false);
       setRefreshing(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (authLoading) return;
-    if (!isAuthed || authRole === 'client') { router.replace('/'); return; }
-    load();
+    // Paying clients have no access to the dashboard — send them home
+    if (authRole === 'client') { router.replace('/'); return; }
+    if (isAuthed) load();
   }, [authLoading, isAuthed, authRole, router, load]);
 
-  if (authLoading || loading) {
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-radial flex items-center justify-center">
+        <div className="spinner" />
+      </div>
+    );
+  }
+
+  // Not logged in (fresh tab — sessionStorage is empty): show login right
+  // here instead of silently bouncing to the home page.
+  if (!isAuthed) {
+    return (
+      <div className="min-h-screen bg-radial">
+        <LoginModal
+          onSuccess={(role) => {
+            if (role === 'client') { router.replace('/'); return; }
+            login(role);
+          }}
+          onClose={() => router.push('/')}
+        />
+      </div>
+    );
+  }
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-radial flex items-center justify-center">
         <div className="spinner" />
