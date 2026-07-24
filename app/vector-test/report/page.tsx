@@ -1184,6 +1184,34 @@ function VectorTestReport() {
           </p>
         </div>
 
+        {/* Coach Daniyar CTA */}
+        {shareToken && (
+          <div className="mb-8 bg-white/2 border border-gold/20 rounded-2xl p-6 text-center">
+            <div className="text-[10px] tracking-widest text-gold/60 uppercase font-medium mb-2">
+              {locale === 'en' ? 'What\'s next' : locale === 'ky' ? 'Эмне кийин' : 'Что дальше'}
+            </div>
+            <p className="font-serif text-lg text-white mb-2">
+              {locale === 'en' ? 'Turn insights into habits — with coach Daniyar'
+                : locale === 'ky' ? 'Инсайттарды адатка айлант — коуч Данияр менен'
+                : 'Преврати инсайты в привычки — с коучем Данияром'}
+            </p>
+            <p className="text-slate-500 text-sm mb-5 max-w-md mx-auto">
+              {locale === 'en' ? '30 days of personal daily tasks in Telegram, built on your talent profile.'
+                : locale === 'ky' ? 'Telegram\'да талант профилиңе курулган 30 күндүк жеке тапшырмалар.'
+                : '30 дней персональных заданий в Telegram — на основе твоего профиля талантов.'}
+            </p>
+            <a
+              href={`https://t.me/innervector_1bot?start=${shareToken}`}
+              target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-xl text-xs font-semibold tracking-widest uppercase transition-all duration-200"
+              style={{ background: 'linear-gradient(135deg, #2AABEE 0%, #229ED9 100%)', color: '#fff' }}
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+              {locale === 'en' ? 'Start with Daniyar' : locale === 'ky' ? 'Данияр менен башта' : 'Начать с Данияром'}
+            </a>
+          </div>
+        )}
+
         {/* Share profile */}
         {profileUrl && (
           <div className="mb-8 bg-white/2 border border-gold/15 rounded-2xl p-5">
