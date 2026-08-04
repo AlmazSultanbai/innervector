@@ -3,11 +3,18 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { Manrope } from 'next/font/google'
 import { useVectorTestStore } from '@/store/vectorTestStore'
 import { useLocaleStore } from '@/store/localeStore'
 import { ui } from '@/locales/ui'
 import LangSwitcher from '@/components/LangSwitcher'
 import type { TestMode } from '@/store/vectorTestStore'
+
+// Light "new site style" — same palette as /landing-2. Visual only; all logic,
+// structure, copy, form fields, validation and routing are unchanged.
+const display = Manrope({ subsets: ['latin', 'cyrillic'], weight: ['600', '700', '800'], display: 'swap' })
+const NAVY = '#0F172A'
+const EMERALD = '#10b981'
 
 const FREE_TRIAL_END = new Date('2026-07-09T00:00:00')
 function getDaysLeft() {
@@ -50,69 +57,70 @@ export default function VectorTestIntro() {
     router.push('/vector-test/rules')
   }
 
+  const inputCls = "w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-emerald-400 transition-all font-medium"
+
   return (
-    <div className="min-h-screen bg-radial flex flex-col">
+    <div className={`min-h-screen bg-white text-slate-900 flex flex-col ${display.className}`}>
 
       {/* Free trial top bar */}
       {daysLeft !== null && daysLeft > 0 && (
-        <div className="w-full flex items-center justify-center gap-3 px-4 py-2.5 text-xs font-semibold tracking-wide"
-          style={{ background: 'linear-gradient(90deg, rgba(16,185,129,0.15) 0%, rgba(5,150,105,0.1) 50%, rgba(16,185,129,0.15) 100%)', borderBottom: '1px solid rgba(16,185,129,0.2)' }}>
-          <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#34d399" strokeWidth={2}>
+        <div className="w-full flex items-center justify-center gap-3 px-4 py-2.5 text-xs font-bold tracking-wide bg-emerald-50 border-b border-emerald-100">
+          <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#059669" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span style={{ color: '#34d399' }}>{t.freeBadge}</span>
-          <span className="w-px h-3 flex-shrink-0" style={{ background: 'rgba(52,211,153,0.3)' }} />
-          <span style={{ color: '#6ee7b7' }}>{t.freeDaysLeft(daysLeft)}</span>
+          <span style={{ color: '#047857' }}>{t.freeBadge}</span>
+          <span className="w-px h-3 flex-shrink-0 bg-emerald-200" />
+          <span style={{ color: '#059669' }}>{t.freeDaysLeft(daysLeft)}</span>
         </div>
       )}
 
       {/* Nav */}
       <div className="flex items-center justify-between px-4 sm:px-6 pt-5 pb-3">
-        <a href="/" className="flex items-center gap-2 text-slate-500 hover:text-gold text-xs font-medium tracking-wide transition-colors">
+        <a href="/" className="flex items-center gap-2 text-slate-500 hover:text-slate-900 text-xs font-semibold tracking-wide transition-colors">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
           {t.back}
         </a>
         <div className="flex items-center gap-2.5">
-          <Image src="/logo.png" alt="Inner Vector" width={32} height={32} className="opacity-90 flex-shrink-0" />
-          <span className="text-xs font-semibold tracking-widest uppercase">
-            <span className="text-white">Inner Vector</span>
+          <Image src="/logo.png" alt="Inner Vector" width={32} height={32} className="flex-shrink-0" />
+          <span className="text-xs font-extrabold tracking-widest uppercase" style={{ color: NAVY }}>
+            Inner Vector
           </span>
         </div>
         <LangSwitcher />
       </div>
 
-
       {/* Hero */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
+      <div className="relative flex-1 flex flex-col items-center justify-center px-6 py-12">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(900px 400px at 50% 0%, #ecfeff 0%, transparent 60%), radial-gradient(700px 400px at 80% 10%, #eff6ff 0%, transparent 55%)' }} />
 
+        <div className="relative w-full flex flex-col items-center">
         {/* Headline */}
-        <h1 className="font-serif text-5xl md:text-6xl font-bold text-white mb-4 leading-tight text-center">
+        <h1 className="text-4xl md:text-6xl font-extrabold mb-4 leading-[1.05] text-center tracking-tight" style={{ color: NAVY }}>
           {t.headline1}{' '}
-          <span className="text-gold-light italic">{t.headline2}</span>
+          <span className="italic" style={{ color: EMERALD }}>{t.headline2}</span>
         </h1>
 
         {/* Subtitle */}
-        <p className="text-slate-400 text-base mb-10 text-center">
+        <p className="text-slate-600 text-base mb-10 text-center font-medium">
           {testMode === 'express' ? t.subtitleExpress : t.subtitleFull}
         </p>
 
         {/* Mode tabs */}
-        <div className="flex w-full max-w-sm mb-4 rounded-xl overflow-hidden border border-white/10 animate-fade-in delay-350">
+        <div className="flex w-full max-w-sm mb-4 p-1 rounded-xl bg-slate-100 animate-fade-in delay-350">
           {(['express', 'full'] as TestMode[]).map((mode) => (
             <button
               key={mode}
               type="button"
               onClick={() => setTestMode(mode)}
-              className="flex-1 py-3 text-xs font-semibold tracking-widest uppercase transition-all duration-200"
+              className="flex-1 py-2.5 rounded-lg text-xs font-bold tracking-widest uppercase transition-all duration-200"
               style={testMode === mode ? {
-                background: 'rgba(212,168,67,0.15)',
-                color: '#d4a843',
-                borderBottom: '2px solid #d4a843',
+                background: '#fff',
+                color: NAVY,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
               } : {
-                color: 'rgba(148,163,184,0.5)',
-                borderBottom: '2px solid transparent',
+                color: '#94a3b8',
               }}
             >
               {mode === 'express' ? (
@@ -121,7 +129,7 @@ export default function VectorTestIntro() {
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-1.5">
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="#d4a843"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V18H9v2h6v-2h-2v-2.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill={testMode === 'full' ? EMERALD : '#94a3b8'}><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V18H9v2h6v-2h-2v-2.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
                   {t.modeFull}
                 </span>
               )}
@@ -132,9 +140,9 @@ export default function VectorTestIntro() {
         {/* Registration Form */}
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-sm bg-white/3 border border-white/8 backdrop-blur rounded-2xl p-6 space-y-4 animate-fade-in delay-400"
+          className="w-full max-w-sm bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm animate-fade-in delay-400"
         >
-          <p className="text-slate-400 text-sm text-center mb-2">
+          <p className="text-slate-500 text-sm text-center mb-2 font-medium">
             {t.formTitle}
           </p>
 
@@ -145,10 +153,10 @@ export default function VectorTestIntro() {
               value={fullName}
               onChange={e => { setFullName(e.target.value); setErrors(prev => ({ ...prev, fullName: '' })) }}
               placeholder={t.namePlaceholder}
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-gold/40 transition-all"
-              style={errors.fullName ? { borderColor: 'rgba(239,68,68,0.4)' } : {}}
+              className={inputCls}
+              style={errors.fullName ? { borderColor: 'rgba(239,68,68,0.5)' } : {}}
             />
-            {errors.fullName && <p className="text-red-400 text-xs mt-1 pl-1">{errors.fullName}</p>}
+            {errors.fullName && <p className="text-red-500 text-xs mt-1 pl-1">{errors.fullName}</p>}
           </div>
 
           {/* Phone */}
@@ -158,10 +166,10 @@ export default function VectorTestIntro() {
               value={phone}
               onChange={e => { setPhone(e.target.value); setErrors(prev => ({ ...prev, phone: '' })) }}
               placeholder={t.phonePlaceholder}
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-gold/40 transition-all"
-              style={errors.phone ? { borderColor: 'rgba(239,68,68,0.4)' } : {}}
+              className={inputCls}
+              style={errors.phone ? { borderColor: 'rgba(239,68,68,0.5)' } : {}}
             />
-            {errors.phone && <p className="text-red-400 text-xs mt-1 pl-1">{errors.phone}</p>}
+            {errors.phone && <p className="text-red-500 text-xs mt-1 pl-1">{errors.phone}</p>}
           </div>
 
           {/* Email */}
@@ -171,21 +179,17 @@ export default function VectorTestIntro() {
               value={email}
               onChange={e => { setEmail(e.target.value); setErrors(prev => ({ ...prev, email: '' })) }}
               placeholder={t.emailPlaceholder}
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-gold/40 transition-all"
-              style={errors.email ? { borderColor: 'rgba(239,68,68,0.4)' } : {}}
+              className={inputCls}
+              style={errors.email ? { borderColor: 'rgba(239,68,68,0.5)' } : {}}
             />
-            {errors.email && <p className="text-red-400 text-xs mt-1 pl-1">{errors.email}</p>}
+            {errors.email && <p className="text-red-500 text-xs mt-1 pl-1">{errors.email}</p>}
           </div>
 
           {/* Submit */}
           <button
             type="submit"
-            className="w-full inline-flex items-center justify-center gap-2 px-10 py-4 rounded-xl text-sm font-semibold tracking-widest uppercase transition-all duration-200 mt-2"
-            style={{
-              background: 'linear-gradient(135deg, #d4a843 0%, #b8922e 100%)',
-              color: '#0e1120',
-              boxShadow: '0 0 40px rgba(212,168,67,0.25), 0 0 80px rgba(212,168,67,0.1)',
-            }}
+            className="w-full inline-flex items-center justify-center gap-2 px-10 py-4 rounded-xl text-sm font-bold tracking-widest uppercase transition-all duration-200 mt-2 text-white shadow-md hover:shadow-lg"
+            style={{ background: `linear-gradient(135deg, ${EMERALD} 0%, #059669 100%)` }}
           >
             {t.startBtn}
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -195,9 +199,10 @@ export default function VectorTestIntro() {
         </form>
 
         {/* Note */}
-        <p className="text-slate-600 text-xs mt-6 italic border-l-2 border-gold/20 pl-3 max-w-xs text-left animate-fade-in delay-500">
+        <p className="text-slate-500 text-xs mt-6 italic border-l-2 border-emerald-200 pl-3 max-w-xs text-left animate-fade-in delay-500 font-medium">
           {t.noteText}
         </p>
+        </div>
       </div>
     </div>
   )
