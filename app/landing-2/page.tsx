@@ -108,12 +108,48 @@ const GOALS = [
   },
 ]
 
+// Domain meta for team-map balance
+const DOMAIN_META = [
+  { key: 'realizacia', label: 'Реализация', color: '#e0a040' },
+  { key: 'vliyanie', label: 'Влияние', color: '#f0a500' },
+  { key: 'otnosenia', label: 'Отношения', color: '#5bc8af' },
+  { key: 'myshlenie', label: 'Мышление', color: '#7b9fff' },
+]
+
+// Whole-team assessment prototype — who's on what place, how they realize, team gap
+const TEAMS = [
+  {
+    label: 'Команда продукта',
+    members: [
+      { n: 'Айгерим', role: 'Стратег', d: 'myshlenie', talents: ['Стратег', 'Генератор'], realize: 'когда есть простор придумать направление, а не чинить чужое' },
+      { n: 'Нурлан', role: 'Двигатель', d: 'realizacia', talents: ['Достиженец', 'Фокус'], realize: 'когда есть ясная цель и дедлайн — доводит до конца' },
+      { n: 'Асель', role: 'Хранитель качества', d: 'myshlenie', talents: ['Аналитик', 'Осторожность'], realize: 'когда может всё проверить и предвидеть риски до запуска' },
+      { n: 'Тимур', role: 'Координатор', d: 'realizacia', talents: ['Организатор', 'Дисциплина'], realize: 'когда управляет процессом и держит ритм команды' },
+    ],
+    gap: 'Перекос в Мышление и Реализацию. Некому продавать продукт наружу (Влияние) и удерживать команду вместе (Отношения).',
+    add: ['Коммуникация', 'Обаяние', 'Эмпатия'],
+  },
+  {
+    label: 'Отдел продаж',
+    members: [
+      { n: 'Данияр', role: 'Лицо команды', d: 'vliyanie', talents: ['Обаяние', 'Коммуникация'], realize: 'когда открывает двери и ведёт первые переговоры' },
+      { n: 'Айсулуу', role: 'Чемпион', d: 'vliyanie', talents: ['Соперничество', 'Достиженец'], realize: 'когда есть план и с кем соревноваться' },
+      { n: 'Марат', role: 'Капитан', d: 'vliyanie', talents: ['Командность', 'Уверенность'], realize: 'когда берёт ответственность в неопределённости' },
+    ],
+    gap: 'Сильный перекос во Влияние — много энергии, но некому считать воронку и видеть стратегию.',
+    add: ['Аналитик', 'Стратег', 'Дисциплина'],
+  },
+]
+
 export default function LandingTrial() {
   const [tab, setTab] = useState(0)
   const [count, setCount] = useState<number | null>(null)
   const [goalIdx, setGoalIdx] = useState(0)
+  const [teamIdx, setTeamIdx] = useState(0)
   const active = TABS[tab]
   const goal = GOALS[goalIdx]
+  const team = TEAMS[teamIdx]
+  const balance = DOMAIN_META.map(dm => ({ ...dm, n: team.members.filter(m => m.d === dm.key).length }))
 
   useEffect(() => {
     fetch('/api/profile-count').then(r => r.json()).then(d => setCount(d.count ?? null)).catch(() => {})
@@ -153,7 +189,7 @@ export default function LandingTrial() {
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
             <a href="#product" className="hover:text-slate-900 transition-colors">Продукт</a>
             <a href="#teams" className="hover:text-slate-900 transition-colors">Команда под цель</a>
-            <a href="#how" className="hover:text-slate-900 transition-colors">Как это работает</a>
+            <a href="#team-map" className="hover:text-slate-900 transition-colors">Карта команды</a>
             <a href="#coach" className="hover:text-slate-900 transition-colors">Коуч</a>
           </nav>
           <div className="flex items-center gap-3">
@@ -367,8 +403,85 @@ export default function LandingTrial() {
         </div>
       </section>
 
+      {/* Whole-team assessment — Phase 2 prototype (buttons, curated data) */}
+      <section id="team-map" className="max-w-5xl mx-auto px-5 py-16">
+        <div className="text-center mb-4">
+          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full text-xs font-bold" style={{ background: '#eff6ff', color: BLUE }}>Скоро · прототип</div>
+          <h2 className="text-3xl md:text-[2.6rem] font-extrabold tracking-tight" style={{ color: NAVY }}>Протестируй всю команду</h2>
+          <p className="text-slate-600 max-w-xl mx-auto mt-3 font-medium">Каждый проходит тест — ты получаешь карту: кто на своём месте, как раскрывается и чего команде не хватает.</p>
+        </div>
+
+        {/* Team toggle */}
+        <div className="flex flex-wrap items-center justify-center gap-2 my-8">
+          {TEAMS.map((tm, i) => (
+            <button key={tm.label} onClick={() => setTeamIdx(i)} className="btn px-4 py-2.5 rounded-xl text-sm font-bold border"
+              style={teamIdx === i ? { background: NAVY, color: '#fff', borderColor: NAVY } : { background: '#fff', color: '#334155', borderColor: '#e2e8f0' }}>
+              {tm.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Member cards — who's on what place + how they realize */}
+        <div className="grid sm:grid-cols-2 gap-4 mb-6">
+          {team.members.map(m => {
+            const c = DOMAIN_META.find(d => d.key === m.d)?.color || '#94a3b8'
+            return (
+              <div key={m.n} className="rounded-2xl border border-slate-200 bg-white p-5 lift">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0" style={{ background: c }}>{m.n[0]}</span>
+                  <div>
+                    <div className="font-bold text-slate-900 leading-tight">{m.n}</div>
+                    <div className="text-xs font-bold" style={{ color: c }}>{m.role}</div>
+                  </div>
+                  <div className="ml-auto flex flex-wrap gap-1 justify-end max-w-[45%]">
+                    {m.talents.map(t => (
+                      <span key={t} className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: (TALENT_COLOR[t] || '#94a3b8') + '1a', color: TALENT_COLOR[t] || '#475569' }}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+                <p className="text-sm text-slate-600 leading-relaxed font-medium"><span className="text-slate-400">Раскрывается</span> {m.realize}.</p>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Domain balance + gap */}
+        <div className="grid md:grid-cols-2 gap-5">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6">
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-4">Баланс команды по доменам</div>
+            <div className="space-y-3">
+              {balance.map(b => (
+                <div key={b.key}>
+                  <div className="flex justify-between text-xs mb-1.5">
+                    <span className="font-semibold text-slate-700">{b.label}</span>
+                    <span className="tabular-nums font-medium" style={{ color: b.n ? b.color : '#cbd5e1' }}>{b.n}</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-slate-100 overflow-hidden flex gap-0.5">
+                    {Array.from({ length: Math.max(1, team.members.length) }).map((_, i) => (
+                      <div key={i} className="h-full flex-1 rounded-full" style={{ background: i < b.n ? b.color : '#eef2f6' }} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-2xl border p-6" style={{ borderColor: '#fde68a', background: '#fffbeb' }}>
+            <div className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: '#b45309' }}>Чего не хватает команде</div>
+            <p className="text-sm text-slate-700 leading-relaxed font-medium mb-4">{team.gap}</p>
+            <div className="text-xs font-bold text-slate-500 mb-2">Добавить человека с талантами:</div>
+            <div className="flex flex-wrap gap-2 mb-5">
+              {team.add.map(t => (
+                <span key={t} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: (TALENT_COLOR[t] || '#94a3b8') + '1a', color: TALENT_COLOR[t] || '#475569' }}>{t}</span>
+              ))}
+            </div>
+            <button className="btn w-full px-6 py-3 rounded-xl text-sm font-bold text-white" style={{ background: EMERALD }}>Найти, кого не хватает →</button>
+            <p className="text-[11px] text-slate-400 text-center mt-2">Прототип. Реальный расчёт по профилям подключим позже.</p>
+          </div>
+        </div>
+      </section>
+
       {/* How it works */}
-      <section id="how" className="bg-white border-y border-slate-100">
+      <section id="how" className="bg-slate-50 border-y border-slate-100">
         <div className="max-w-5xl mx-auto px-5 py-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-[2.6rem] font-extrabold tracking-tight" style={{ color: NAVY }}>Три шага до карты команды</h2>
