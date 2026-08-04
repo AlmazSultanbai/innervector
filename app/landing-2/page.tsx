@@ -60,10 +60,60 @@ const FEATURES = [
   { icon: 'M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z', t: 'AI-коуч Данияр', d: '30 дней персональных заданий в Telegram' },
 ]
 
+// Talent → domain color for chips
+const TALENT_COLOR: Record<string, string> = {
+  'Достиженец': '#e0a040', 'Организатор': '#e0a040', 'Убеждения': '#e0a040', 'Дисциплина': '#e0a040', 'Фокус': '#e0a040', 'Осторожность': '#e0a040', 'Ответственность': '#e0a040',
+  'Катализатор': '#f0a500', 'Командность': '#f0a500', 'Коммуникация': '#f0a500', 'Соперничество': '#f0a500', 'Максимизатор': '#f0a500', 'Уверенность': '#f0a500', 'Обаяние': '#f0a500', 'Значимость': '#f0a500',
+  'Развитие': '#5bc8af', 'Взаимосвязь': '#5bc8af', 'Эмпатия': '#5bc8af', 'Позитивность': '#5bc8af', 'Близость': '#5bc8af',
+  'Стратег': '#7b9fff', 'Аналитик': '#7b9fff', 'Генератор': '#7b9fff', 'Будущее': '#7b9fff', 'Ученик': '#7b9fff', 'Размышление': '#7b9fff',
+}
+
+// Prototype data — goal → needed talents, your gaps, matched teammates (curated, no backend yet)
+const GOALS = [
+  {
+    label: 'Запустить стартап',
+    needs: ['Катализатор', 'Стратег', 'Уверенность', 'Достиженец'],
+    gaps: ['Аналитик', 'Осторожность', 'Коммуникация'],
+    matches: [
+      { name: 'Аналитик-финансист', talents: ['Аналитик', 'Осторожность'], fills: 'Закрывает риски и цифры, которые основатель часто пропускает', pct: 94 },
+      { name: 'Продажи и рост', talents: ['Обаяние', 'Коммуникация'], fills: 'Приводит первых клиентов и переговоры', pct: 88 },
+    ],
+  },
+  {
+    label: 'Вырасти в лидера',
+    needs: ['Командность', 'Развитие', 'Коммуникация', 'Взаимосвязь'],
+    gaps: ['Стратег', 'Аналитик'],
+    matches: [
+      { name: 'Стратег-советник', talents: ['Стратег', 'Будущее'], fills: 'Помогает видеть на несколько ходов вперёд', pct: 91 },
+      { name: 'Аналитик решений', talents: ['Аналитик', 'Осторожность'], fills: 'Проверяет решения на данных, а не на чувствах', pct: 85 },
+    ],
+  },
+  {
+    label: 'Сделать продукт',
+    needs: ['Генератор', 'Стратег', 'Максимизатор', 'Фокус'],
+    gaps: ['Коммуникация', 'Обаяние', 'Достиженец'],
+    matches: [
+      { name: 'Маркетолог-рассказчик', talents: ['Коммуникация', 'Обаяние'], fills: 'Доносит ценность продукта до рынка', pct: 90 },
+      { name: 'Исполнитель-двигатель', talents: ['Достиженец', 'Дисциплина'], fills: 'Доводит релизы до конца в срок', pct: 87 },
+    ],
+  },
+  {
+    label: 'Отдел продаж',
+    needs: ['Соперничество', 'Обаяние', 'Командность', 'Достиженец'],
+    gaps: ['Аналитик', 'Дисциплина', 'Осторожность'],
+    matches: [
+      { name: 'Аналитик продаж', talents: ['Аналитик', 'Стратег'], fills: 'Строит воронку и считает конверсию', pct: 92 },
+      { name: 'Операционист', talents: ['Дисциплина', 'Осторожность'], fills: 'Держит процессы и не даёт хаосу расти', pct: 84 },
+    ],
+  },
+]
+
 export default function LandingTrial() {
   const [tab, setTab] = useState(0)
   const [count, setCount] = useState<number | null>(null)
+  const [goalIdx, setGoalIdx] = useState(0)
   const active = TABS[tab]
+  const goal = GOALS[goalIdx]
 
   useEffect(() => {
     fetch('/api/profile-count').then(r => r.json()).then(d => setCount(d.count ?? null)).catch(() => {})
@@ -102,8 +152,8 @@ export default function LandingTrial() {
           </div>
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
             <a href="#product" className="hover:text-slate-900 transition-colors">Продукт</a>
+            <a href="#teams" className="hover:text-slate-900 transition-colors">Команда под цель</a>
             <a href="#how" className="hover:text-slate-900 transition-colors">Как это работает</a>
-            <a href="#features" className="hover:text-slate-900 transition-colors">Что внутри</a>
             <a href="#coach" className="hover:text-slate-900 transition-colors">Коуч</a>
           </nav>
           <div className="flex items-center gap-3">
@@ -251,8 +301,74 @@ export default function LandingTrial() {
         </div>
       </section>
 
+      {/* Teams by talents — Phase 2 prototype (buttons, curated data, no backend yet) */}
+      <section id="teams" className="bg-slate-50 border-y border-slate-100">
+        <div className="max-w-5xl mx-auto px-5 py-16">
+          <div className="text-center mb-4">
+            <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full text-xs font-bold" style={{ background: '#eff6ff', color: BLUE }}>Скоро · прототип</div>
+            <h2 className="text-3xl md:text-[2.6rem] font-extrabold tracking-tight" style={{ color: NAVY }}>Собери команду под свою цель</h2>
+            <p className="text-slate-600 max-w-xl mx-auto mt-3 font-medium">Выбери цель — система подберёт людей, чьи таланты закрывают твои слепые зоны именно под неё.</p>
+          </div>
+
+          {/* Goal buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-2 my-8">
+            {GOALS.map((g, i) => (
+              <button key={g.label} onClick={() => setGoalIdx(i)} className="btn px-4 py-2.5 rounded-xl text-sm font-bold border"
+                style={goalIdx === i
+                  ? { background: NAVY, color: '#fff', borderColor: NAVY }
+                  : { background: '#fff', color: '#334155', borderColor: '#e2e8f0' }}>
+                {g.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Result */}
+          <div className="grid md:grid-cols-2 gap-5">
+            {/* Left — needed talents + gaps */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6">
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Эта цель требует таланты</div>
+              <div className="flex flex-wrap gap-2 mb-6">
+                {goal.needs.map(t => (
+                  <span key={t} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: (TALENT_COLOR[t] || '#94a3b8') + '1a', color: TALENT_COLOR[t] || '#475569' }}>{t}</span>
+                ))}
+              </div>
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Команде не хватает — твои слепые зоны</div>
+              <div className="flex flex-wrap gap-2">
+                {goal.gaps.map(t => (
+                  <span key={t} className="text-xs font-bold px-3 py-1.5 rounded-full border border-dashed" style={{ borderColor: (TALENT_COLOR[t] || '#94a3b8'), color: TALENT_COLOR[t] || '#475569' }}>{t}</span>
+                ))}
+              </div>
+              <p className="text-xs text-slate-500 mt-6 leading-relaxed">Пунктиром — таланты, которых обычно не хватает под эту цель. Их закрывают партнёры справа.</p>
+            </div>
+
+            {/* Right — matched teammates */}
+            <div className="space-y-3">
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Рекомендуем в команду</div>
+              {goal.matches.map(m => (
+                <div key={m.name} className="rounded-2xl border border-slate-200 bg-white p-5 lift">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="font-bold text-slate-900">{m.name}</div>
+                    <span className="text-xs font-bold px-2 py-1 rounded-md" style={{ background: '#ecfdf5', color: '#047857' }}>{m.pct}% матч</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {m.talents.map(t => (
+                      <span key={t} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: (TALENT_COLOR[t] || '#94a3b8') + '1a', color: TALENT_COLOR[t] || '#475569' }}>{t}</span>
+                    ))}
+                  </div>
+                  <p className="text-sm text-slate-600 leading-relaxed font-medium">{m.fills}</p>
+                </div>
+              ))}
+              <button className="btn w-full mt-1 px-6 py-3 rounded-xl text-sm font-bold text-white" style={{ background: EMERALD }}>
+                Найти таких людей →
+              </button>
+              <p className="text-[11px] text-slate-400 text-center">Прототип интерфейса. Реальный подбор подключим на следующем этапе.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* How it works */}
-      <section id="how" className="bg-slate-50 border-y border-slate-100">
+      <section id="how" className="bg-white border-y border-slate-100">
         <div className="max-w-5xl mx-auto px-5 py-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-[2.6rem] font-extrabold tracking-tight" style={{ color: NAVY }}>Три шага до карты команды</h2>
